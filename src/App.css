@@ -1,0 +1,268 @@
+/* Modern design for TensorFlow.js Sign Language Recognition */
+:root {
+  --primary-color: #3f51b5;
+  --primary-light: #e8eaf6;
+  --primary-dark: #303f9f;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --warning-color: #ff9800;
+  --neutral-color: #757575;
+  --light-gray: #f5f7fa;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --transition-speed: 0.3s;
+}
+
+body {
+  background-color: var(--light-gray);
+  color: #333;
+}
+
+.App {
+  text-align: center;
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin-top: 0;
+  color: #333;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-dark);
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Card Components */
+.app-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Status Display */
+.status-display {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--card-shadow);
+}
+
+.status-icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+.status-text {
+  flex: 1;
+}
+
+.status-success {
+  color: var(--success-color);
+}
+
+.status-error {
+  color: var(--error-color);
+}
+
+.status-loading {
+  color: var(--primary-color);
+}
+
+.status-warning {
+  color: var(--warning-color);
+}
+
+/* Buttons */
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  margin: 0 8px;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.4);
+}
+
+button:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+button.secondary {
+  background-color: white;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+button.secondary:hover {
+  background-color: var(--primary-light);
+}
+
+button.danger {
+  background-color: var(--error-color);
+}
+
+button.danger:hover {
+  background-color: #d32f2f;
+}
+
+/* Mode Toggle */
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mode-toggle button {
+  min-width: 160px;
+}
+
+.mode-toggle button.active {
+  background-color: var(--primary-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Prediction Results */
+.prediction-result {
+  background: linear-gradient(to bottom right, white, var(--primary-light));
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+}
+
+.prediction-word {
+  font-size: 42px;
+  font-weight: bold;
+  color: var(--primary-dark);
+  margin: 16px 0;
+  letter-spacing: 0.5px;
+}
+
+.prediction-confidence {
+  font-size: 18px;
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.prediction-details {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--neutral-color);
+}
+
+/* Video Container */
+.video-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+
+.video-canvas {
+  border: none;
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: var(--card-shadow);
+}
+
+/* Status Info */
+.status-info {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  text-align: left;
+}
+
+.sentence-display {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--primary-color);
+  min-height: 50px;
+  margin-top: 8px;
+}
+
+.system-status {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--neutral-color);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 16px;
+  margin-bottom: 8px;
+}
+
+.status-badge .icon {
+  margin-right: 6px;
+}

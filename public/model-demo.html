@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Gesture Recognition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #D32F2F;
+            background-color: #FFEBEE;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .status {
+            font-style: italic;
+            color: #555;
+        }
+        .prediction {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+            margin: 10px 0;
+        }
+        .confidence {
+            font-size: 18px;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sign Language Gesture Recognition</h1>
+    
+    <div class="container">
+        <p class="status" id="status-message">Loading model and data...</p>
+        <div class="error hidden" id="error-container"></div>
+        <button id="predict-btn" disabled>Predict</button>
+    </div>
+    
+    <div class="result-container hidden" id="result-container">
+        <h2>Prediction Result</h2>
+        <div class="prediction" id="predicted-word">-</div>
+        <div class="confidence" id="confidence">Confidence: -</div>
+    </div>
+    
+    <script>
+        // Class labels for the model output
+        const CLASS_LABELS = [
+            'Bye', 'beautiful', 'bird', 'book', 'but', 'dad', 'dance', 'day', 'deaf', 'eat',
+            'love', 'mom', 'red', 'sick', 'study', 'thank you', 'tired', 'write', 'yes', 'you'
+        ];
+        
+        // Global variables
+        let model = null;
+        let inputData = null;
+        
+        // DOM Elements
+        const statusMessageEl = document.getElementById('status-message');
+        const predictBtn = document.getElementById('predict-btn');
+        const resultContainerEl = document.getElementById('result-container');
+        const predictedWordEl = document.getElementById('predicted-word');
+        const confidenceEl = document.getElementById('confidence');
+        const errorContainerEl = document.getElementById('error-container');
+        
+        // Show error message
+        function showError(message) {
+            errorContainerEl.textContent = message;
+            errorContainerEl.classList.remove('hidden');
+        }
+        
+        // Initialize the app by loading the model and test data
+        async function initialize() {
+            try {
+                // Load the model
+                statusMessageEl.textContent = 'Loading model...';
+                model = await tf.loadLayersModel('./tfjs_model/model.json');
+                
+                // Load the test data
+                statusMessageEl.textContent = 'Loading input data...';
+                const response = await fetch('./hand_landmarks.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Parse the JSON data
+                const data = await response.json();
+                
+                // Verify data shape
+                if (!Array.isArray(data) || data.length !== 30 || !Array.isArray(data[0]) || data[0].length !== 192) {
+                    throw new Error(`Invalid data shape. Expected [30, 192], got [${data.length}, ${data[0]?.length || 'undefined'}]`);
+                }
+                
+                // Convert to tensor and add batch dimension [1, 30, 192]
+                inputData = tf.tensor(data).expandDims(0);
+                
+                // Enable the predict button
+                statusMessageEl.textContent = 'Ready to predict! Click the button below.';
+                predictBtn.disabled = false;
+                
+                console.log('Model and data loaded successfully');
+                console.log('Model input shape:', model.inputs[0].shape);
+                console.log('Model output shape:', model.outputs[0].shape);
+                console.log('Input data shape:', inputData.shape);
+                
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                statusMessageEl.textContent = 'Error loading model or data';
+                showError(`Error: ${error.message}`);
+            }
+        }
+        
+        // Run prediction on the input data
+        async function runPrediction() {
+            if (!model || !inputData) {
+                showError('Model or input data not loaded yet');
+                return;
+            }
+            
+            try {
+                // Run the prediction
+                statusMessageEl.textContent = 'Running prediction...';
+                const result = model.predict(inputData);
+                
+                // Get the probabilities as an array
+                const probabilities = await result.data();
+                
+                // Get the predicted class (index of max value)
+                const predictedClassIdx = tf.argMax(result, 1).dataSync()[0];
+                const confidence = probabilities[predictedClassIdx].toFixed(4);
+                
+                // Map to label (handling the case if the index is out of bounds)
+                const predictedWord = predictedClassIdx < CLASS_LABELS.length 
+                    ? CLASS_LABELS[predictedClassIdx] 
+                    : `Unknown (Class ${predictedClassIdx})`;
+                
+                // Display the result
+                predictedWordEl.textContent = predictedWord;
+                confidenceEl.textContent = `Confidence: ${(confidence * 100).toFixed(2)}%`;
+                resultContainerEl.classList.remove('hidden');
+                statusMessageEl.textContent = 'Prediction complete!';
+                
+                // Clean up tensors
+                result.dispose();
+                
+            } catch (error) {
+                console.error('Error running prediction:', error);
+                statusMessageEl.textContent = 'Error running prediction';
+                showError(`Error: ${error.message}`);
+            }
+        }
+        
+        // Event listener for the predict button
+        predictBtn.addEventListener('click', runPrediction);
+        
+        // Initialize the app on page load
+        initialize();
+    </script>
+</body>
+</html>

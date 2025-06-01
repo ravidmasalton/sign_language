@@ -1,0 +1,159 @@
+/* HandSignPredictor.css - Modern UI for Hand Sign Predictor component */
+
+.predictor-container {
+  position: relative;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 700px;
+  transition: all 0.3s ease;
+}
+
+.predictor-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px 0;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.status-panel {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.status-panel.loading {
+  background-color: #e8f4fd;
+}
+
+.status-panel.success {
+  background-color: #e6f7ef;
+}
+
+.status-panel.error {
+  background-color: #fdecea;
+}
+
+.status-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.button {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 14px;
+  outline: none;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button.primary {
+  background-color: #1976d2;
+  color: white;
+}
+
+.button.primary:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.button.success {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.button.success:hover:not(:disabled) {
+  background-color: #276749;
+}
+
+.result-panel {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.result-word {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1976d2;
+  margin: 15px 0;
+}
+
+.confidence-bar {
+  position: relative;
+  height: 8px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #1976d2;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.confidence-text {
+  font-size: 16px;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+.metadata {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #757575;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .control-buttons {
+    flex-direction: column;
+  }
+  
+  .result-word {
+    font-size: 28px;
+  }
+}
