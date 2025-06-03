@@ -9,9 +9,9 @@ import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import CameraScreen from './screens/CameraScreen';
 import ResultsScreen from './screens/ResultsScreen';
-import HistoryScreen from './screens/HistoryScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MobileConnectionScreen from './screens/MobileConnectionScreen';
+import SignToAnimationScreen from './screens/SignToAnimationScreen';
 import './App.css';
 
 function App() {
@@ -122,17 +122,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
-          <Route
-            path="/history"
+            <Route
+            path="/word-to-animation"
             element={
               <ProtectedRoute>
-                <HistoryScreen />
+                <SignToAnimationScreen />
               </ProtectedRoute>
             }
           />
-          
-          <Route
+            <Route
             path="/settings"
             element={
               <ProtectedRoute>

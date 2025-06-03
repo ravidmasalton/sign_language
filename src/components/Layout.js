@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaHome, FaHistory, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft } from 'react-icons/fa';
+import { FaHome, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft, FaClosedCaptioning } from 'react-icons/fa';
 import { auth } from '../firebaseConfig';
 
 const Layout = ({ children }) => {
@@ -98,18 +98,16 @@ const Layout = ({ children }) => {
               <NavText>Home</NavText>
             </NavLink>
           </NavItem>
-          
-          <NavItem isActive={isActive('/camera')} backgroundColor={COLORS.primaryLight}>
+            <NavItem isActive={isActive('/camera')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/camera" color={COLORS.text} activeColor={COLORS.primary}>
               <FaCamera size={20} />
-              <NavText>Camera</NavText>
+              <NavText>Video to Word</NavText>
             </NavLink>
           </NavItem>
-          
-          <NavItem isActive={isActive('/history')} backgroundColor={COLORS.primaryLight}>
-            <NavLink to="/history" color={COLORS.text} activeColor={COLORS.primary}>
-              <FaHistory size={20} />
-              <NavText>History</NavText>
+            <NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
+            <NavLink to="/word-to-animation" color={COLORS.text} activeColor={COLORS.primary}>
+              <FaClosedCaptioning size={20} />
+              <NavText>Word to Animation</NavText>
             </NavLink>
           </NavItem>
           
@@ -172,18 +170,16 @@ const Layout = ({ children }) => {
               <MobileNavText>Home</MobileNavText>
             </MobileNavLink>
           </MobileNavItem>
-          
-          <MobileNavItem isActive={isActive('/camera')}>
+            <MobileNavItem isActive={isActive('/camera')}>
             <MobileNavLink to="/camera" activeColor={COLORS.primary} color={COLORS.textSecondary}>
               <FaCamera size={24} />
-              <MobileNavText>Camera</MobileNavText>
+              <MobileNavText>Video to Word</MobileNavText>
             </MobileNavLink>
           </MobileNavItem>
-          
-          <MobileNavItem isActive={isActive('/history')}>
-            <MobileNavLink to="/history" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaHistory size={24} />
-              <MobileNavText>History</MobileNavText>
+            <MobileNavItem isActive={isActive('/word-to-animation')}>
+            <MobileNavLink to="/word-to-animation" activeColor={COLORS.primary} color={COLORS.textSecondary}>
+              <FaClosedCaptioning size={24} />
+              <MobileNavText>Word to Animation</MobileNavText>
             </MobileNavLink>
           </MobileNavItem>
           

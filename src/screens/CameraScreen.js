@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
  
 // MediaPipe Holistic Component with Real MediaPipe Integration
-const HolisticDemo = () => {
+const Sign_language_recognition = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const holisticRef = useRef(null);
@@ -285,7 +285,7 @@ const HolisticDemo = () => {
         });
       }
  
-      // 4) ציור overlay
+      // 4) ציור overlay ללא הרקע השחור למעלה
       drawOverlay(ctx);
     }
   };
@@ -333,36 +333,7 @@ const HolisticDemo = () => {
   };
  
   const drawOverlay = (ctx) => {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    ctx.fillRect(0, 0, ctx.canvas.width, 120);
- 
-    // מציג רק את המילים בלי המילה "Sentence:"
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 28px Arial';
-    ctx.fillText(`${sentence.join(' ')}`, 10, 35);
- 
-    if (currentPrediction.word && currentPrediction.confidence > 0) {
-      const color = currentPrediction.confidence > THRESHOLD ? '#00FF00' : '#FFAA00';
-      ctx.fillStyle = color;
-      ctx.font = 'bold 22px Arial';
-      ctx.fillText(
-        `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(0)}%)`,
-        10, 70
-      );
-    }
- 
-    // הצגה של פס ההתקדמות רק בשלב איסוף פריימים
-    if (isCollecting) {
-      ctx.fillStyle = '#FFF200';
-      ctx.font = '18px Arial';
-      ctx.fillText(`Collecting frames: ${frameCount}/${SEQ_LEN}`, 10, 100);
- 
-      const progressWidth = (frameCount / SEQ_LEN) * 200;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.fillRect(10, 105, 200, 10);
-      ctx.fillStyle = '#FFF200';
-      ctx.fillRect(10, 105, progressWidth, 10);
-    }
+    // הוסר כל המידע מהמצלמה - רק מצלמה נקייה
   };
  
   // התחלת המצלמה והעיבוד
@@ -450,9 +421,20 @@ const HolisticDemo = () => {
       </div>
     );
   }
- 
- return (
-  <div className="holistic-demo" style={{ textAlign: 'center' }}>
+  return (
+  <div className="holistic-demo" style={{ 
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '20px'
+  }}>
+    <h2 style={{
+      marginBottom: '20px',
+      color: '#333',
+      fontSize: '24px',
+      fontWeight: '500'
+    }}>Video to Word Translation</h2>
     {/* חלון הטקסט העליון */}
     <div
       className="translation-text"
@@ -469,10 +451,9 @@ const HolisticDemo = () => {
         textAlign: 'center',
         boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
       }}
-    >
-      {sentence.length > 0
+    >      {sentence.length > 0
         ? sentence.join(' ')
-        : 'Waiting for translation...'}
+        : 'Perform signs to see video-to-word translation...'}
     </div>
  
     {/* כפתור ניקוי */}
@@ -495,9 +476,14 @@ const HolisticDemo = () => {
       </button>
     </div>
  
-    {/* חלון המצלמה (Canvas) */}
-    <div
-    >
+    {/* חלון המצלמה (Canvas) - כעת ממורכז */}
+    <div style={{
+      position: 'relative',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 20
+    }}>
       <video
         ref={videoRef}
         style={{
@@ -518,7 +504,9 @@ const HolisticDemo = () => {
         style={{
           display: 'block',
           width: 800,
-          height: 600
+          height: 600,
+          border: '2px solid #ddd',
+          borderRadius: 8
         }}
       />
     </div>
@@ -527,13 +515,11 @@ const HolisticDemo = () => {
     <div
       className="status-info"
       style={{
-        marginTop: 20,
         padding: 20,
         backgroundColor: '#f5f5f5',
         borderRadius: 8,
         maxWidth: 800,
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        width: '100%',
         textAlign: 'left'
       }}
     >
@@ -590,6 +576,4 @@ const HolisticDemo = () => {
   </div>
 );
 };
-export default HolisticDemo;
- 
- 
+export default Sign_language_recognition;

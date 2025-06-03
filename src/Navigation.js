@@ -14,7 +14,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ResultsScreen from '../screens/ResultsScreen';
 import CameraScreen from '../screens/CameraScreen';
 import LoginScreen from '../screens/LoginScreen';
-import HistoryScreen from '../screens/HistoryScreen';
+import SignToAnimationScreen from '../screens/SignToAnimationScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -186,16 +186,15 @@ export default function Navigation() {
                 />
               )
             }}
-          />
-          <Tab.Screen 
-            name="History" 
-            component={HistoryScreen} 
+          />          <Tab.Screen 
+            name="WordToAnimation" 
+            component={SignToAnimationScreen} 
             options={{ 
               tabBarIcon: ({ focused, color }) => (
                 <TabIcon 
                   focused={focused} 
-                  icon="📚" 
-                  label="History"
+                  icon="🎬" 
+                  label="Word to Animation"
                   color={color}
                 />
               )

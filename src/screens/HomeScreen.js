@@ -1,45 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaHistory, FaCog, FaInfoCircle, FaCheck } from 'react-icons/fa';
+import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck } from 'react-icons/fa';
 
 const HomeScreen = () => {
   const { theme: COLORS } = useTheme();
   const navigate = useNavigate();
-  const [redirectTimeLeft, setRedirectTimeLeft] = useState(3);
-  const [cancelledRedirect, setCancelledRedirect] = useState(false);
-
-  // Handle automatic redirect with countdown
-  useEffect(() => {
-    if (cancelledRedirect) return;
-    
-    if (redirectTimeLeft > 0) {
-      const timer = setTimeout(() => {
-        setRedirectTimeLeft(prev => prev - 1);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    } else {
-      // Redirect when countdown reaches 0
-      const redirectTimer = setTimeout(() => {
-        navigate('/camera');
-      }, 200);
-      
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [redirectTimeLeft, navigate, cancelledRedirect]);
-
-  const handleCancelRedirect = () => {
-    setCancelledRedirect(true);
-  };
 
   const handleGoToCamera = () => {
     navigate('/camera');
   };
   
-  const handleGoToHistory = () => {
-    navigate('/history');
+  const handleGoToWordToAnimation = () => {
+    navigate('/word-to-animation');
   };
   
   const handleGoToSettings = () => {
@@ -56,20 +30,6 @@ const HomeScreen = () => {
       <Subtitle color={COLORS.textSecondary}>
         Translate sign language gestures in real-time
       </Subtitle>
-
-      {!cancelledRedirect && (
-        <RedirectInfo backgroundColor={COLORS.card} borderColor={COLORS.border}>
-          <RedirectText color={COLORS.text}>
-            Going to camera in <RedirectTimer>{redirectTimeLeft}</RedirectTimer> seconds...
-          </RedirectText>
-          <CancelButton 
-            onClick={handleCancelRedirect}
-            color={COLORS.primary}
-          >
-            Cancel
-          </CancelButton>
-        </RedirectInfo>
-      )}
 
       <ActionsContainer>
         <ActionCard 
@@ -92,15 +52,15 @@ const HomeScreen = () => {
         <ActionCard 
           backgroundColor={COLORS.card} 
           borderColor={COLORS.border}
-          onClick={handleGoToHistory}
+          onClick={handleGoToWordToAnimation}
         >
           <ActionIconContainer backgroundColor={COLORS.secondary}>
-            <FaHistory size={24} color="white" />
+            <FaClosedCaptioning size={24} color="white" />
           </ActionIconContainer>
           <ActionContent>
-            <ActionTitle color={COLORS.text}>History</ActionTitle>
+            <ActionTitle color={COLORS.text}>Word to Animation</ActionTitle>
             <ActionDescription color={COLORS.textSecondary}>
-              View your previous translations
+              View sign language animations for words and sentences
             </ActionDescription>
           </ActionContent>
         </ActionCard>
@@ -139,6 +99,10 @@ const HomeScreen = () => {
           <InfoItem color={COLORS.textSecondary}>
             <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
             Ensure good lighting for better recognition
+          </InfoItem>
+          <InfoItem color={COLORS.textSecondary}>
+            <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
+            Type words or sentences to see sign language animations
           </InfoItem>
         </InfoList>
       </InfoContainer>
@@ -200,56 +164,6 @@ const Subtitle = styled.p`
   @media (max-width: 768px) {
     font-size: 1rem;
     margin-bottom: 24px;
-  }
-`;
-
-const RedirectInfo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 500px;
-  padding: 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 12px;
-  margin-bottom: 32px;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 24px;
-    padding: 12px 16px;
-  }
-`;
-
-const RedirectText = styled.p`
-  color: ${props => props.color};
-  font-size: 1rem;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const RedirectTimer = styled.span`
-  font-weight: bold;
-  color: inherit;
-`;
-
-const CancelButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.color};
-  font-weight: 500;
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 4px;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  
-  @media (max-width: 768px) {
-    padding: 6px 10px;
   }
 `;
 

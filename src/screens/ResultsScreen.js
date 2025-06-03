@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaHistory, FaSave, FaShareAlt, FaCopy, FaCheck } from 'react-icons/fa';
+import { FaCamera, FaSave, FaShareAlt, FaCopy, FaCheck } from 'react-icons/fa';
 
 const ResultsScreen = () => {
   const { theme: COLORS } = useTheme();
@@ -34,9 +34,6 @@ const ResultsScreen = () => {
     navigate('/camera');
   };
 
-  const handleViewHistory = () => {
-    navigate('/history');
-  };
 
   const handleSaveResult = () => {
     // Implementation for saving results would go here
@@ -140,15 +137,6 @@ const ResultsScreen = () => {
       </ActionsContainer>
       
       <SecondaryActionsContainer>
-        <SecondaryButton 
-          color={COLORS.primary}
-          borderColor={COLORS.primary}
-          onClick={handleViewHistory}
-          aria-label="View history"
-        >
-          <FaHistory size={isMobile ? 16 : 18} style={{ marginRight: isMobile ? '6px' : '8px' }} />
-          <ButtonText>View History</ButtonText>
-        </SecondaryButton>
         
         <SecondaryButton 
           color={COLORS.primary}
