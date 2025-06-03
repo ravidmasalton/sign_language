@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
-
+ 
 // MediaPipe Holistic Component with Real MediaPipe Integration
 const HolisticDemo = () => {
   const videoRef = useRef(null);
@@ -18,7 +18,7 @@ const HolisticDemo = () => {
   const [sequenceBuffer, setSequenceBuffer] = useState([]);
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
-
+ 
   // הגדרות זהות לגרסת Python
   const ACTIONS = [
     "Bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day",
@@ -26,12 +26,12 @@ const HolisticDemo = () => {
     "need", "no", "red", "sick", "son", "study", "tall", "thank you",
     "tired", "write", "yes", "you"
   ];
-
+ 
   const SEQ_LEN = 40;
   const THRESHOLD = 0.7;
   const SMOOTH_WINDOW = 4;
   const EMA_ALPHA = 0.6;
-
+ 
   // Smoothing classes - זהות לגרסת Python
   const smootherRef = useRef({
     window: [],
@@ -54,7 +54,7 @@ const HolisticDemo = () => {
       return mostFrequent;
     }
   });
-
+ 
   const emaFilterRef = useRef({
     ema: null,
     alpha: EMA_ALPHA,
@@ -69,7 +69,7 @@ const HolisticDemo = () => {
       return this.ema;
     }
   });
-
+ 
   // הוספת useEffect בשביל להסתיר את הכפתורים "Live Camera Demo" ו-"Sample Data Mode"
   useEffect(() => {
     const hideUnwantedButtons = () => {
@@ -84,7 +84,7 @@ const HolisticDemo = () => {
     const timeoutId = setTimeout(hideUnwantedButtons, 500);
     return () => clearTimeout(timeoutId);
   }, []);
-
+ 
   // טעינת MediaPipe עם הגרסה החדשה
   useEffect(() => {
     const loadMediaPipe = async () => {
@@ -102,28 +102,28 @@ const HolisticDemo = () => {
             document.head.appendChild(script);
           });
         };
-
+ 
         await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js');
         await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6.1629159505/control_utils.js');
         await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js');
         await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/holistic.js');
-
+ 
         initializeHolistic();
       } catch (err) {
         console.error('MediaPipe loading error:', err);
       }
     };
-
+ 
     const initializeHolistic = () => {
       try {
         if (!window.Holistic) {
           throw new Error('Holistic not available');
         }
-
+ 
         holisticRef.current = new window.Holistic({
           locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/${file}`
         });
-
+ 
         holisticRef.current.setOptions({
           modelComplexity: 2,
           smoothLandmarks: false,
@@ -132,22 +132,22 @@ const HolisticDemo = () => {
           minTrackingConfidence: 0.5,
           staticImageMode: false
         });
-
+ 
         holisticRef.current.onResults(onResults);
         setIsMediaPipeLoaded(true);
       } catch (err) {
         console.error('MediaPipe initialization error:', err);
       }
     };
-
+ 
     loadMediaPipe();
   }, []);
-
+ 
   // טעינת המודל TensorFlow - זהה לגרסה של HandSignPredictor
   useEffect(() => {
     const loadModel = async () => {
       if (modelRef.current) return;
-
+ 
       try {
         setIsProcessing(true);
         const loadedModel = await tf.loadLayersModel('/tfjs_model/model.json');
@@ -162,41 +162,41 @@ const HolisticDemo = () => {
       }
     };
     loadModel();
-
+ 
     return () => {
       if (modelRef.current) {
         modelRef.current.dispose();
       }
     };
   }, []);
-
+ 
   // פונקצית חילוץ keypoints - זהה לגרסת Python
   const extractKeypoints = (results) => {
     let pose = new Array(33 * 3).fill(0);
     if (results.poseLandmarks) {
       pose = results.poseLandmarks.flatMap(lm => [lm.x, lm.y, 0.0]);
     }
-
+ 
     let leftHand = new Array(21 * 3).fill(0);
     if (results.leftHandLandmarks) {
       leftHand = results.leftHandLandmarks.flatMap(lm => [lm.x, lm.y, lm.z]);
     }
-
+ 
     let rightHand = new Array(21 * 3).fill(0);
     if (results.rightHandLandmarks) {
       rightHand = results.rightHandLandmarks.flatMap(lm => [lm.x, lm.y, lm.z]);
     }
-
+ 
     if (!results.leftHandLandmarks && !results.rightHandLandmarks) {
       return null;
     }
-
+ 
     return [...pose, ...leftHand, ...rightHand];
   };
-
+ 
   const makePrediction = async (buffer) => {
     if (!modelRef.current || !Array.isArray(buffer) || buffer.length !== SEQ_LEN || isProcessing) return;
-
+ 
     try {
       setIsProcessing(true);
       for (let i = 0; i < buffer.length; i++) {
@@ -207,12 +207,12 @@ const HolisticDemo = () => {
       const inputTensor = tf.tensor(buffer, [SEQ_LEN, 225], 'float32').expandDims(0);
       const resultTensor = modelRef.current.predict(inputTensor);
       const probabilities = await resultTensor.data();
-
+ 
       const probsEma = emaFilterRef.current.apply(Array.from(probabilities));
       const predictedClassIdx = tf.argMax(tf.tensor1d(probsEma)).dataSync()[0];
       const predSmooth = smootherRef.current.apply(predictedClassIdx);
       const confidence = probsEma[predSmooth];
-
+ 
       if (confidence > THRESHOLD) {
         const word = ACTIONS[predSmooth];
         setCurrentPrediction({ word, confidence, classIndex: predSmooth });
@@ -227,7 +227,7 @@ const HolisticDemo = () => {
       } else {
         setCurrentPrediction({ word: ACTIONS[predSmooth], confidence, classIndex: predSmooth });
       }
-
+ 
       inputTensor.dispose();
       if (Array.isArray(resultTensor)) {
         resultTensor.forEach((t) => t.dispose());
@@ -241,20 +241,20 @@ const HolisticDemo = () => {
       setIsProcessing(false);
     }
   };
-
+ 
   // onResults callback - מקבל תוצאות מ-MediaPipe או סימולציה
   const onResults = (results) => {
     if (canvasRef.current && videoRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       const video = videoRef.current;
-
+ 
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
+ 
       // 1) ציור הווידאו
       ctx.drawImage(video, 0, 0);
-
+ 
       // 2) ציור landmarks
       if (results.poseLandmarks) {
         drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
@@ -268,7 +268,7 @@ const HolisticDemo = () => {
         drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
       }
-
+ 
       // 3) חילוץ keypoints והוספה לבאפר
       const kp = extractKeypoints(results);
       if (kp !== null) {
@@ -276,7 +276,7 @@ const HolisticDemo = () => {
           const newBuffer = [...prev, kp];
           setIsCollecting(newBuffer.length < SEQ_LEN);
           setFrameCount(newBuffer.length);
-
+ 
           if (newBuffer.length === SEQ_LEN) {
             makePrediction(newBuffer);
             return [];
@@ -284,12 +284,12 @@ const HolisticDemo = () => {
           return newBuffer;
         });
       }
-
+ 
       // 4) ציור overlay
       drawOverlay(ctx);
     }
   };
-
+ 
   const POSE_CONNECTIONS = [
     [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
     [9, 10], [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
@@ -297,13 +297,13 @@ const HolisticDemo = () => {
     [11, 23], [12, 24], [23, 24], [23, 25], [24, 26], [25, 27], [26, 28],
     [27, 29], [28, 30], [29, 31], [30, 32], [27, 31], [28, 32]
   ];
-
+ 
   const HAND_CONNECTIONS = [
     [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
     [0, 9], [9, 10], [10, 11], [11, 12], [0, 13], [13, 14], [14, 15], [15, 16],
     [0, 17], [17, 18], [18, 19], [19, 20]
   ];
-
+ 
   const drawLandmarks = (ctx, landmarks, color = '#FF0000', radius = 2) => {
     if (!landmarks) return;
     ctx.fillStyle = color;
@@ -315,7 +315,7 @@ const HolisticDemo = () => {
       ctx.fill();
     });
   };
-
+ 
   const drawConnections = (ctx, landmarks, connections, color = '#00FF00', lineWidth = 2) => {
     if (!landmarks) return;
     ctx.strokeStyle = color;
@@ -331,16 +331,16 @@ const HolisticDemo = () => {
       }
     });
   };
-
+ 
   const drawOverlay = (ctx) => {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     ctx.fillRect(0, 0, ctx.canvas.width, 120);
-
+ 
     // מציג רק את המילים בלי המילה "Sentence:"
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 28px Arial';
     ctx.fillText(`${sentence.join(' ')}`, 10, 35);
-
+ 
     if (currentPrediction.word && currentPrediction.confidence > 0) {
       const color = currentPrediction.confidence > THRESHOLD ? '#00FF00' : '#FFAA00';
       ctx.fillStyle = color;
@@ -350,13 +350,13 @@ const HolisticDemo = () => {
         10, 70
       );
     }
-
+ 
     // הצגה של פס ההתקדמות רק בשלב איסוף פריימים
     if (isCollecting) {
       ctx.fillStyle = '#FFF200';
       ctx.font = '18px Arial';
       ctx.fillText(`Collecting frames: ${frameCount}/${SEQ_LEN}`, 10, 100);
-
+ 
       const progressWidth = (frameCount / SEQ_LEN) * 200;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.fillRect(10, 105, 200, 10);
@@ -364,18 +364,18 @@ const HolisticDemo = () => {
       ctx.fillRect(10, 105, progressWidth, 10);
     }
   };
-
+ 
   // התחלת המצלמה והעיבוד
   useEffect(() => {
     let stream = null;
     let animationId = null;
-
+ 
     const startCamera = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 1000, height: 700 }
         });
-
+ 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {
@@ -389,7 +389,7 @@ const HolisticDemo = () => {
         setIsLoading(false);
       }
     };
-
+ 
     const startProcessing = () => {
       const processFrame = async () => {
         if (videoRef.current && isMediaPipeLoaded) {
@@ -405,11 +405,11 @@ const HolisticDemo = () => {
       };
       processFrame();
     };
-
+ 
     if (isMediaPipeLoaded && isModelLoaded) {
       startCamera();
     }
-
+ 
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -419,7 +419,7 @@ const HolisticDemo = () => {
       }
     };
   }, [isMediaPipeLoaded, isModelLoaded]);
-
+ 
   const clearSentence = () => {
     setSentence([]);
     setCurrentPrediction({ word: '', confidence: 0, classIndex: -1 });
@@ -428,7 +428,7 @@ const HolisticDemo = () => {
     setFrameCount(0);
     console.log('🧹 Cleared sentence and buffer');
   };
-
+ 
   if (error) {
     return (
       <div
@@ -450,7 +450,7 @@ const HolisticDemo = () => {
       </div>
     );
   }
-
+ 
  return (
   <div className="holistic-demo" style={{ textAlign: 'center' }}>
     {/* חלון הטקסט העליון */}
@@ -474,7 +474,7 @@ const HolisticDemo = () => {
         ? sentence.join(' ')
         : 'Waiting for translation...'}
     </div>
-
+ 
     {/* כפתור ניקוי */}
     <div className="controls" style={{ marginBottom: 20 }}>
       <button
@@ -494,19 +494,9 @@ const HolisticDemo = () => {
         Clear Sentence
       </button>
     </div>
-
+ 
     {/* חלון המצלמה (Canvas) */}
     <div
-      className="video-container"
-      style={{
-        position: 'relative',
-        display: 'inline-block',
-        backgroundColor: '#000',
-        borderRadius: 12,
-        overflow: 'hidden',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-        maxWidth: '100%'
-      }}
     >
       <video
         ref={videoRef}
@@ -528,11 +518,11 @@ const HolisticDemo = () => {
         style={{
           display: 'block',
           width: 800,
-          height: 560
+          height: 600
         }}
       />
     </div>
-
+ 
     {/* מידע על סטטוס */}
     <div
       className="status-info"
@@ -564,7 +554,7 @@ const HolisticDemo = () => {
           ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
           : 'Processing...'}
       </p>
-
+ 
       <div
         style={{
           marginTop: 15,
@@ -588,7 +578,7 @@ const HolisticDemo = () => {
         </span>
       </div>
     </div>
-
+ 
     {isLoading && (
       <div
         className="loading"
@@ -601,3 +591,5 @@ const HolisticDemo = () => {
 );
 };
 export default HolisticDemo;
+ 
+ 

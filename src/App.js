@@ -1,78 +1,151 @@
 ﻿// src/App.js
 import React, { useState, useEffect } from 'react';
-import HandSignPredictor from './components/HandSignPredictor';
-import HolisticDemo from './components/HolisticDemo';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebaseConfig';
+import { ThemeProvider } from './contexts/ThemeContext';
+import Layout from './components/Layout';
+import LoginScreen from './screens/LoginScreen';
+import HomeScreen from './screens/HomeScreen';
+import CameraScreen from './screens/CameraScreen';
+import ResultsScreen from './screens/ResultsScreen';
+import HistoryScreen from './screens/HistoryScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import MobileConnectionScreen from './screens/MobileConnectionScreen';
 import './App.css';
 
 function App() {
-  const [landmarks, setLandmarks]       = useState(null);
-  const [isLoading, setIsLoading]       = useState(true);
-  const [status, setStatus]             = useState('Loading sample data...');
-  const [showLiveDemo, setShowLiveDemo] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isMobileConnected, setIsMobileConnected] = useState(true);
 
+  // Handle authentication state
   useEffect(() => {
-    async function loadSample() {
-      try {
-        setStatus('🔄 Loading sample data…');
-        const res = await fetch('/hand_landmarks.json');
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data = await res.json();
-        setLandmarks(data);
-        setStatus('✅ Sample data loaded!');
-      } catch (err) {
-        setStatus(`❌ Error: ${err.message}`);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadSample();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Function to get status icon and class based on status text
-  const getStatusInfo = (status) => {
-    if (status.includes('✅')) return { icon: '✅', class: 'status-success' };
-    if (status.includes('❌')) return { icon: '❌', class: 'status-error' };
-    if (status.includes('🔄')) return { icon: '🔄', class: 'status-loading' };
-    if (status.includes('⚠️')) return { icon: '⚠️', class: 'status-warning' };
-    return { icon: 'ℹ️', class: '' };
+  // Check mobile connection
+  useEffect(() => {
+    const checkConnection = () => {
+      // In a real app, this would be a more sophisticated check
+      setIsMobileConnected(navigator.onLine);
+    };
+
+    // Check connection immediately and on online/offline events
+    checkConnection();
+    window.addEventListener('online', checkConnection);
+    window.addEventListener('offline', checkConnection);
+
+    return () => {
+      window.removeEventListener('online', checkConnection);
+      window.removeEventListener('offline', checkConnection);
+    };
+  }, []);
+
+  // Protected route wrapper
+  const ProtectedRoute = ({ children }) => {
+    if (isAuthLoading) {
+      return (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading...</p>
+        </div>
+      );
+    }
+
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+
+    // Check if mobile is connected
+    if (!isMobileConnected) {
+      return <Navigate to="/connect" replace />;
+    }
+
+    return <Layout>{children}</Layout>;
   };
 
-  const statusInfo = getStatusInfo(status);
+  if (isAuthLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="App">
-      <h1>TensorFlow.js Sign Language Recognition</h1>
-      
-      <div className="mode-toggle">
-        <button 
-          className={!showLiveDemo ? 'active' : ''} 
-          onClick={() => setShowLiveDemo(false)}
-        >
-          Sample Data Mode
-        </button>
-        <button 
-          className={showLiveDemo ? 'active' : ''} 
-          onClick={() => setShowLiveDemo(true)}
-        >
-          Live Camera Demo
-        </button>
-      </div>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          {/* Authentication routes */}
+          <Route 
+            path="/login" 
+            element={user ? <Navigate to="/" replace /> : <LoginScreen />} 
+          />
 
-      {!showLiveDemo ? (
-        <div className="app-card">
-          <div className={`status-display ${statusInfo.class}`}>
-            <span className="status-icon">{statusInfo.icon}</span>
-            <span className="status-text">{status}</span>
-          </div>
+          {/* Connection check route */}
+          <Route
+            path="/connect"
+            element={isMobileConnected ? <Navigate to="/" replace /> : <MobileConnectionScreen />}
+          />
+
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomeScreen />
+              </ProtectedRoute>
+            }
+          />
           
-          {!isLoading && landmarks && (
-            <HandSignPredictor landmarkData={landmarks} />
-          )}
-        </div>
-      ) : (
-        <HolisticDemo />
-      )}
-    </div>
+          <Route
+            path="/camera"
+            element={
+              <ProtectedRoute>
+                <CameraScreen />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/results"
+            element={
+              <ProtectedRoute>
+                <ResultsScreen />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <HistoryScreen />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsScreen />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 
