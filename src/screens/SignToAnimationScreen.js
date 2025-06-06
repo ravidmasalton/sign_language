@@ -1,7 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { FiSearch, FiInfo, FiAlertCircle, FiRefreshCw } from 'react-icons/fi';
+
+// Define keyframes at the top level
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const wave = keyframes`
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+`;
+
+const slideIn = keyframes`
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const shimmer = keyframes`
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+`;
 
 /**
  * Component that displays sign language animations based on user input text
@@ -177,6 +210,7 @@ const SignToAnimationScreen = () => {
   };
 
   // Handle selecting from available words
+  // eslint-disable-next-line no-unused-vars
   const handleSelectAvailableWord = async (word) => {
     setInputWord(word);
     await handleSubmitWord(word);
@@ -225,15 +259,14 @@ const SignToAnimationScreen = () => {
     localStorage.removeItem('recentSignWords');
     setRecentWords([]);
   }, []);
-
   return (
-    <Container backgroundColor={COLORS.background}>
+    <Container COLORS={COLORS}>
       <Header>
-        <Title color={COLORS.text}>Word to Sign Animation</Title>
-        <Subtitle color={COLORS.textSecondary}>
+        <Title>Word to Sign Animation</Title>
+        <Subtitle>
           Type a word to see its sign language animation
         </Subtitle>
-        <AvailableWordsHint color={COLORS.textSecondary}>
+        <AvailableWordsHint>
           Available words: bye, book. Try sentences like: "bye book" or single words
         </AvailableWordsHint>
       </Header>
@@ -242,7 +275,7 @@ const SignToAnimationScreen = () => {
         <SearchForm onSubmit={handleSubmit}>
           <InputWrapper>
             <SearchIcon>
-              <FiSearch size={20} color={COLORS.textSecondary} />
+              <FiSearch size={20} />
             </SearchIcon>
             <Input
               ref={inputRef}
@@ -251,9 +284,6 @@ const SignToAnimationScreen = () => {
               onChange={(e) => setInputWord(e.target.value)}
               placeholder="Enter a word or sentence..."
               aria-label="Enter a word"
-              backgroundColor={COLORS.card}
-              borderColor={COLORS.border}
-              color={COLORS.text}
               list="available-words"
             />
             <datalist id="available-words">
@@ -264,27 +294,21 @@ const SignToAnimationScreen = () => {
           </InputWrapper>
           <SearchButton
             type="submit"
-            backgroundColor={COLORS.primary}
             disabled={isLoading}
           >
-            {isLoading ? <FiRefreshCw size={20} className="spinning" /> : 'Show Animation'}
+            {isLoading ? <SpinningIcon><FiRefreshCw size={20} /></SpinningIcon> : 'Show Animation'}
           </SearchButton>
         </SearchForm>
       </SearchContainer>
 
-      {/* הוסר החלק של Quick Select */}
-
-      {recentWords.length > 0 && (
+      {/* הוסר החלק של Quick Select */}      {recentWords.length > 0 && (
         <RecentWordsContainer>
-          <RecentWordsTitle color={COLORS.textSecondary}>Recent searches:</RecentWordsTitle>
+          <RecentWordsTitle>Recent searches:</RecentWordsTitle>
           <RecentWordsList>
             {recentWords.map((word, index) => (
               <RecentWordButton
                 key={`${word}-${index}`}
                 onClick={() => handleSelectRecentWord(word)}
-                backgroundColor={COLORS.card}
-                borderColor={COLORS.border}
-                color={COLORS.text}
                 disabled={isLoading}
               >
                 {word.replace(/_/g, ' ')}
@@ -295,16 +319,16 @@ const SignToAnimationScreen = () => {
       )}
 
       {error && (
-        <ErrorContainer backgroundColor={COLORS.errorLight} borderColor={COLORS.error}>
-          <FiAlertCircle size={20} color={COLORS.error} />
-          <ErrorText color={COLORS.error}>{error}</ErrorText>
+        <ErrorContainer>
+          <FiAlertCircle size={20} />
+          <ErrorText>{error}</ErrorText>
         </ErrorContainer>
       )}
 
       {(currentWord || currentSentence.length > 0) && videoExists && (
         <ContentContainer>
-          <CurrentWordDisplay color={COLORS.text}>
-            <CurrentWordLabel color={COLORS.textSecondary}>
+          <CurrentWordDisplay>
+            <CurrentWordLabel>
               {isSentenceMode ? 'Current sentence:' : 'Current word:'}
             </CurrentWordLabel>
             <CurrentWord>
@@ -312,7 +336,7 @@ const SignToAnimationScreen = () => {
             </CurrentWord>
           </CurrentWordDisplay>
 
-          <VideoContainer backgroundColor={COLORS.card} borderColor={COLORS.border}>
+          <VideoContainer>
             <Video
               ref={videoRef}
               autoPlay
@@ -330,9 +354,9 @@ const SignToAnimationScreen = () => {
             />
           </VideoContainer>
 
-          <InfoContainer backgroundColor={COLORS.infoLight} borderColor={COLORS.info}>
-            <FiInfo size={18} color={COLORS.info} />
-            <InfoText color={COLORS.textSecondary}>
+          <InfoContainer>
+            <FiInfo size={18} />
+            <InfoText>
               {isSentenceMode ? 
                 `This animation sequence demonstrates the sign language gestures for the sentence "${currentSentence.join(' ')}". The videos will play in sequence and loop.` :
                 `This animation demonstrates the sign language gesture for the word "${currentWord}". The video will loop automatically to help you learn the gesture.`
@@ -345,10 +369,10 @@ const SignToAnimationScreen = () => {
       {!currentWord && currentSentence.length === 0 && !error && !isLoading && (
         <EmptyStateContainer>
           <EmptyStateIcon>🖐️</EmptyStateIcon>
-          <EmptyStateText color={COLORS.textSecondary}>
+          <EmptyStateText>
             Enter a word or sentence above to see sign language animation
           </EmptyStateText>
-          <EmptyStateSubText color={COLORS.textSecondary}>
+          <EmptyStateSubText>
             Try single words like "bye" or sentences like "bye book"
           </EmptyStateSubText>
         </EmptyStateContainer>
@@ -357,24 +381,63 @@ const SignToAnimationScreen = () => {
   );
 };
 
+// תיקון האייקון המסתובב
+const SpinningIcon = styled.div`
+  ${css`
+    animation: ${spin} 1s linear infinite;
+  `}
+`;
+
 // Styled Components for the Sign Language Animation screen
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 24px;
-  background-color: ${props => props.backgroundColor};
+  background: ${props => props.backgroundColor || '#f8fafc'};
   min-height: 100vh;
   width: 100%;
+  position: relative;
+  overflow-x: hidden;
   
   @media (max-width: 768px) {
     padding: 16px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      rgba(99, 102, 241, 0.1) 0%,
+      rgba(139, 92, 246, 0.1) 25%,
+      rgba(245, 158, 11, 0.1) 50%,
+      rgba(16, 185, 129, 0.1) 75%,
+      rgba(239, 68, 68, 0.1) 100%);
+    z-index: -2;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle,
+      rgba(99, 102, 241, 0.05) 0%,
+      transparent 50%);
+    ${css`
+      animation: ${float} 20s ease-in-out infinite;
+    `}
+    z-index: -1;
   }
 `;
 
 const Header = styled.header`
   text-align: center;
   margin-bottom: 32px;
+  z-index: 1;
   
   @media (max-width: 768px) {
     margin-bottom: 24px;
@@ -383,9 +446,15 @@ const Header = styled.header`
 
 const Title = styled.h1`
   font-size: 2.5rem;
-  font-weight: bold;
-  color: ${props => props.color};
+  font-weight: 800;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: 8px;
+  ${css`
+    animation: ${shimmer} 3s ease-in-out infinite;
+  `}
   
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -394,8 +463,9 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.1rem;
-  color: ${props => props.color};
+  color: ${props => props.color || '#64748b'};
   margin-bottom: 8px;
+  font-weight: 500;
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -404,8 +474,9 @@ const Subtitle = styled.p`
 
 const AvailableWordsHint = styled.p`
   font-size: 0.9rem;
-  color: ${props => props.color};
+  color: ${props => props.color || '#94a3b8'};
   font-style: italic;
+  font-weight: 400;
   
   @media (max-width: 768px) {
     font-size: 0.85rem;
@@ -416,6 +487,7 @@ const SearchContainer = styled.div`
   width: 100%;
   max-width: 600px;
   margin-bottom: 24px;
+  z-index: 1;
   
   @media (max-width: 768px) {
     margin-bottom: 16px;
@@ -439,129 +511,88 @@ const InputWrapper = styled.div`
 
 const SearchIcon = styled.div`
   position: absolute;
-  left: 12px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   z-index: 1;
+  color: #6366f1;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px 12px 12px 40px;
-  border: 2px solid ${props => props.borderColor};
-  border-radius: 8px;
+  padding: 16px 16px 16px 48px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   font-size: 1rem;
-  background-color: ${props => props.backgroundColor};
-  color: ${props => props.color};
-  min-height: 48px;
-  transition: border-color 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  color: ${props => props.color || '#1e293b'};
+  min-height: 56px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  
+  &::placeholder {
+    color: #94a3b8;
+  }
   
   &:focus {
     outline: none;
-    border-color: ${props => props.color};
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #6366f1;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 
+      0 0 0 4px rgba(99, 102, 241, 0.1),
+      0 8px 32px rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
   }
   
   @media (max-width: 768px) {
     font-size: 0.9rem;
+    padding: 14px 14px 14px 44px;
+    min-height: 52px;
   }
 `;
 
 const SearchButton = styled.button`
-  padding: 0 24px;
-  background-color: ${props => props.backgroundColor};
+  padding: 0 32px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 16px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: 48px;
+  min-height: 56px;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
   
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+    background: linear-gradient(135deg, #5855f7, #7c3aed);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(-1px);
   }
   
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
-  }
-  
-  .spinning {
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    background: linear-gradient(135deg, #94a3b8, #64748b);
   }
   
   @media (max-width: 768px) {
     font-size: 0.9rem;
-  }
-`;
-
-const QuickSelectContainer = styled.div`
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 24px;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-  }
-`;
-
-const QuickSelectTitle = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  margin-bottom: 12px;
-  font-weight: 600;
-`;
-
-const QuickSelectList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 6px;
-  }
-`;
-
-const QuickSelectButton = styled.button`
-  padding: 8px 12px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: ${props => props.color};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  
-  &:hover:not(:disabled) {
-    background-color: ${props => props.borderColor};
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-    padding: 6px 10px;
+    padding: 0 24px;
+    min-height: 52px;
   }
 `;
 
@@ -569,6 +600,10 @@ const RecentWordsContainer = styled.div`
   width: 100%;
   max-width: 600px;
   margin-bottom: 24px;
+  z-index: 1;
+  ${css`
+    animation: ${slideIn} 0.6s ease-out;
+  `}
   
   @media (max-width: 768px) {
     margin-bottom: 16px;
@@ -577,8 +612,8 @@ const RecentWordsContainer = styled.div`
 
 const RecentWordsTitle = styled.p`
   font-size: 0.9rem;
-  color: ${props => props.color};
-  margin-bottom: 8px;
+  color: ${props => props.color || '#64748b'};
+  margin-bottom: 12px;
   font-weight: 600;
 `;
 
@@ -589,18 +624,22 @@ const RecentWordsList = styled.div`
 `;
 
 const RecentWordButton = styled.button`
-  padding: 6px 12px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 16px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
   font-size: 0.85rem;
-  color: ${props => props.color};
+  color: ${props => props.color || '#1e293b'};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  font-weight: 500;
   
   &:hover:not(:disabled) {
-    background-color: ${props => props.borderColor};
-    transform: translateY(-1px);
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
   }
   
   &:disabled {
@@ -612,26 +651,31 @@ const RecentWordButton = styled.button`
 const ErrorContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   max-width: 600px;
-  padding: 12px 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
   margin-bottom: 24px;
+  ${css`
+    animation: ${slideIn} 0.4s ease-out;
+  `}
   
   @media (max-width: 768px) {
     margin-bottom: 16px;
-    padding: 10px 14px;
+    padding: 14px 18px;
   }
 `;
 
 const ErrorText = styled.p`
-  color: ${props => props.color};
+  color: #dc2626;
   font-size: 0.9rem;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 500;
 `;
 
 const ContentContainer = styled.div`
@@ -640,31 +684,51 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  ${css`
+    animation: ${slideIn} 0.8s ease-out;
+  `}
+  z-index: 1;
 `;
 
 const CurrentWordDisplay = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  ${css`
+    animation: ${pulse} 2s ease-in-out infinite;
+  `}
   
   @media (max-width: 768px) {
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    padding: 20px;
   }
 `;
 
 const CurrentWordLabel = styled.span`
   font-size: 0.9rem;
-  color: ${props => props.color};
-  margin-bottom: 4px;
+  color: ${props => props.color || '#64748b'};
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const CurrentWord = styled.h2`
   font-size: 2.5rem;
-  font-weight: bold;
+  font-weight: 800;
   text-align: center;
   margin: 0;
   text-transform: capitalize;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -674,18 +738,29 @@ const CurrentWord = styled.h2`
 const VideoContainer = styled.div`
   width: 100%;
   aspect-ratio: 16 / 9;
-  background-color: ${props => props.backgroundColor};
-  border: 2px solid ${props => props.borderColor};
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 4px 20px rgba(99, 102, 241, 0.15);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.15),
+      0 8px 32px rgba(99, 102, 241, 0.2);
+  }
   
   @media (max-width: 768px) {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 `;
 
@@ -693,30 +768,33 @@ const Video = styled.video`
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 16px;
 `;
 
 const InfoContainer = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  padding: 12px 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
-  margin-top: 8px;
+  padding: 20px 24px;
+  background: rgba(59, 130, 246, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  margin-top: 12px;
   
   @media (max-width: 768px) {
-    padding: 10px 14px;
+    padding: 16px 20px;
+    gap: 12px;
   }
 `;
 
 const InfoText = styled.p`
-  color: ${props => props.color};
+  color: ${props => props.color || '#475569'};
   font-size: 0.9rem;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 500;
   
   @media (max-width: 768px) {
     font-size: 0.85rem;
@@ -728,30 +806,40 @@ const EmptyStateContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 64px 24px;
   width: 100%;
   max-width: 600px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  ${css`
+    animation: ${float} 6s ease-in-out infinite;
+  `}
   
   @media (max-width: 768px) {
-    padding: 36px 16px;
+    padding: 48px 20px;
   }
 `;
 
 const EmptyStateIcon = styled.div`
   font-size: 4rem;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  ${css`
+    animation: ${wave} 2s ease-in-out infinite;
+  `}
   
   @media (max-width: 768px) {
     font-size: 3rem;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 `;
 
 const EmptyStateText = styled.p`
   font-size: 1.1rem;
-  color: ${props => props.color};
+  color: ${props => props.color || '#475569'};
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   font-weight: 600;
   
   @media (max-width: 768px) {
@@ -761,9 +849,10 @@ const EmptyStateText = styled.p`
 
 const EmptyStateSubText = styled.p`
   font-size: 0.9rem;
-  color: ${props => props.color};
+  color: ${props => props.color || '#64748b'};
   text-align: center;
   margin: 0;
+  font-weight: 400;
   
   @media (max-width: 768px) {
     font-size: 0.85rem;

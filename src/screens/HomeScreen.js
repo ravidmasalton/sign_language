@@ -1,12 +1,355 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck } from 'react-icons/fa';
+import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck, FaRocket, FaHeart } from 'react-icons/fa';
+
+// Modern animations
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const slideIn = keyframes`
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+const glow = keyframes`
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.6); }
+`;
+
+const sparkle = keyframes`
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.8; transform: scale(1.1) rotate(180deg); }
+`;
+
+// Modern styled components
+const ModernContainer = styled.div`
+  min-height: 100vh;
+  background: ${props => props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+  color: ${props => props.COLORS?.text || '#1e293b'};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  ${css`animation: ${fadeIn} 0.8s ease-out;`}
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+`;
+
+const HeroSection = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+  ${css`animation: ${slideIn} 1s ease-out 0.2s both;`}
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+`;
+
+const LogoContainer = styled.div`
+  position: relative;
+  margin-bottom: 2rem;
+  ${css`animation: ${float} 3s ease-in-out infinite;`}
+`;
+
+const ModernLogo = styled.div`
+  width: 120px;
+  height: 120px;
+  background: ${props => props.theme?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    ${css`animation: ${sparkle} 3s infinite;`}
+  }
+
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 100px;
+    border-radius: 25px;
+    font-size: 2.5rem;
+  }
+`;
+
+const MainTitle = styled.h1`
+  font-size: 3rem;
+  font-weight: 700;
+  background: ${props => props.theme?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.8rem;
+  }
+`;
+
+const HeroSubtitle = styled.p`
+  font-size: 1.25rem;
+  color: ${props => props.theme?.textSecondary || '#64748b'};
+  margin: 0 0 2rem 0;
+  max-width: 600px;
+  line-height: 1.6;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const FeaturesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 3rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+`;
+
+const FeatureCard = styled.div`
+  background: ${props => props.theme?.card || '#ffffff'};
+  backdrop-filter: blur(20px);
+  border: 1px solid ${props => props.theme?.border || '#e2e8f0'};
+  border-radius: 20px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+  ${css`animation: ${slideIn} 0.8s ease-out;`}
+  animation-fill-mode: both;
+  animation-delay: ${props => props.delay || '0s'};
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: ${props => props.gradient || props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    &::before {
+      transform: scaleX(1);
+    }
+  }
+  
+  ${props => props.primary && css`
+    background: ${props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+    color: white;
+    
+    &:hover {
+      animation: ${glow} 2s infinite;
+    }
+  `}
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+`;
+
+const FeatureIconContainer = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: ${props => props.background || props.COLORS?.surface || '#f1f5f9'}40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+
+  svg {
+    font-size: 1.75rem;
+    color: ${props => props.iconColor || props.COLORS?.text || '#1e293b'};
+    transition: all 0.3s ease;
+  }
+
+  ${props => props.primary && css`
+    background: rgba(255, 255, 255, 0.2);
+    svg {
+      color: white;
+    }
+  `}
+
+  @media (max-width: 768px) {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 1rem;
+  }
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: ${props => props.primary ? 'white' : props.COLORS?.text || '#1e293b'};
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+`;
+
+const FeatureDescription = styled.p`
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  color: ${props => props.primary ? 'rgba(255,255,255,0.9)' : props.COLORS?.textSecondary || '#64748b'};
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+`;
+
+const InfoSection = styled.div`
+  width: 100%;
+  max-width: 600px;
+  ${css`animation: ${slideIn} 1s ease-out 0.6s both;`}
+`;
+
+const InfoCard = styled.div`
+  background: ${props => props.COLORS?.card || '#ffffff'};
+  backdrop-filter: blur(20px);
+  border: 1px solid ${props => props.COLORS?.border || '#e2e8f0'};
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+`;
+
+const InfoHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+`;
+
+const InfoIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: ${props => props.COLORS?.gradient || 'linear-gradient(135deg, #f59e0b, #f97316)'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+`;
+
+const InfoTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${props => props.COLORS?.text || '#1e293b'};
+  margin: 0;
+`;
+
+const InfoList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 1rem;
+  color: ${props => props.COLORS?.textSecondary || '#64748b'};
+  line-height: 1.5;
+`;
+
+const CheckIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: ${props => props.COLORS?.secondary || '#10b981'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+`;
+
+const CallToAction = styled.div`
+  text-align: center;
+  margin-top: 2rem;
+  ${css`animation: ${slideIn} 1s ease-out 0.8s both;`}
+`;
+
+const CTAText = styled.p`
+  font-size: 1.1rem;
+  color: ${props => props.COLORS?.textSecondary || '#64748b'};
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+`;
+
+const HeartIcon = styled(FaHeart)`
+  color: ${props => props.COLORS?.accent || '#f59e0b'};
+  ${css`animation: ${pulse} 1.5s infinite;`}
+`;
 
 const HomeScreen = () => {
   const { theme: COLORS } = useTheme();
   const navigate = useNavigate();
+
+  // Safety check for theme
+  if (!COLORS) {
+    return <div>Loading theme...</div>;
+  }
 
   const handleGoToCamera = () => {
     navigate('/camera');
@@ -19,289 +362,112 @@ const HomeScreen = () => {
   const handleGoToSettings = () => {
     navigate('/settings');
   };
-
+  
   return (
-    <Container backgroundColor={COLORS.background}>
-      <LogoContainer>
-        <Logo src="/logo.png" alt="Sign Language Recognition" />
-      </LogoContainer>
-      
-      <Title color={COLORS.text}>Sign Language Recognition</Title>
-      <Subtitle color={COLORS.textSecondary}>
-        Translate sign language gestures in real-time
-      </Subtitle>
+    <ModernContainer COLORS={COLORS}>
+      <HeroSection>
+        <LogoContainer>
+          <ModernLogo>🤟</ModernLogo>
+        </LogoContainer>
+        
+        <MainTitle>Sign Language Recognition</MainTitle>
+        <HeroSubtitle>
+          Transform sign language gestures into words with cutting-edge AI technology
+        </HeroSubtitle>
+      </HeroSection>
 
-      <ActionsContainer>
-        <ActionCard 
-          backgroundColor={COLORS.card} 
-          borderColor={COLORS.border}
-          onClick={handleGoToCamera}
+      <FeaturesGrid>
+        <FeatureCard 
           primary
+          COLORS={COLORS}
+          gradient={COLORS.gradient}
+          onClick={handleGoToCamera}
+          delay="0.2s"
         >
-          <ActionIconContainer backgroundColor={COLORS.primary}>
-            <FaCamera size={24} color="white" />
-          </ActionIconContainer>
-          <ActionContent>
-            <ActionTitle color={COLORS.text}>Start Translation</ActionTitle>
-            <ActionDescription color={COLORS.textSecondary}>
-              Use your camera to translate sign language
-            </ActionDescription>
-          </ActionContent>
-        </ActionCard>
+          <FeatureIconContainer primary COLORS={COLORS}>
+            <FaCamera />
+          </FeatureIconContainer>
+          <FeatureTitle primary COLORS={COLORS}>Start Translation</FeatureTitle>
+          <FeatureDescription primary COLORS={COLORS}>
+            Use your camera to translate sign language gestures in real-time with advanced AI recognition
+          </FeatureDescription>
+        </FeatureCard>
         
-        <ActionCard 
-          backgroundColor={COLORS.card} 
-          borderColor={COLORS.border}
+        <FeatureCard 
+          COLORS={COLORS}
           onClick={handleGoToWordToAnimation}
+          delay="0.3s"
         >
-          <ActionIconContainer backgroundColor={COLORS.secondary}>
-            <FaClosedCaptioning size={24} color="white" />
-          </ActionIconContainer>
-          <ActionContent>
-            <ActionTitle color={COLORS.text}>Word to Animation</ActionTitle>
-            <ActionDescription color={COLORS.textSecondary}>
-              View sign language animations for words and sentences
-            </ActionDescription>
-          </ActionContent>
-        </ActionCard>
+          <FeatureIconContainer background={COLORS.secondary} COLORS={COLORS}>
+            <FaClosedCaptioning color="white" />
+          </FeatureIconContainer>
+          <FeatureTitle COLORS={COLORS}>Word to Animation</FeatureTitle>
+          <FeatureDescription COLORS={COLORS}>
+            View beautiful sign language animations for words and sentences to learn and practice
+          </FeatureDescription>
+        </FeatureCard>
         
-        <ActionCard 
-          backgroundColor={COLORS.card} 
-          borderColor={COLORS.border}
+        <FeatureCard 
+          COLORS={COLORS}
+          gradient={COLORS.accent}
           onClick={handleGoToSettings}
+          delay="0.4s"
         >
-          <ActionIconContainer backgroundColor={COLORS.tertiary}>
-            <FaCog size={24} color="white" />
-          </ActionIconContainer>
-          <ActionContent>
-            <ActionTitle color={COLORS.text}>Settings</ActionTitle>
-            <ActionDescription color={COLORS.textSecondary}>
-              Customize your experience
-            </ActionDescription>
-          </ActionContent>
-        </ActionCard>
-      </ActionsContainer>
+          <FeatureIconContainer background={COLORS.accent} COLORS={COLORS}>
+            <FaCog color="white" />
+          </FeatureIconContainer>
+          <FeatureTitle COLORS={COLORS}>Customize Experience</FeatureTitle>
+          <FeatureDescription COLORS={COLORS}>
+            Personalize your settings, themes, and preferences for the best user experience
+          </FeatureDescription>
+        </FeatureCard>
+      </FeaturesGrid>
       
-      <InfoContainer backgroundColor={COLORS.card} borderColor={COLORS.border}>
-        <InfoHeader>
-          <FaInfoCircle size={16} color={COLORS.primary} />
-          <InfoTitle color={COLORS.text}>How It Works</InfoTitle>
-        </InfoHeader>
-        <InfoList>
-          <InfoItem color={COLORS.textSecondary}>
-            <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
-            Position your hands clearly in front of the camera
-          </InfoItem>
-          <InfoItem color={COLORS.textSecondary}>
-            <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
-            Make sign language gestures at a moderate pace
-          </InfoItem>
-          <InfoItem color={COLORS.textSecondary}>
-            <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
-            Ensure good lighting for better recognition
-          </InfoItem>
-          <InfoItem color={COLORS.textSecondary}>
-            <FaCheck size={12} color={COLORS.success} style={{ marginRight: '8px' }} />
-            Type words or sentences to see sign language animations
-          </InfoItem>
-        </InfoList>
-      </InfoContainer>
-    </Container>
+      <InfoSection>
+        <InfoCard COLORS={COLORS}>
+          <InfoHeader>
+            <InfoIcon COLORS={COLORS}>
+              <FaRocket />
+            </InfoIcon>
+            <InfoTitle COLORS={COLORS}>Getting Started is Easy</InfoTitle>
+          </InfoHeader>
+          
+          <InfoList>
+            <InfoItem COLORS={COLORS}>
+              <CheckIcon COLORS={COLORS}>
+                <FaCheck />
+              </CheckIcon>
+              Position your hands clearly in front of the camera with good lighting
+            </InfoItem>
+            <InfoItem COLORS={COLORS}>
+              <CheckIcon COLORS={COLORS}>
+                <FaCheck />
+              </CheckIcon>
+              Make sign language gestures at a moderate, natural pace
+            </InfoItem>
+            <InfoItem COLORS={COLORS}>
+              <CheckIcon COLORS={COLORS}>
+                <FaCheck />
+              </CheckIcon>
+              Watch real-time translations appear as you sign
+            </InfoItem>
+            <InfoItem COLORS={COLORS}>
+              <CheckIcon COLORS={COLORS}>
+                <FaCheck />
+              </CheckIcon>
+              Explore word-to-animation feature to learn new signs
+            </InfoItem>
+          </InfoList>
+          
+          <CallToAction>
+            <CTAText COLORS={COLORS}>
+              Made with <HeartIcon COLORS={COLORS} /> for the deaf and hard-of-hearing community
+            </CTAText>
+          </CallToAction>
+        </InfoCard>
+      </InfoSection>
+    </ModernContainer>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32px 24px;
-  min-height: 100%;
-  background-color: ${props => props.backgroundColor};
-  
-  @media (max-width: 768px) {
-    padding: 24px 16px;
-    justify-content: flex-start;
-  }
-`;
-
-const LogoContainer = styled.div`
-  margin-bottom: 24px;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-  }
-`;
-
-const Logo = styled.img`
-  width: 80px;
-  height: 80px;
-  
-  @media (max-width: 768px) {
-    width: 60px;
-    height: 60px;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: ${props => props.color};
-  text-align: center;
-  margin-bottom: 16px;
-  
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 1.1rem;
-  color: ${props => props.color};
-  text-align: center;
-  margin-bottom: 32px;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-bottom: 24px;
-  }
-`;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 500px;
-  margin-bottom: 32px;
-  
-  @media (max-width: 768px) {
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-`;
-
-const ActionCard = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  
-  ${props => props.primary && `
-    border-left: 4px solid ${props.theme.primary};
-  `}
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-  
-  @media (max-width: 768px) {
-    padding: 12px;
-  }
-`;
-
-const ActionIconContainer = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background-color: ${props => props.backgroundColor};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 16px;
-  flex-shrink: 0;
-  
-  @media (max-width: 768px) {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    margin-right: 12px;
-  }
-`;
-
-const ActionContent = styled.div`
-  flex: 1;
-`;
-
-const ActionTitle = styled.h3`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-bottom: 4px;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-`;
-
-const ActionDescription = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-  }
-`;
-
-const InfoContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
-  padding: 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 12px;
-  
-  @media (max-width: 768px) {
-    padding: 12px;
-  }
-`;
-
-const InfoHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 10px;
-  }
-`;
-
-const InfoTitle = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-left: 8px;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const InfoList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const InfoItem = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-  }
-`;
 
 export default HomeScreen;

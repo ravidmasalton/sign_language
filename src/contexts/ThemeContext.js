@@ -1,34 +1,48 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Define theme colors
+// Define modern vibrant theme colors
 const lightTheme = {
-  primary: '#4285F4',
-  primaryLight: '#D2E3FC',
-  accent: '#34A853',
-  accentLight: '#CEEAD6',
-  background: '#FFFFFF',
-  card: '#F8F9FA',
-  text: '#202124',
-  textSecondary: '#5F6368',
-  border: '#DADCE0',
-  error: '#EA4335',
-  warning: '#FBBC04',
-  success: '#34A853',
+  primary: '#6366f1',        // Modern indigo
+  primaryDark: '#4f46e5',    // Darker indigo
+  primaryLight: '#e0e7ff',   // Light indigo background
+  accent: '#f59e0b',         // Warm amber
+  secondary: '#10b981',      // Emerald green
+  background: '#f8fafc',     // Cooler white
+  card: '#ffffff',           // Pure white cards
+  surface: '#f1f5f9',        // Light surface
+  text: '#1e293b',           // Dark slate
+  textSecondary: '#64748b',  // Medium slate
+  textMuted: '#94a3b8',      // Light slate
+  border: '#e2e8f0',         // Light border
+  success: '#10b981',        // Emerald
+  warning: '#f59e0b',        // Amber
+  error: '#ef4444',          // Red
+  info: '#3b82f6',           // Blue
+  shadow: 'rgba(0, 0, 0, 0.1)',
+  gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+  cardGradient: 'linear-gradient(135deg, #ffffff, #f8fafc)',
 };
 
 const darkTheme = {
-  primary: '#8AB4F8',
-  primaryLight: '#3C4043',
-  accent: '#81C995',
-  accentLight: '#3C4043',
-  background: '#202124',
-  card: '#303134',
-  text: '#E8EAED',
-  textSecondary: '#9AA0A6',
-  border: '#5F6368',
-  error: '#F28B82',
-  warning: '#FDD663',
-  success: '#81C995',
+  primary: '#818cf8',        // Lighter indigo for dark
+  primaryDark: '#6366f1',    
+  primaryLight: '#312e81',   // Dark indigo
+  accent: '#fbbf24',         // Brighter amber
+  secondary: '#34d399',      // Lighter emerald
+  background: '#0f172a',     // Very dark slate
+  card: '#1e293b',           // Dark slate cards
+  surface: '#334155',        // Medium slate
+  text: '#f8fafc',           // Light text
+  textSecondary: '#cbd5e1',  // Medium light
+  textMuted: '#94a3b8',      // Muted light
+  border: '#475569',         // Dark border
+  success: '#34d399',
+  warning: '#fbbf24',
+  error: '#f87171',
+  info: '#60a5fa',
+  shadow: 'rgba(0, 0, 0, 0.3)',
+  gradient: 'linear-gradient(135deg, #818cf8, #a855f7)',
+  cardGradient: 'linear-gradient(135deg, #1e293b, #334155)',
 };
 
 const ThemeContext = createContext();
