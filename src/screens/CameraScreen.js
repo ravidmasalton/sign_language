@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import styled, { keyframes, css } from 'styled-components';
-import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaSync, FaVideoSlash } from 'react-icons/fa';
+import { FaCamera, FaSync } from 'react-icons/fa';
 
 // Modern styled components for the camera screen
 const fadeIn = keyframes`
@@ -28,7 +27,7 @@ const glow = keyframes`
 const ModernCameraContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white; /* Changed to white for better contrast */
+  color: white;
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -49,13 +48,13 @@ const HeaderSection = styled.div`
 const MainTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: white; /* Direct white color instead of gradient */
+  color: white;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Added text shadow for better readability */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -75,7 +74,7 @@ const TitleIcon = styled.span`
 
 const Subtitle = styled.p`
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
   font-weight: 400;
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
@@ -86,7 +85,7 @@ const Subtitle = styled.p`
 `;
 
 const TranslationDisplay = styled.div`
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
@@ -114,7 +113,7 @@ const TranslationIcon = styled.span`
 const TranslationText = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
-  color: white; /* White text for better contrast */
+  color: white;
   flex: 1;
   word-wrap: break-word;
 
@@ -137,10 +136,10 @@ const ControlsSection = styled.div`
 
 const ModernButton = styled.button`
   background: ${props => {
-    if (props.variant === 'danger') {
+    if (props.$variant === 'danger') {
       return 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
     }
-    if (props.variant === 'camera') {
+    if (props.$variant === 'camera') {
       return 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
     }
     return 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
@@ -186,7 +185,7 @@ const ModernButton = styled.button`
 
 const ButtonIcon = styled.span`
   font-size: 1.1rem;
-  ${props => props.isSpinning && css`animation: ${spin} 1s linear infinite;`}
+  ${props => props.$isSpinning && css`animation: ${spin} 1s linear infinite;`}
 `;
 
 const CameraSection = styled.div`
@@ -202,7 +201,7 @@ const VideoContainer = styled.div`
   width: 100%;
   max-width: 800px;
   aspect-ratio: 4/3;
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
@@ -224,7 +223,7 @@ const ModernCanvas = styled.canvas`
 const LoadingOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
@@ -246,7 +245,7 @@ const LoadingSpinner = styled.div`
 const LoadingText = styled.div`
   font-size: 1.1rem;
   font-weight: 500;
-  color: white; /* White text for better contrast */
+  color: white;
   text-align: center;
 `;
 
@@ -276,7 +275,7 @@ const StatusSection = styled.div`
 `;
 
 const StatusCard = styled.div`
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
@@ -291,7 +290,7 @@ const StatusHeader = styled.div`
   margin-bottom: 1rem;
   font-weight: 600;
   font-size: 1.1rem;
-  color: white; /* White text for better contrast */
+  color: white;
 `;
 
 const StatusIcon = styled.span`
@@ -305,12 +304,12 @@ const PredictionDisplay = styled.div`
   border-radius: 12px;
   text-align: center;
   margin-bottom: 1.5rem;
-  background: ${props => props.confidence 
+  background: ${props => props.$confidence 
     ? 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'
     : 'rgba(255, 255, 255, 0.1)'};
-  color: white; /* Always white text */
+  color: white;
   transition: all 0.3s ease;
-  ${props => props.confidence && css`animation: ${pulse} 2s infinite;`}
+  ${props => props.$confidence && css`animation: ${pulse} 2s infinite;`}
 `;
 
 const SystemStatus = styled.div`
@@ -335,14 +334,14 @@ const StatusItem = styled.div`
 
 const StatusLabel = styled.span`
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 const StatusValue = styled.span`
   font-weight: 600;
-  color: ${props => props.isActive 
-    ? '#4ade80' /* Green for active status */
-    : 'rgba(255, 255, 255, 0.9)'}; /* Semi-transparent white for inactive */
+  color: ${props => props.$isActive 
+    ? '#4ade80'
+    : 'rgba(255, 255, 255, 0.9)'};
 `;
 
 const ErrorContainer = styled.div`
@@ -355,7 +354,7 @@ const ErrorContainer = styled.div`
 `;
 
 const ErrorCard = styled.div`
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
@@ -375,20 +374,20 @@ const ErrorIcon = styled.div`
 const ErrorTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: white; /* White text for better contrast */
+  color: white;
   margin: 0 0 1rem 0;
 `;
 
 const ErrorMessage = styled.p`
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  color: rgba(255, 255, 255, 0.9);
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
 
 const ErrorHint = styled.div`
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 8px;
@@ -400,19 +399,17 @@ const ErrorCode = styled.code`
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  color: white; /* White text for better contrast */
+  color: white;
   font-size: 0.875rem;
 `;
 
 // MediaPipe Holistic Component with Real MediaPipe Integration
 const Sign_language_recognition = () => {
-  const { theme } = useTheme();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const holisticRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [model, setModel] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const modelRef = useRef(null);
@@ -426,24 +423,41 @@ const Sign_language_recognition = () => {
   // Camera switching states
   const [isMobile, setIsMobile] = useState(false);
   const [currentStream, setCurrentStream] = useState(null);
-  const [facingMode, setFacingMode] = useState('user'); // 'user' for front, 'environment' for back
+  const [facingMode, setFacingMode] = useState('user');
   const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
   const [availableCameras, setAvailableCameras] = useState([]);
+  const [cameraReady, setCameraReady] = useState(false);
+  const streamRef = useRef(null);
  
-  // הגדרות זהות לגרסת Python
-  const ACTIONS = [
+  // הגדרות זהות לגרסת Python - מועברות למemoized values
+  const ACTIONS = React.useMemo(() => [
     "Bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day",
     "deaf", "drink", "eat", "enjoy", "family", "go", "help", "love", "mom",
     "need", "no", "red", "sick", "son", "study", "tall", "thank you",
     "tired", "write", "yes", "you"
-  ];
+  ], []);
  
   const SEQ_LEN = 30;
   const THRESHOLD = 0.7;
   const SMOOTH_WINDOW = 4;
   const EMA_ALPHA = 0.6;
+
+  // Constants for MediaPipe connections - מועברות למemoized values
+  const POSE_CONNECTIONS = React.useMemo(() => [
+    [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
+    [9, 10], [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
+    [17, 19], [12, 14], [14, 16], [16, 18], [16, 20], [16, 22], [18, 20],
+    [11, 23], [12, 24], [23, 24], [23, 25], [24, 26], [25, 27], [26, 28],
+    [27, 29], [28, 30], [29, 31], [30, 32], [27, 31], [28, 32]
+  ], []);
  
-  // Smoothing classes - זהות לגרסת Python
+  const HAND_CONNECTIONS = React.useMemo(() => [
+    [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
+    [0, 9], [9, 10], [10, 11], [11, 12], [0, 13], [13, 14], [14, 15], [15, 16],
+    [0, 17], [17, 18], [18, 19], [19, 20]
+  ], []);
+ 
+  // Smoothing classes
   const smootherRef = useRef({
     window: [],
     maxSize: SMOOTH_WINDOW,
@@ -481,135 +495,37 @@ const Sign_language_recognition = () => {
     }
   });
 
-  // Check if device is mobile and get available cameras
-  useEffect(() => {
-    const checkDevice = () => {
-      const mobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsMobile(mobile);
-      if (mobile) {
-        setFacingMode('user'); // Default to front camera on mobile
+  // Drawing utility functions
+  const drawLandmarks = useCallback((ctx, landmarks, color = '#FF0000', radius = 2) => {
+    if (!landmarks) return;
+    ctx.fillStyle = color;
+    landmarks.forEach(landmark => {
+      const x = landmark.x * ctx.canvas.width;
+      const y = landmark.y * ctx.canvas.height;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+  }, []);
+ 
+  const drawConnections = useCallback((ctx, landmarks, connections, color = '#00FF00', lineWidth = 2) => {
+    if (!landmarks) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    connections.forEach(([start, end]) => {
+      if (landmarks[start] && landmarks[end]) {
+        const startPoint = landmarks[start];
+        const endPoint = landmarks[end];
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x * ctx.canvas.width, startPoint.y * ctx.canvas.height);
+        ctx.lineTo(endPoint.x * ctx.canvas.width, endPoint.y * ctx.canvas.height);
+        ctx.stroke();
       }
-    };
+    });
+  }, []);
 
-    const getAvailableCameras = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter(device => device.kind === 'videoinput');
-        setAvailableCameras(cameras);
-      } catch (err) {
-        console.warn('Could not enumerate cameras:', err);
-      }
-    };
-
-    checkDevice();
-    getAvailableCameras();
-
-    window.addEventListener('resize', checkDevice);
-    return () => window.removeEventListener('resize', checkDevice);
-  }, []);
- 
-  // הוספת useEffect בשביל להסתיר את הכפתורים "Live Camera Demo" ו-"Sample Data Mode"
-  useEffect(() => {
-    const hideUnwantedButtons = () => {
-      document.querySelectorAll('button').forEach(btn => {
-        const txt = btn.innerText.trim();
-        if (txt === 'Live Camera Demo' || txt === 'Sample Data Mode') {
-          btn.style.display = 'none';
-        }
-      });
-    };
-    hideUnwantedButtons();
-    const timeoutId = setTimeout(hideUnwantedButtons, 500);
-    return () => clearTimeout(timeoutId);
-  }, []);
- 
-  // טעינת MediaPipe עם הגרסה החדשה
-  useEffect(() => {
-    const loadMediaPipe = async () => {
-      try {
-        const loadScript = (src) => {
-          return new Promise((resolve, reject) => {
-            if (document.querySelector(`script[src="${src}"]`)) {
-              resolve();
-              return;
-            }
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        };
- 
-        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6.1629159505/control_utils.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/holistic.js');
- 
-        initializeHolistic();
-      } catch (err) {
-        console.error('MediaPipe loading error:', err);
-      }
-    };
- 
-    const initializeHolistic = () => {
-      try {
-        if (!window.Holistic) {
-          throw new Error('Holistic not available');
-        }
- 
-        holisticRef.current = new window.Holistic({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/${file}`
-        });
- 
-        holisticRef.current.setOptions({
-          modelComplexity: 2,
-          smoothLandmarks: false,
-          refineFaceLandmarks: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-          staticImageMode: false
-        });
- 
-        holisticRef.current.onResults(onResults);
-        setIsMediaPipeLoaded(true);
-      } catch (err) {
-        console.error('MediaPipe initialization error:', err);
-      }
-    };
- 
-    loadMediaPipe();
-  }, []);
- 
-  // טעינת המודל TensorFlow - זהה לגרסה של HandSignPredictor
-  useEffect(() => {
-    const loadModel = async () => {
-      if (modelRef.current) return;
- 
-      try {
-        setIsProcessing(true);
-        const loadedModel = await tf.loadLayersModel('/tfjs_model/model.json');
-        modelRef.current = loadedModel;
-        setModel(loadedModel);
-        setIsModelLoaded(true);
-      } catch (err) {
-        console.error('❌ Error loading model:', err);
-        setError(`Model loading error: ${err.message}`);
-      } finally {
-        setIsProcessing(false);
-      }
-    };
-    loadModel();
- 
-    return () => {
-      if (modelRef.current) {
-        modelRef.current.dispose();
-      }
-    };
-  }, []);
- 
-  // פונקצית חילוץ keypoints - זהה לגרסת Python
-  const extractKeypoints = (results) => {
+  // פונקצית חילוץ keypoints
+  const extractKeypoints = useCallback((results) => {
     let pose = new Array(33 * 3).fill(0);
     if (results.poseLandmarks) {
       pose = results.poseLandmarks.flatMap(lm => [lm.x, lm.y, 0.0]);
@@ -630,9 +546,9 @@ const Sign_language_recognition = () => {
     }
  
     return [...pose, ...leftHand, ...rightHand];
-  };
- 
-  const makePrediction = async (buffer) => {
+  }, []);
+
+  const makePrediction = useCallback(async (buffer) => {
     if (!modelRef.current || !Array.isArray(buffer) || buffer.length !== SEQ_LEN || isProcessing) return;
  
     try {
@@ -678,10 +594,11 @@ const Sign_language_recognition = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
- 
-  // onResults callback - מקבל תוצאות מ-MediaPipe או סימולציה
-  const onResults = (results) => {
+  }, [ACTIONS, THRESHOLD, SEQ_LEN, isProcessing]);
+
+  // טעינת MediaPipe
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onResults = useCallback((results) => {
     if (canvasRef.current && videoRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
@@ -690,10 +607,22 @@ const Sign_language_recognition = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
  
-      // 1) ציור הווידאו
+      // ציור הווידאו
+      ctx.save();
+      if (facingMode === 'user') {
+        ctx.scale(-1, 1);
+        ctx.translate(-canvas.width, 0);
+      }
       ctx.drawImage(video, 0, 0);
+      ctx.restore();
  
-      // 2) ציור landmarks
+      // ציור landmarks
+      ctx.save();
+      if (facingMode === 'user') {
+        ctx.scale(-1, 1);
+        ctx.translate(-canvas.width, 0);
+      }
+      
       if (results.poseLandmarks) {
         drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
@@ -706,8 +635,9 @@ const Sign_language_recognition = () => {
         drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
       }
+      ctx.restore();
  
-      // 3) חילוץ keypoints והוספה לבאפר
+      // חילוץ keypoints והוספה לבאפר
       const kp = extractKeypoints(results);
       if (kp !== null) {
         setSequenceBuffer(prev => {
@@ -721,146 +651,266 @@ const Sign_language_recognition = () => {
           }
           return newBuffer;
         });
+      } else {
+        // אם אין ידיים, עדכן רק את הפריים קאונטר
+        setFrameCount(prev => Math.max(0, prev - 1));
       }
- 
-      // 4) ציור overlay ללא הרקע השחור למעלה
-      drawOverlay(ctx);
     }
-  };
- 
-  const POSE_CONNECTIONS = [
-    [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
-    [9, 10], [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
-    [17, 19], [12, 14], [14, 16], [16, 18], [16, 20], [16, 22], [18, 20],
-    [11, 23], [12, 24], [23, 24], [23, 25], [24, 26], [25, 27], [26, 28],
-    [27, 29], [28, 30], [29, 31], [30, 32], [27, 31], [28, 32]
-  ];
- 
-  const HAND_CONNECTIONS = [
-    [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
-    [0, 9], [9, 10], [10, 11], [11, 12], [0, 13], [13, 14], [14, 15], [15, 16],
-    [0, 17], [17, 18], [18, 19], [19, 20]
-  ];
- 
-  const drawLandmarks = (ctx, landmarks, color = '#FF0000', radius = 2) => {
-    if (!landmarks) return;
-    ctx.fillStyle = color;
-    landmarks.forEach(landmark => {
-      const x = landmark.x * ctx.canvas.width;
-      const y = landmark.y * ctx.canvas.height;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-  };
- 
-  const drawConnections = (ctx, landmarks, connections, color = '#00FF00', lineWidth = 2) => {
-    if (!landmarks) return;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    connections.forEach(([start, end]) => {
-      if (landmarks[start] && landmarks[end]) {
-        const startPoint = landmarks[start];
-        const endPoint = landmarks[end];
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x * ctx.canvas.width, startPoint.y * ctx.canvas.height);
-        ctx.lineTo(endPoint.x * ctx.canvas.width, endPoint.y * ctx.canvas.height);
-        ctx.stroke();
-      }
-    });
-  };
- 
-  const drawOverlay = (ctx) => {
-    // הוסר כל המידע מהמצלמה - רק מצלמה נקייה
-  };
+  }, [facingMode, drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN]);
 
-  // Camera management functions
-  const startCamera = async (constraints = null) => {
-    try {
-      const defaultConstraints = {
-        video: {
-          width: { ideal: 1000 },
-          height: { ideal: 700 },
-          facingMode: facingMode
-        }
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints || defaultConstraints);
-      
-      // Stop previous stream if exists
-      if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-      }
-      
-      setCurrentStream(stream);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play();
-          setIsLoading(false);
-          startProcessing();
-        };
-      }
-    } catch (err) {
-      setError(`Camera access error: ${err.message}`);
-      setIsLoading(false);
-    }
-  };
-
-  const switchCamera = async () => {
-    if (!isMobile || availableCameras.length < 2) return;
-    
-    setIsSwitchingCamera(true);
-    
-    try {
-      const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
-      setFacingMode(newFacingMode);
-      
-      await startCamera({
-        video: {
-          width: { ideal: 1000 },
-          height: { ideal: 700 },
-          facingMode: newFacingMode
-        }
-      });
-    } catch (err) {
-      console.error('Error switching camera:', err);
-      // Fallback to previous camera if switching fails
-      setFacingMode(facingMode === 'user' ? 'environment' : 'user');
-    } finally {
-      setIsSwitchingCamera(false);
-    }
-  };
-
-  const startProcessing = () => {
+  // Start processing function
+  const startProcessing = useCallback(() => {
     const processFrame = async () => {
-      if (videoRef.current && isMediaPipeLoaded) {
+      if (videoRef.current && isMediaPipeLoaded && cameraReady) {
         if (holisticRef.current && holisticRef.current.send && window.Holistic) {
           try {
             await holisticRef.current.send({ image: videoRef.current });
           } catch (err) {
-            console.warn('MediaPipe send error, using simulation:', err);
+            console.warn('MediaPipe send error:', err);
           }
         }
       }
       requestAnimationFrame(processFrame);
     };
     processFrame();
-  };
- 
-  // התחלת המצלמה והעיבוד
+  }, [isMediaPipeLoaded, cameraReady]);
+
+  // Check if device is mobile and get available cameras
   useEffect(() => {
-    if (isMediaPipeLoaded && isModelLoaded && !currentStream) {
-      startCamera();
-    }
- 
-    return () => {
-      if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const mobile = /android/i.test(userAgent) || 
+                    /iPad|iPhone|iPod/.test(userAgent) || 
+                    (window.innerWidth <= 768);
+      setIsMobile(mobile);
+      if (mobile) {
+        setFacingMode('user');
+      } else {
+        setFacingMode('environment');
       }
     };
-  }, [isMediaPipeLoaded, isModelLoaded, facingMode]);
+
+    const getAvailableCameras = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(device => device.kind === 'videoinput');
+        setAvailableCameras(cameras);
+        console.log(`Found ${cameras.length} cameras:`, cameras.map(c => c.label));
+      } catch (err) {
+        console.warn('Could not enumerate cameras:', err);
+      }
+    };
+
+    checkDevice();
+    getAvailableCameras();
+
+    const handleResize = () => {
+      checkDevice();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const loadMediaPipe = async () => {
+      try {
+        const loadScript = (src) => {
+          return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+              resolve();
+              return;
+            }
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        };
+ 
+        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6.1629159505/control_utils.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/holistic.js');
+ 
+        const initializeHolistic = () => {
+          try {
+            if (!window.Holistic) {
+              throw new Error('Holistic not available');
+            }
+     
+            holisticRef.current = new window.Holistic({
+              locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1635989137/${file}`
+            });
+     
+            holisticRef.current.setOptions({
+              modelComplexity: 2,
+              smoothLandmarks: false,
+              refineFaceLandmarks: false,
+              minDetectionConfidence: 0.5,
+              minTrackingConfidence: 0.5,
+              staticImageMode: false
+            });
+     
+            holisticRef.current.onResults(onResults);
+            setIsMediaPipeLoaded(true);
+          } catch (err) {
+            console.error('MediaPipe initialization error:', err);
+          }
+        };
+
+        initializeHolistic();
+      } catch (err) {
+        console.error('MediaPipe loading error:', err);
+      }
+    };
+ 
+    loadMediaPipe();
+  }, [onResults]);
+ 
+  // טעינת המודל TensorFlow
+  useEffect(() => {
+    const loadModel = async () => {
+      if (modelRef.current) return;
+ 
+      try {
+        setIsProcessing(true);
+        const loadedModel = await tf.loadLayersModel('/tfjs_model/model.json');
+        modelRef.current = loadedModel;
+        setIsModelLoaded(true);
+      } catch (err) {
+        console.error('❌ Error loading model:', err);
+        setError(`Model loading error: ${err.message}`);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+    loadModel();
+ 
+    return () => {
+      if (modelRef.current) {
+        modelRef.current.dispose();
+      }
+    };
+  }, []);
+
+  // Request camera access and setup video stream
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const setupCamera = useCallback(async () => {
+    try {
+      console.log('Setting up camera with facingMode:', facingMode);
+      
+      // Stop any previous camera stream
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
+        tracks.forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      
+      const getVideoConstraints = () => {
+        const resolution = { width: { ideal: 1280 }, height: { ideal: 720 } };
+        
+        if (isMobile) {
+          resolution.width.ideal = 720;
+          resolution.height.ideal = 1280;
+        }
+        
+        return {
+          ...resolution,
+          facingMode: facingMode
+        };
+      };
+      
+      const constraints = {
+        video: getVideoConstraints()
+      };
+      
+      console.log("Requesting camera with constraints:", constraints);
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCurrentStream(stream);
+        
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().then(() => {
+            setCameraReady(true);
+            setIsLoading(false);
+            console.log('✅ Camera started successfully');
+            startProcessing();
+          }).catch(err => {
+            console.error('❌ Error playing video:', err);
+            setError('Failed to start video playback');
+          });
+        };
+        
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+          console.log('Using camera:', videoTrack.label);
+          console.log('Camera settings:', videoTrack.getSettings());
+        }
+        
+        setError(null);
+      }
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      
+      if (error.name === 'NotFoundError' || error.name === 'OverconstrainedError') {
+        setError(`Could not access ${facingMode === 'user' ? 'front' : 'back'} camera: Your device may not have this camera or it might be in use by another application.`);
+      } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setError(`Camera access denied: Please enable camera permissions in your browser settings and reload this page.`);
+      } else {
+        setError(`Camera error: ${error.message}. Try reloading the page or using a different device/browser.`);
+      }
+      setIsLoading(false);
+    }
+  }, [facingMode, isMobile, startProcessing]);
+
+  // Camera switching function
+  const switchCamera = async () => {
+    if (!isMobile || availableCameras.length < 2) {
+      console.log('Camera switch not available:', { isMobile, availableCameras: availableCameras.length });
+      return;
+    }
+    
+    console.log('Switching camera from', facingMode);
+    setIsSwitchingCamera(true);
+    setCameraReady(false);
+    
+    try {
+      const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+      setFacingMode(newFacingMode);
+      console.log('New facing mode:', newFacingMode);
+      
+      setTimeout(() => {
+        setupCamera();
+      }, 100);
+      
+    } catch (err) {
+      console.error('Error switching camera:', err);
+      setError(`Error switching camera: ${err.message}`);
+    } finally {
+      setTimeout(() => {
+        setIsSwitchingCamera(false);
+      }, 1000);
+    }
+  };
+
+  // Use effect to setup camera when component mounts or facing mode changes
+  useEffect(() => {
+    if (isMediaPipeLoaded && isModelLoaded) {
+      setupCamera();
+    }
+    
+    return () => {
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, [isMediaPipeLoaded, isModelLoaded, setupCamera]);
  
   const clearSentence = () => {
     setSentence([]);
@@ -873,14 +923,14 @@ const Sign_language_recognition = () => {
    
   if (error) {
     return (
-      <ErrorContainer theme={theme}>
-        <ErrorCard theme={theme}>
+      <ErrorContainer>
+        <ErrorCard>
           <ErrorIcon>⚠️</ErrorIcon>
-          <ErrorTitle theme={theme}>Camera Error</ErrorTitle>
-          <ErrorMessage theme={theme}>{error}</ErrorMessage>
-          <ErrorHint theme={theme}>
+          <ErrorTitle>Camera Error</ErrorTitle>
+          <ErrorMessage>{error}</ErrorMessage>
+          <ErrorHint>
             Make sure you have a valid TensorFlow.js model at{' '}
-            <ErrorCode theme={theme}>/tfjs_model/model.json</ErrorCode>
+            <ErrorCode>/tfjs_model/model.json</ErrorCode>
           </ErrorHint>
         </ErrorCard>
       </ErrorContainer>
@@ -888,13 +938,13 @@ const Sign_language_recognition = () => {
   }
 
   return (
-    <ModernCameraContainer theme={theme}>
+    <ModernCameraContainer>
       <HeaderSection>
-        <MainTitle theme={theme}>
+        <MainTitle>
           <TitleIcon>🎥</TitleIcon>
           Video to Word Translation
         </MainTitle>
-        <Subtitle theme={theme}>AI-powered sign language recognition in real-time</Subtitle>
+        <Subtitle>AI-powered sign language recognition in real-time</Subtitle>
       </HeaderSection>
 
       {isMobile && availableCameras.length > 0 && (
@@ -905,9 +955,9 @@ const Sign_language_recognition = () => {
         </CameraNotification>
       )}
 
-      <TranslationDisplay theme={theme}>
+      <TranslationDisplay>
         <TranslationIcon>💬</TranslationIcon>
-        <TranslationText theme={theme}>
+        <TranslationText>
           {sentence.length > 0
             ? sentence.join(' ')
             : 'Perform signs to see video-to-word translation...'}
@@ -916,10 +966,9 @@ const Sign_language_recognition = () => {
 
       <ControlsSection>
         <ModernButton 
-          theme={theme}
           onClick={clearSentence}
           disabled={!isMediaPipeLoaded || !isModelLoaded}
-          variant="danger"
+          $variant="danger"
         >
           <ButtonIcon>🗑️</ButtonIcon>
           Clear Sentence
@@ -927,12 +976,11 @@ const Sign_language_recognition = () => {
 
         {isMobile && availableCameras.length > 1 && (
           <ModernButton 
-            theme={theme}
             onClick={switchCamera}
-            disabled={isSwitchingCamera || isLoading}
-            variant="camera"
+            disabled={isSwitchingCamera || isLoading || !cameraReady}
+            $variant="camera"
           >
-            <ButtonIcon isSpinning={isSwitchingCamera}>
+            <ButtonIcon $isSpinning={isSwitchingCamera}>
               {isSwitchingCamera ? <FaSync /> : <FaCamera />}
             </ButtonIcon>
             {isSwitchingCamera ? 'Switching...' : 
@@ -942,7 +990,7 @@ const Sign_language_recognition = () => {
       </ControlsSection>
 
       <CameraSection>
-        <VideoContainer theme={theme}>
+        <VideoContainer>
           <video
             ref={videoRef}
             style={{
@@ -952,24 +1000,18 @@ const Sign_language_recognition = () => {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              opacity: 0,
-              transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' // Mirror front camera
+              opacity: 0
             }}
             autoPlay
             muted
             playsInline
           />
-          <ModernCanvas 
-            ref={canvasRef} 
-            style={{
-              transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' // Mirror front camera display
-            }}
-          />
+          <ModernCanvas ref={canvasRef} />
           
-          {isLoading && (
-            <LoadingOverlay theme={theme}>
-              <LoadingSpinner theme={theme} />
-              <LoadingText theme={theme}>
+          {(isLoading || isSwitchingCamera) && (
+            <LoadingOverlay>
+              <LoadingSpinner />
+              <LoadingText>
                 {isSwitchingCamera ? 'Switching camera...' : 'Initializing camera and AI model...'}
               </LoadingText>
             </LoadingOverlay>
@@ -978,22 +1020,22 @@ const Sign_language_recognition = () => {
       </CameraSection>
 
       <StatusSection>
-        <StatusCard theme={theme}>
-          <StatusHeader theme={theme}>
+        <StatusCard>
+          <StatusHeader>
             <StatusIcon>🤖</StatusIcon>
             Latest Prediction
           </StatusHeader>
           
-          <PredictionDisplay theme={theme} confidence={currentPrediction.confidence > THRESHOLD}>
+          <PredictionDisplay $confidence={currentPrediction.confidence > THRESHOLD}>
             {currentPrediction.word
               ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
               : 'Processing...'}
           </PredictionDisplay>
 
           <SystemStatus>
-            <StatusItem theme={theme}>
-              <StatusLabel theme={theme}>MediaPipe:</StatusLabel>
-              <StatusValue theme={theme} isActive={isMediaPipeLoaded}>
+            <StatusItem>
+              <StatusLabel>MediaPipe:</StatusLabel>
+              <StatusValue $isActive={isMediaPipeLoaded}>
                 {isMediaPipeLoaded
                   ? window.Holistic
                     ? '✅ Real'
@@ -1002,25 +1044,25 @@ const Sign_language_recognition = () => {
               </StatusValue>
             </StatusItem>
             
-            <StatusItem theme={theme}>
-              <StatusLabel theme={theme}>AI Model:</StatusLabel>
-              <StatusValue theme={theme} isActive={isModelLoaded}>
+            <StatusItem>
+              <StatusLabel>AI Model:</StatusLabel>
+              <StatusValue $isActive={isModelLoaded}>
                 {isModelLoaded ? '✅ Loaded' : '⏳ Loading...'}
               </StatusValue>
             </StatusItem>
             
-            <StatusItem theme={theme}>
-              <StatusLabel theme={theme}>Camera:</StatusLabel>
-              <StatusValue theme={theme} isActive={currentStream}>
-                {currentStream ? 
+            <StatusItem>
+              <StatusLabel>Camera:</StatusLabel>
+              <StatusValue $isActive={cameraReady && currentStream}>
+                {cameraReady && currentStream ? 
                   `✅ ${facingMode === 'user' ? 'Front' : 'Back'}` : 
                   '⏳ Loading...'}
               </StatusValue>
             </StatusItem>
             
-            <StatusItem theme={theme}>
-              <StatusLabel theme={theme}>Buffer:</StatusLabel>
-              <StatusValue theme={theme} isActive={isCollecting}>
+            <StatusItem>
+              <StatusLabel>Buffer:</StatusLabel>
+              <StatusValue $isActive={isCollecting}>
                 {frameCount}/{SEQ_LEN} {isCollecting ? '(Collecting)' : ''}
               </StatusValue>
             </StatusItem>
