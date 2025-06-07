@@ -806,20 +806,20 @@ const Sign_language_recognition = () => {
         const tracks = streamRef.current.getTracks();
         tracks.forEach(track => track.stop());
         streamRef.current = null;
+        setCurrentStream(null);
       }
       
+      // Wait a bit for camera to be released
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       const getVideoConstraints = () => {
-        const resolution = { width: { ideal: 1280 }, height: { ideal: 720 } };
-        
-        if (isMobile) {
-          resolution.width.ideal = 720;
-          resolution.height.ideal = 1280;
-        }
-        
-        return {
-          ...resolution,
-          facingMode: facingMode
+        const baseConstraints = {
+          width: { ideal: isMobile ? 720 : 1280 },
+          height: { ideal: isMobile ? 1280 : 720 },
+          facingMode: { exact: facingMode }
         };
+        
+        return baseConstraints;
       };
       
       const constraints = {
@@ -827,33 +827,82 @@ const Sign_language_recognition = () => {
       };
       
       console.log("Requesting camera with constraints:", constraints);
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setCurrentStream(stream);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().then(() => {
-            setCameraReady(true);
-            setIsLoading(false);
-            console.log('✅ Camera started successfully');
-            startProcessing();
-          }).catch(err => {
-            console.error('❌ Error playing video:', err);
-            setError('Failed to start video playback');
-          });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+          setCurrentStream(stream);
+          
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play().then(() => {
+              setCameraReady(true);
+              setIsLoading(false);
+              console.log('✅ Camera started successfully');
+              
+              const videoTrack = stream.getVideoTracks()[0];
+              if (videoTrack) {
+                const settings = videoTrack.getSettings();
+                console.log('Using camera:', videoTrack.label);
+                console.log('Camera settings:', settings);
+                console.log('Actual facingMode:', settings.facingMode);
+              }
+              
+              startProcessing();
+            }).catch(err => {
+              console.error('❌ Error playing video:', err);
+              setError('Failed to start video playback');
+            });
+          };
+          
+          setError(null);
+        }
+      } catch (exactError) {
+        console.warn('Exact facingMode failed, trying ideal:', exactError);
+        
+        // Fallback to ideal instead of exact
+        const fallbackConstraints = {
+          video: {
+            width: { ideal: isMobile ? 720 : 1280 },
+            height: { ideal: isMobile ? 1280 : 720 },
+            facingMode: { ideal: facingMode }
+          }
         };
         
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack) {
-          console.log('Using camera:', videoTrack.label);
-          console.log('Camera settings:', videoTrack.getSettings());
-        }
+        const stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
         
-        setError(null);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+          setCurrentStream(stream);
+          
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play().then(() => {
+              setCameraReady(true);
+              setIsLoading(false);
+              console.log('✅ Camera started successfully (fallback)');
+              
+              const videoTrack = stream.getVideoTracks()[0];
+              if (videoTrack) {
+                const settings = videoTrack.getSettings();
+                console.log('Using camera (fallback):', videoTrack.label);
+                console.log('Camera settings:', settings);
+                console.log('Actual facingMode:', settings.facingMode);
+              }
+              
+              startProcessing();
+            }).catch(err => {
+              console.error('❌ Error playing video:', err);
+              setError('Failed to start video playback');
+            });
+          };
+          
+          setError(null);
+        }
       }
+      
     } catch (error) {
       console.error("Error accessing camera:", error);
       
@@ -865,6 +914,7 @@ const Sign_language_recognition = () => {
         setError(`Camera error: ${error.message}. Try reloading the page or using a different device/browser.`);
       }
       setIsLoading(false);
+      setCameraReady(false);
     }
   }, [facingMode, isMobile, startProcessing]);
 
@@ -878,29 +928,43 @@ const Sign_language_recognition = () => {
     console.log('Switching camera from', facingMode);
     setIsSwitchingCamera(true);
     setCameraReady(false);
+    setIsLoading(true);
     
     try {
-      const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
-      setFacingMode(newFacingMode);
-      console.log('New facing mode:', newFacingMode);
+      // Stop current stream first
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
+        tracks.forEach(track => {
+          track.stop();
+          console.log('Stopped track:', track.label);
+        });
+        streamRef.current = null;
+        setCurrentStream(null);
+      }
       
+      // Wait for camera to be fully released
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+      console.log('Switching to facingMode:', newFacingMode);
+      setFacingMode(newFacingMode);
+      
+      // Small delay before starting new camera
       setTimeout(() => {
-        setupCamera();
-      }, 100);
+        setIsSwitchingCamera(false);
+      }, 1000);
       
     } catch (err) {
       console.error('Error switching camera:', err);
       setError(`Error switching camera: ${err.message}`);
-    } finally {
-      setTimeout(() => {
-        setIsSwitchingCamera(false);
-      }, 1000);
+      setIsSwitchingCamera(false);
+      setIsLoading(false);
     }
   };
 
   // Use effect to setup camera when component mounts or facing mode changes
   useEffect(() => {
-    if (isMediaPipeLoaded && isModelLoaded) {
+    if (isMediaPipeLoaded && isModelLoaded && !isSwitchingCamera) {
       setupCamera();
     }
     
@@ -910,7 +974,7 @@ const Sign_language_recognition = () => {
         tracks.forEach(track => track.stop());
       }
     };
-  }, [isMediaPipeLoaded, isModelLoaded, setupCamera]);
+  }, [isMediaPipeLoaded, isModelLoaded, setupCamera, facingMode, isSwitchingCamera]);
  
   const clearSentence = () => {
     setSentence([]);
