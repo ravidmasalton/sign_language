@@ -39,7 +39,7 @@ const sparkle = keyframes`
 const ModernContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
-  color: ${props => props.COLORS?.text || '#1e293b'};
+  color: white; /* Changed to white for better contrast */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,16 +70,18 @@ const LogoContainer = styled.div`
 const ModernLogo = styled.div`
   width: 120px;
   height: 120px;
-  background: ${props => props.theme?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
   color: white;
-  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 
   &::before {
     content: '';
@@ -100,12 +102,10 @@ const ModernLogo = styled.div`
 const MainTitle = styled.h1`
   font-size: 3rem;
   font-weight: 700;
-  background: ${props => props.theme?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white; /* Direct white color instead of gradient */
   margin: 0 0 1rem 0;
   line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Added text shadow for better readability */
 
   @media (max-width: 768px) {
     font-size: 2.2rem;
@@ -118,10 +118,11 @@ const MainTitle = styled.h1`
 
 const HeroSubtitle = styled.p`
   font-size: 1.25rem;
-  color: ${props => props.theme?.textSecondary || '#64748b'};
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
   margin: 0 0 2rem 0;
   max-width: 600px;
   line-height: 1.6;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     font-size: 1.1rem;
@@ -145,14 +146,14 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: ${props => props.theme?.card || '#ffffff'};
+  background: rgba(255, 255, 255, 0.95); /* All cards have white background */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => props.theme?.border || '#e2e8f0'};
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 2rem;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
   ${css`animation: ${slideIn} 0.8s ease-out;`}
@@ -166,14 +167,14 @@ const FeatureCard = styled.div`
     left: 0;
     right: 0;
     height: 4px;
-    background: ${props => props.gradient || props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     
     &::before {
       transform: scaleX(1);
@@ -181,9 +182,6 @@ const FeatureCard = styled.div`
   }
   
   ${props => props.primary && css`
-    background: ${props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
-    color: white;
-    
     &:hover {
       animation: ${glow} 2s infinite;
     }
@@ -198,7 +196,7 @@ const FeatureIconContainer = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: ${props => props.background || props.COLORS?.surface || '#f1f5f9'}40;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6); /* All icons have purple background */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,16 +205,9 @@ const FeatureIconContainer = styled.div`
 
   svg {
     font-size: 1.75rem;
-    color: ${props => props.iconColor || props.COLORS?.text || '#1e293b'};
+    color: white; /* Always white for better contrast */
     transition: all 0.3s ease;
   }
-
-  ${props => props.primary && css`
-    background: rgba(255, 255, 255, 0.2);
-    svg {
-      color: white;
-    }
-  `}
 
   @media (max-width: 768px) {
     width: 56px;
@@ -229,7 +220,7 @@ const FeatureTitle = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
-  color: ${props => props.primary ? 'white' : props.COLORS?.text || '#1e293b'};
+  color: #1e293b; /* All titles are dark for white background */
 
   @media (max-width: 768px) {
     font-size: 1.25rem;
@@ -240,7 +231,7 @@ const FeatureDescription = styled.p`
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
-  color: ${props => props.primary ? 'rgba(255,255,255,0.9)' : props.COLORS?.textSecondary || '#64748b'};
+  color: #64748b; /* All descriptions are dark for white background */
 
   @media (max-width: 768px) {
     font-size: 0.9rem;
@@ -254,12 +245,12 @@ const InfoSection = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: ${props => props.COLORS?.card || '#ffffff'};
+  background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => props.COLORS?.border || '#e2e8f0'};
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     padding: 1.5rem;
@@ -277,7 +268,7 @@ const InfoIcon = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: ${props => props.COLORS?.gradient || 'linear-gradient(135deg, #f59e0b, #f97316)'};
+  background: linear-gradient(135deg, #f59e0b, #f97316);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,7 +279,7 @@ const InfoIcon = styled.div`
 const InfoTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${props => props.COLORS?.text || '#1e293b'};
+  color: #1e293b; /* Dark text for white background */
   margin: 0;
 `;
 
@@ -303,7 +294,7 @@ const InfoItem = styled.div`
   align-items: flex-start;
   gap: 0.75rem;
   font-size: 1rem;
-  color: ${props => props.COLORS?.textSecondary || '#64748b'};
+  color: #64748b; /* Dark text for white background */
   line-height: 1.5;
 `;
 
@@ -311,7 +302,7 @@ const CheckIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: ${props => props.COLORS?.secondary || '#10b981'};
+  background: #10b981;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -329,7 +320,7 @@ const CallToAction = styled.div`
 
 const CTAText = styled.p`
   font-size: 1.1rem;
-  color: ${props => props.COLORS?.textSecondary || '#64748b'};
+  color: #64748b; /* Dark text for white background */
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -338,7 +329,7 @@ const CTAText = styled.p`
 `;
 
 const HeartIcon = styled(FaHeart)`
-  color: ${props => props.COLORS?.accent || '#f59e0b'};
+  color: #f59e0b;
   ${css`animation: ${pulse} 1.5s infinite;`}
 `;
 
@@ -380,15 +371,14 @@ const HomeScreen = () => {
         <FeatureCard 
           primary
           COLORS={COLORS}
-          gradient={COLORS.gradient}
           onClick={handleGoToCamera}
           delay="0.2s"
         >
-          <FeatureIconContainer primary COLORS={COLORS}>
+          <FeatureIconContainer COLORS={COLORS}>
             <FaCamera />
           </FeatureIconContainer>
-          <FeatureTitle primary COLORS={COLORS}>Start Translation</FeatureTitle>
-          <FeatureDescription primary COLORS={COLORS}>
+          <FeatureTitle COLORS={COLORS}>Start Translation</FeatureTitle>
+          <FeatureDescription COLORS={COLORS}>
             Use your camera to translate sign language gestures in real-time with advanced AI recognition
           </FeatureDescription>
         </FeatureCard>
@@ -398,8 +388,8 @@ const HomeScreen = () => {
           onClick={handleGoToWordToAnimation}
           delay="0.3s"
         >
-          <FeatureIconContainer background={COLORS.secondary} COLORS={COLORS}>
-            <FaClosedCaptioning color="white" />
+          <FeatureIconContainer COLORS={COLORS}>
+            <FaClosedCaptioning />
           </FeatureIconContainer>
           <FeatureTitle COLORS={COLORS}>Word to Animation</FeatureTitle>
           <FeatureDescription COLORS={COLORS}>
@@ -409,12 +399,11 @@ const HomeScreen = () => {
         
         <FeatureCard 
           COLORS={COLORS}
-          gradient={COLORS.accent}
           onClick={handleGoToSettings}
           delay="0.4s"
         >
-          <FeatureIconContainer background={COLORS.accent} COLORS={COLORS}>
-            <FaCog color="white" />
+          <FeatureIconContainer COLORS={COLORS}>
+            <FaCog />
           </FeatureIconContainer>
           <FeatureTitle COLORS={COLORS}>Customize Experience</FeatureTitle>
           <FeatureDescription COLORS={COLORS}>

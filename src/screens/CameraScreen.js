@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
+import { FaCamera, FaSync, FaVideoSlash } from 'react-icons/fa';
 
 // Modern styled components for the camera screen
 const fadeIn = keyframes`
@@ -19,17 +20,6 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
 
-// פונקציה לקבלת צבע בטוח מה-theme
-const safeColor = (theme, path, fallback) => {
-  const keys = path.split('.');
-  let value = theme;
-  for (const key of keys) {
-    if (!value || typeof value !== 'object') return fallback;
-    value = value[key];
-  }
-  return value || fallback;
-};
-
 const glow = keyframes`
   0%, 100% { box-shadow: 0 0 20px #007bff40; }
   50% { box-shadow: 0 0 30px #007bff60; }
@@ -37,7 +27,8 @@ const glow = keyframes`
 
 const ModernCameraContainer = styled.div`
   min-height: 100vh;
-  background: ${props => safeColor(props.theme, 'colors.background.gradient', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')};  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white; /* Changed to white for better contrast */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -58,15 +49,13 @@ const HeaderSection = styled.div`
 const MainTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  background: ${props => safeColor(props.theme, 'colors.text.gradient', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white; /* Direct white color instead of gradient */
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Added text shadow for better readability */
 
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -86,9 +75,10 @@ const TitleIcon = styled.span`
 
 const Subtitle = styled.p`
   font-size: 1.1rem;
-  color: ${props => safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
   margin: 0;
   font-weight: 400;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -96,13 +86,14 @@ const Subtitle = styled.p`
 `;
 
 const TranslationDisplay = styled.div`
-  background: ${props => safeColor(props.theme, 'colors.surface.glass', 'rgba(255, 255, 255, 0.1)')};
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => safeColor(props.theme, 'colors.border.glass', 'rgba(255, 255, 255, 0.2)')};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: ${props => safeColor(props.theme, 'shadows.glass', '0 8px 32px rgba(31, 38, 135, 0.37)')};
-  display: flex;  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;  
+  align-items: center;
   gap: 1rem;
   min-height: 80px;
   ${css`animation: ${fadeIn} 0.8s ease-out 0.2s both;`}
@@ -123,7 +114,7 @@ const TranslationIcon = styled.span`
 const TranslationText = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  color: white; /* White text for better contrast */
   flex: 1;
   word-wrap: break-word;
 
@@ -139,7 +130,7 @@ const ControlsSection = styled.div`
   margin: 1rem 0;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
   }
 `;
@@ -147,9 +138,12 @@ const ControlsSection = styled.div`
 const ModernButton = styled.button`
   background: ${props => {
     if (props.variant === 'danger') {
-      return safeColor(props.theme, 'colors.accent.gradient', 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)');
+      return 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
     }
-    return safeColor(props.theme, 'colors.primary.gradient', 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)');
+    if (props.variant === 'camera') {
+      return 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+    }
+    return 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
   }};
   color: white;
   border: none;
@@ -162,11 +156,12 @@ const ModernButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: ${props => safeColor(props.theme, 'shadows.soft', '0 4px 6px rgba(0, 0, 0, 0.1)')};
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: ${props => safeColor(props.theme, 'shadows.hover', '0 8px 15px rgba(0, 0, 0, 0.2)')};
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
     ${css`animation: ${glow} 2s infinite;`}
   }
 
@@ -181,18 +176,23 @@ const ModernButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    width: 100%;
+    flex: 1;
+    min-width: 140px;
     max-width: 200px;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
   }
 `;
 
 const ButtonIcon = styled.span`
   font-size: 1.1rem;
+  ${props => props.isSpinning && css`animation: ${spin} 1s linear infinite;`}
 `;
 
 const CameraSection = styled.div`
   flex: 1;
-  display: flex;  justify-content: center;
+  display: flex;  
+  justify-content: center;
   align-items: center;
   ${css`animation: ${fadeIn} 1s ease-out 0.4s both;`}
 `;
@@ -202,12 +202,12 @@ const VideoContainer = styled.div`
   width: 100%;
   max-width: 800px;
   aspect-ratio: 4/3;
-  background: ${props => safeColor(props.theme, 'colors.surface.glass', 'rgba(255, 255, 255, 0.1)')};
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => safeColor(props.theme, 'colors.border.glass', 'rgba(255, 255, 255, 0.2)')};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: ${props => safeColor(props.theme, 'shadows.glass', '0 8px 32px rgba(31, 38, 135, 0.37)')};
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     aspect-ratio: 16/12;
@@ -224,7 +224,7 @@ const ModernCanvas = styled.canvas`
 const LoadingOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: ${props => safeColor(props.theme, 'colors.surface.glass', 'rgba(255, 255, 255, 0.1)')};
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
@@ -237,7 +237,8 @@ const LoadingOverlay = styled.div`
 const LoadingSpinner = styled.div`
   width: 60px;
   height: 60px;
-  border: 4px solid ${props => safeColor(props.theme, 'colors.primary.main', '#007bff')}20;  border-top: 4px solid ${props => safeColor(props.theme, 'colors.primary.main', '#007bff')};
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
   border-radius: 50%;
   ${css`animation: ${spin} 1s linear infinite;`}
 `;
@@ -245,8 +246,29 @@ const LoadingSpinner = styled.div`
 const LoadingText = styled.div`
   font-size: 1.1rem;
   font-weight: 500;
-  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  color: white; /* White text for better contrast */
   text-align: center;
+`;
+
+const CameraNotification = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: white;
+  text-align: center;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 0.8rem;
+  }
 `;
 
 const StatusSection = styled.div`
@@ -254,12 +276,12 @@ const StatusSection = styled.div`
 `;
 
 const StatusCard = styled.div`
-  background: ${props => safeColor(props.theme, 'colors.surface.glass', 'rgba(255, 255, 255, 0.1)')};
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => safeColor(props.theme, 'colors.border.glass', 'rgba(255, 255, 255, 0.2)')};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 1.5rem;
-  box-shadow: ${props => safeColor(props.theme, 'shadows.glass', '0 8px 32px rgba(31, 38, 135, 0.37)')};
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 `;
 
 const StatusHeader = styled.div`
@@ -269,7 +291,7 @@ const StatusHeader = styled.div`
   margin-bottom: 1rem;
   font-weight: 600;
   font-size: 1.1rem;
-  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  color: white; /* White text for better contrast */
 `;
 
 const StatusIcon = styled.span`
@@ -284,9 +306,9 @@ const PredictionDisplay = styled.div`
   text-align: center;
   margin-bottom: 1.5rem;
   background: ${props => props.confidence 
-    ? safeColor(props.theme, 'colors.secondary.gradient', 'linear-gradient(135deg, #28a745 0%, #20c997 100%)')
-    : safeColor(props.theme, 'colors.surface.secondary', 'rgba(255, 255, 255, 0.05)')};
-  color: ${props => props.confidence ? 'white' : safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
+    ? 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'
+    : 'rgba(255, 255, 255, 0.1)'};
+  color: white; /* Always white text */
   transition: all 0.3s ease;
   ${props => props.confidence && css`animation: ${pulse} 2s infinite;`}
 `;
@@ -306,26 +328,26 @@ const StatusItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: ${props => safeColor(props.theme, 'colors.surface.secondary', 'rgba(255, 255, 255, 0.05)')}40;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  border: 1px solid ${props => safeColor(props.theme, 'colors.border.light', 'rgba(255, 255, 255, 0.1)')};
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const StatusLabel = styled.span`
   font-weight: 500;
-  color: ${props => safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
 `;
 
 const StatusValue = styled.span`
   font-weight: 600;
   color: ${props => props.isActive 
-    ? safeColor(props.theme, 'colors.secondary.main', '#28a745')
-    : safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
+    ? '#4ade80' /* Green for active status */
+    : 'rgba(255, 255, 255, 0.9)'}; /* Semi-transparent white for inactive */
 `;
 
 const ErrorContainer = styled.div`
   min-height: 100vh;
-  background: ${props => safeColor(props.theme, 'colors.background.gradient', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')};
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -333,13 +355,14 @@ const ErrorContainer = styled.div`
 `;
 
 const ErrorCard = styled.div`
-  background: ${props => safeColor(props.theme, 'colors.surface.glass', 'rgba(255, 255, 255, 0.1)')};
+  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => safeColor(props.theme, 'colors.border.glass', 'rgba(255, 255, 255, 0.2)')};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
-  padding: 2rem;  text-align: center;
+  padding: 2rem;  
+  text-align: center;
   max-width: 500px;
-  box-shadow: ${props => safeColor(props.theme, 'shadows.glass', '0 8px 32px rgba(31, 38, 135, 0.37)')};
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   ${css`animation: ${fadeIn} 0.6s ease-out;`}
 `;
 
@@ -352,32 +375,32 @@ const ErrorIcon = styled.div`
 const ErrorTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  color: white; /* White text for better contrast */
   margin: 0 0 1rem 0;
 `;
 
 const ErrorMessage = styled.p`
   font-size: 1rem;
-  color: ${props => safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
 
 const ErrorHint = styled.div`
   font-size: 0.875rem;
-  color: ${props => safeColor(props.theme, 'colors.text.secondary', '#e0e6ed')};
-  background: ${props => safeColor(props.theme, 'colors.surface.secondary', 'rgba(255, 255, 255, 0.05)')}40;
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  background: rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid ${props => safeColor(props.theme, 'colors.accent.main', '#dc3545')};
+  border-left: 4px solid #dc3545;
 `;
 
 const ErrorCode = styled.code`
-  background: ${props => safeColor(props.theme, 'colors.surface.secondary', 'rgba(255, 255, 255, 0.05)')};
+  background: rgba(255, 255, 255, 0.1);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  color: ${props => safeColor(props.theme, 'colors.text.primary', '#ffffff')};
+  color: white; /* White text for better contrast */
   font-size: 0.875rem;
 `;
 
@@ -399,6 +422,13 @@ const Sign_language_recognition = () => {
   const [sequenceBuffer, setSequenceBuffer] = useState([]);
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
+  
+  // Camera switching states
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentStream, setCurrentStream] = useState(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' for front, 'environment' for back
+  const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
+  const [availableCameras, setAvailableCameras] = useState([]);
  
   // הגדרות זהות לגרסת Python
   const ACTIONS = [
@@ -408,7 +438,7 @@ const Sign_language_recognition = () => {
     "tired", "write", "yes", "you"
   ];
  
-  const SEQ_LEN = 40;
+  const SEQ_LEN = 30;
   const THRESHOLD = 0.7;
   const SMOOTH_WINDOW = 4;
   const EMA_ALPHA = 0.6;
@@ -450,6 +480,33 @@ const Sign_language_recognition = () => {
       return this.ema;
     }
   });
+
+  // Check if device is mobile and get available cameras
+  useEffect(() => {
+    const checkDevice = () => {
+      const mobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      if (mobile) {
+        setFacingMode('user'); // Default to front camera on mobile
+      }
+    };
+
+    const getAvailableCameras = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(device => device.kind === 'videoinput');
+        setAvailableCameras(cameras);
+      } catch (err) {
+        console.warn('Could not enumerate cameras:', err);
+      }
+    };
+
+    checkDevice();
+    getAvailableCameras();
+
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
  
   // הוספת useEffect בשביל להסתיר את הכפתורים "Live Camera Demo" ו-"Sample Data Mode"
   useEffect(() => {
@@ -716,61 +773,94 @@ const Sign_language_recognition = () => {
   const drawOverlay = (ctx) => {
     // הוסר כל המידע מהמצלמה - רק מצלמה נקייה
   };
+
+  // Camera management functions
+  const startCamera = async (constraints = null) => {
+    try {
+      const defaultConstraints = {
+        video: {
+          width: { ideal: 1000 },
+          height: { ideal: 700 },
+          facingMode: facingMode
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints || defaultConstraints);
+      
+      // Stop previous stream if exists
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      
+      setCurrentStream(stream);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play();
+          setIsLoading(false);
+          startProcessing();
+        };
+      }
+    } catch (err) {
+      setError(`Camera access error: ${err.message}`);
+      setIsLoading(false);
+    }
+  };
+
+  const switchCamera = async () => {
+    if (!isMobile || availableCameras.length < 2) return;
+    
+    setIsSwitchingCamera(true);
+    
+    try {
+      const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+      setFacingMode(newFacingMode);
+      
+      await startCamera({
+        video: {
+          width: { ideal: 1000 },
+          height: { ideal: 700 },
+          facingMode: newFacingMode
+        }
+      });
+    } catch (err) {
+      console.error('Error switching camera:', err);
+      // Fallback to previous camera if switching fails
+      setFacingMode(facingMode === 'user' ? 'environment' : 'user');
+    } finally {
+      setIsSwitchingCamera(false);
+    }
+  };
+
+  const startProcessing = () => {
+    const processFrame = async () => {
+      if (videoRef.current && isMediaPipeLoaded) {
+        if (holisticRef.current && holisticRef.current.send && window.Holistic) {
+          try {
+            await holisticRef.current.send({ image: videoRef.current });
+          } catch (err) {
+            console.warn('MediaPipe send error, using simulation:', err);
+          }
+        }
+      }
+      requestAnimationFrame(processFrame);
+    };
+    processFrame();
+  };
  
   // התחלת המצלמה והעיבוד
   useEffect(() => {
-    let stream = null;
-    let animationId = null;
- 
-    const startCamera = async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1000, height: 700 }
-        });
- 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play();
-            setIsLoading(false);
-            startProcessing();
-          };
-        }
-      } catch (err) {
-        setError(`Camera access error: ${err.message}`);
-        setIsLoading(false);
-      }
-    };
- 
-    const startProcessing = () => {
-      const processFrame = async () => {
-        if (videoRef.current && isMediaPipeLoaded) {
-          if (holisticRef.current && holisticRef.current.send && window.Holistic) {
-            try {
-              await holisticRef.current.send({ image: videoRef.current });
-            } catch (err) {
-              console.warn('MediaPipe send error, using simulation:', err);
-            }
-          }
-        }
-        animationId = requestAnimationFrame(processFrame);
-      };
-      processFrame();
-    };
- 
-    if (isMediaPipeLoaded && isModelLoaded) {
+    if (isMediaPipeLoaded && isModelLoaded && !currentStream) {
       startCamera();
     }
  
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      if (animationId) {
-        cancelAnimationFrame(animationId);
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isMediaPipeLoaded, isModelLoaded]);
+  }, [isMediaPipeLoaded, isModelLoaded, facingMode]);
  
   const clearSentence = () => {
     setSentence([]);
@@ -789,7 +879,7 @@ const Sign_language_recognition = () => {
           <ErrorTitle theme={theme}>Camera Error</ErrorTitle>
           <ErrorMessage theme={theme}>{error}</ErrorMessage>
           <ErrorHint theme={theme}>
-            Make sure you have a valid TensorFlow.js model at
+            Make sure you have a valid TensorFlow.js model at{' '}
             <ErrorCode theme={theme}>/tfjs_model/model.json</ErrorCode>
           </ErrorHint>
         </ErrorCard>
@@ -806,6 +896,14 @@ const Sign_language_recognition = () => {
         </MainTitle>
         <Subtitle theme={theme}>AI-powered sign language recognition in real-time</Subtitle>
       </HeaderSection>
+
+      {isMobile && availableCameras.length > 0 && (
+        <CameraNotification>
+          <FaCamera />
+          Using {facingMode === 'user' ? 'Front' : 'Back'} Camera
+          {availableCameras.length > 1 && ' - Tap switch to change'}
+        </CameraNotification>
+      )}
 
       <TranslationDisplay theme={theme}>
         <TranslationIcon>💬</TranslationIcon>
@@ -826,6 +924,21 @@ const Sign_language_recognition = () => {
           <ButtonIcon>🗑️</ButtonIcon>
           Clear Sentence
         </ModernButton>
+
+        {isMobile && availableCameras.length > 1 && (
+          <ModernButton 
+            theme={theme}
+            onClick={switchCamera}
+            disabled={isSwitchingCamera || isLoading}
+            variant="camera"
+          >
+            <ButtonIcon isSpinning={isSwitchingCamera}>
+              {isSwitchingCamera ? <FaSync /> : <FaCamera />}
+            </ButtonIcon>
+            {isSwitchingCamera ? 'Switching...' : 
+             facingMode === 'user' ? 'Switch to Back' : 'Switch to Front'}
+          </ModernButton>
+        )}
       </ControlsSection>
 
       <CameraSection>
@@ -839,18 +952,26 @@ const Sign_language_recognition = () => {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              opacity: 0
+              opacity: 0,
+              transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' // Mirror front camera
             }}
             autoPlay
             muted
             playsInline
           />
-          <ModernCanvas ref={canvasRef} />
+          <ModernCanvas 
+            ref={canvasRef} 
+            style={{
+              transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' // Mirror front camera display
+            }}
+          />
           
           {isLoading && (
             <LoadingOverlay theme={theme}>
               <LoadingSpinner theme={theme} />
-              <LoadingText theme={theme}>Initializing camera and AI model...</LoadingText>
+              <LoadingText theme={theme}>
+                {isSwitchingCamera ? 'Switching camera...' : 'Initializing camera and AI model...'}
+              </LoadingText>
             </LoadingOverlay>
           )}
         </VideoContainer>
@@ -885,6 +1006,15 @@ const Sign_language_recognition = () => {
               <StatusLabel theme={theme}>AI Model:</StatusLabel>
               <StatusValue theme={theme} isActive={isModelLoaded}>
                 {isModelLoaded ? '✅ Loaded' : '⏳ Loading...'}
+              </StatusValue>
+            </StatusItem>
+            
+            <StatusItem theme={theme}>
+              <StatusLabel theme={theme}>Camera:</StatusLabel>
+              <StatusValue theme={theme} isActive={currentStream}>
+                {currentStream ? 
+                  `✅ ${facingMode === 'user' ? 'Front' : 'Back'}` : 
+                  '⏳ Loading...'}
               </StatusValue>
             </StatusItem>
             
