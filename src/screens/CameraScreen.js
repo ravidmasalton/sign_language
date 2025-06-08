@@ -557,7 +557,7 @@ const Sign_language_recognition = () => {
       }
     };
   }, [isMediaPipeLoaded, isModelLoaded, setupCamera, facingMode]);
- 
+
   // Toggle camera facing mode
   const toggleCamera = useCallback(() => {
     setIsLoading(true);
@@ -627,7 +627,7 @@ const Sign_language_recognition = () => {
           <ModernButton 
             onClick={toggleCamera}
             disabled={!isMediaPipeLoaded || !isModelLoaded || isLoading}
-            $variant="primary"
+            $variant="camera"
           >
             <ButtonIcon>{facingMode === 'environment' ? '🤳' : '📷'}</ButtonIcon>
             {facingMode === 'environment' ? 'Front Cam' : 'Back Cam'}
