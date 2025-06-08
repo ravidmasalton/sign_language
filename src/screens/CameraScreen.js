@@ -612,5 +612,5 @@ const Sign_language_recognition = () => {
     </ModernCameraContainer>
   );
 };
-
+// This component is the main screen for sign language recognition
 export default Sign_language_recognition;
