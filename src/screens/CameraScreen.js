@@ -52,7 +52,7 @@ const Sign_language_recognition = () => {
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
   
-  // Simplified camera states - back camera only
+  // Camera states
   const [currentStream, setCurrentStream] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
   const streamRef = useRef(null);
@@ -174,7 +174,7 @@ const Sign_language_recognition = () => {
     return [...pose, ...leftHand, ...rightHand];
   }, []);
 
-  // Prediction function - with buffer reset
+  // Prediction function
   const makePrediction = useCallback(async (buffer) => {
     if (!modelRef.current || !Array.isArray(buffer) || buffer.length !== SEQ_LEN || isPredictionRunningRef.current) return;
  
@@ -186,11 +186,9 @@ const Sign_language_recognition = () => {
       const resultTensor = modelRef.current.predict(inputTensor);
       const probabilities = await resultTensor.data();
  
-      // Keep EMA filtering logic
       const probsEma = emaFilterRef.current.apply(Array.from(probabilities));
       const predictedClassIdx = tf.argMax(tf.tensor1d(probsEma)).dataSync()[0];
       
-      // Keep smoothing logic
       const predSmooth = smootherRef.current.apply(predictedClassIdx);
       const confidence = probsEma[predSmooth];
  
@@ -217,14 +215,12 @@ const Sign_language_recognition = () => {
         resultTensor.dispose();
       }
       
-      // FORCE BUFFER RESET after prediction completes
       setSequenceBuffer([]);
       setFrameCount(0);
       setIsCollecting(false);
       
     } catch (err) {
       setCurrentPrediction({ word: 'Error', confidence: 0, classIndex: -1 });
-      // Reset buffer even on error
       setSequenceBuffer([]);
       setFrameCount(0);
       setIsCollecting(false);
@@ -234,7 +230,7 @@ const Sign_language_recognition = () => {
     }
   }, [ACTIONS, THRESHOLD, SEQ_LEN]);
 
-  // MediaPipe results handler - NO MIRRORING for back camera
+  // MediaPipe results handler
   const onResults = useCallback((results) => {
     if (isProcessingFrameRef.current || !canvasRef.current || !videoRef.current) return;
     
@@ -248,10 +244,10 @@ const Sign_language_recognition = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
  
-      // Draw video directly without mirroring (back camera)
+      // Draw video directly (no mirroring for back camera)
       ctx.drawImage(video, 0, 0);
  
-      // Draw landmarks without mirroring (back camera)
+      // Draw landmarks
       if (results.poseLandmarks) {
         drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
@@ -265,7 +261,7 @@ const Sign_language_recognition = () => {
         drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
       }
  
-      // Process keypoints - EXACT 30 frame logic 
+      // Process keypoints
       const kp = extractKeypoints(results);
       if (kp !== null) {
         setSequenceBuffer(prev => {
@@ -274,18 +270,14 @@ const Sign_language_recognition = () => {
           setIsCollecting(bufferLength < SEQ_LEN);
           setFrameCount(bufferLength);
  
-          // EXACTLY 30 frames = trigger prediction (buffer reset happens in makePrediction)
           if (bufferLength === SEQ_LEN && !isPredictionRunningRef.current) {
-            // Deep copy to preserve data during async prediction
             const bufferCopy = newBuffer.map(frame => [...frame]);
             makePrediction(bufferCopy);
-            // Don't reset here - let makePrediction handle it after completion
           }
           
           return newBuffer;
         });
       } else {
-        // No hands detected - decrease frame count
         setFrameCount(prev => Math.max(0, prev - 1));
       }
     } finally {
@@ -381,10 +373,9 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera - FORCED BACK CAMERA
+  // Setup camera - SIMPLE BACK CAMERA
   const setupCamera = useCallback(async () => {
     try {
-      // Check if mediaDevices is available
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported in this browser');
       }
@@ -397,75 +388,77 @@ const Sign_language_recognition = () => {
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Get list of all video devices
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      
+      // Simple approach - try multiple constraints until one works
+      const constraintOptions = [
+        // Option 1: Force exact environment
+        {
+          video: {
+            facingMode: { exact: 'environment' },
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        },
+        // Option 2: Prefer environment  
+        {
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        },
+        // Option 3: Any back camera by device enumeration
+        null // Will be filled dynamically
+      ];
+
       let stream = null;
       
-      // Try to find back camera by looking for environment-facing camera
-      for (const device of videoDevices) {
-        try {
-          const testConstraints = {
-            video: {
-              deviceId: { exact: device.deviceId },
-              width: { ideal: 640, max: 1280 },
-              height: { ideal: 480, max: 720 },
-              frameRate: { ideal: 30, max: 30 }
+      // Try constraint options one by one
+      for (let i = 0; i < constraintOptions.length && !stream; i++) {
+        if (constraintOptions[i] === null) {
+          // Try to find back camera by device enumeration
+          try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(d => d.kind === 'videoinput');
+            
+            for (const device of videoDevices) {
+              try {
+                const testStream = await navigator.mediaDevices.getUserMedia({
+                  video: { deviceId: { exact: device.deviceId } }
+                });
+                
+                // Test if this is likely a back camera
+                const track = testStream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                
+                if (settings.facingMode === 'environment' || 
+                    device.label.toLowerCase().includes('back') ||
+                    device.label.toLowerCase().includes('rear')) {
+                  stream = testStream;
+                  break;
+                } else {
+                  testStream.getTracks().forEach(t => t.stop());
+                }
+              } catch (err) {
+                continue;
+              }
             }
-          };
-          
-          const testStream = await navigator.mediaDevices.getUserMedia(testConstraints);
-          
-          // Check if this looks like a back camera (usually has higher resolution capability)
-          const track = testStream.getVideoTracks()[0];
-          const capabilities = track.getCapabilities();
-          
-          // Back cameras usually support higher resolutions
-          const isLikelyBackCamera = capabilities.width?.max > 1000 || 
-                                   device.label.toLowerCase().includes('back') ||
-                                   device.label.toLowerCase().includes('rear') ||
-                                   device.label.toLowerCase().includes('environment');
-          
-          if (isLikelyBackCamera) {
-            stream = testStream;
-            break;
-          } else {
-            // Stop this stream and try next device
-            testStream.getTracks().forEach(track => track.stop());
+          } catch (err) {
+            continue;
           }
-        } catch (err) {
-          // Continue to next device
-          continue;
+        } else {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
+          } catch (err) {
+            continue;
+          }
         }
       }
       
-      // If no back camera found, try with explicit environment constraint
       if (!stream) {
-        try {
-          const constraints = {
-            video: {
-              width: { ideal: 640, max: 1280 },
-              height: { ideal: 480, max: 720 },
-              facingMode: { exact: 'environment' }, // Force exact match
-              frameRate: { ideal: 30, max: 30 }
-            }
-          };
-          
-          stream = await navigator.mediaDevices.getUserMedia(constraints);
-        } catch (err) {
-          // Fall back to ideal environment
-          const constraints = {
-            video: {
-              width: { ideal: 640, max: 1280 },
-              height: { ideal: 480, max: 720 },
-              facingMode: { ideal: 'environment' },
-              frameRate: { ideal: 30, max: 30 }
-            }
-          };
-          
-          stream = await navigator.mediaDevices.getUserMedia(constraints);
-        }
+        // Last resort - any camera
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } }
+        });
       }
       
       if (videoRef.current && stream) {
