@@ -345,9 +345,12 @@ const HomeScreen = () => {
   const handleGoToCamera = () => {
     navigate('/camera');
   };
-  
-  const handleGoToWordToAnimation = () => {
+    const handleGoToWordToAnimation = () => {
     navigate('/word-to-animation');
+  };
+  
+  const handleGoToVideoUpload = () => {
+    navigate('/video-upload');
   };
   
   const handleGoToSettings = () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaHome, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft, FaClosedCaptioning } from 'react-icons/fa';
+import { FaHome, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft, FaClosedCaptioning, FaCloudUploadAlt } from 'react-icons/fa';
 import { auth } from '../firebaseConfig';
 
 const Layout = ({ children }) => {
@@ -103,11 +103,17 @@ const Layout = ({ children }) => {
               <FaCamera size={20} />
               <NavText>Video to Word</NavText>
             </NavLink>
-          </NavItem>
-            <NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
+          </NavItem>          <NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/word-to-animation" color={COLORS.text} activeColor={COLORS.primary}>
               <FaClosedCaptioning size={20} />
               <NavText>Word to Animation</NavText>
+            </NavLink>
+          </NavItem>
+          
+          <NavItem isActive={isActive('/video-upload')} backgroundColor={COLORS.primaryLight}>
+            <NavLink to="/video-upload" color={COLORS.text} activeColor={COLORS.primary}>
+              <FaCloudUploadAlt size={20} />
+              <NavText>Upload Video</NavText>
             </NavLink>
           </NavItem>
           
@@ -175,11 +181,17 @@ const Layout = ({ children }) => {
               <FaCamera size={24} />
               <MobileNavText>Video to Word</MobileNavText>
             </MobileNavLink>
-          </MobileNavItem>
-            <MobileNavItem isActive={isActive('/word-to-animation')}>
+          </MobileNavItem>          <MobileNavItem isActive={isActive('/word-to-animation')}>
             <MobileNavLink to="/word-to-animation" activeColor={COLORS.primary} color={COLORS.textSecondary}>
               <FaClosedCaptioning size={24} />
               <MobileNavText>Word to Animation</MobileNavText>
+            </MobileNavLink>
+          </MobileNavItem>
+          
+          <MobileNavItem isActive={isActive('/video-upload')}>
+            <MobileNavLink to="/video-upload" activeColor={COLORS.primary} color={COLORS.textSecondary}>
+              <FaCloudUploadAlt size={24} />
+              <MobileNavText>Upload</MobileNavText>
             </MobileNavLink>
           </MobileNavItem>
           

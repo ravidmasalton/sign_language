@@ -8,10 +8,10 @@ import Layout from './components/Layout';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import CameraScreen from './screens/CameraScreen';
-import ResultsScreen from './screens/ResultsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MobileConnectionScreen from './screens/MobileConnectionScreen';
 import SignToAnimationScreen from './screens/SignToAnimationScreen';
+import VideoUploadScreen from './screens/VideoUploadScreen';
 import './App.css';
 
 function App() {
@@ -113,16 +113,8 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+        
           <Route
-            path="/results"
-            element={
-              <ProtectedRoute>
-                <ResultsScreen />
-              </ProtectedRoute>
-            }
-          />
-            <Route
             path="/word-to-animation"
             element={
               <ProtectedRoute>
@@ -130,7 +122,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-            <Route
+          <Route
+            path="/video-upload"
+            element={
+              <ProtectedRoute>
+                <VideoUploadScreen />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/settings"
             element={
               <ProtectedRoute>

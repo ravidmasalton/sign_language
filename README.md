@@ -1,43 +1,96 @@
-# Getting Started with Create React App
+# Sign Language App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React application for sign language recognition and translation, with features for uploading, displaying, and recognizing sign language gestures.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Video to Word Translation**: Translate sign language gestures captured via webcam
+- **Word to Animation**: View sign language animations for specific words
+- **Video Upload**: Upload sign language videos and extract MediaPipe Holistic keypoints
+- **Firebase Authentication**: Secure user login and access control
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Before running this application, you'll need:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js (v14 or higher)
+- npm or yarn
+- Python 3.8+ (for video processing)
+- MediaPipe (`pip install mediapipe`)
+- OpenCV (`pip install opencv-python`)
+- NumPy (`pip install numpy`)
 
-### `npm test`
+## Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Install Python dependencies:
+   ```
+   pip install mediapipe opencv-python numpy
+   ```
 
-### `npm run build`
+## Running the Application
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Development Mode
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+To run both the React frontend and Express backend:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+npm run dev
+```
 
-### `npm run eject`
+This will start:
+- React frontend on port 3000
+- Express backend on port 5000
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend Only
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Backend Only
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+npm run server
+```
+
+## Project Structure
+
+- `/public`: Static files
+  - `/sign_videos`: Sign language animation videos
+  - `/uploads`: Uploaded videos (created during runtime)
+- `/src`: React frontend code
+  - `/components`: UI components
+  - `/contexts`: React contexts
+  - `/screens`: Main application screens
+- `/processed_keypoints`: Extracted MediaPipe Holistic keypoints (created during runtime)
+- `server.js`: Express backend server
+- `process_and_sample_video.py`: Python script for processing videos
+
+## Video Upload Feature
+
+The video upload feature allows users to:
+1. Upload MP4 videos of sign language gestures
+2. Provide metadata (gesture name, contributor)
+3. Process videos to extract 225-dimensional keypoints (pose + hands)
+4. Store both the original video and the extracted keypoints
+
+Uploaded videos are saved to `/public/uploads/<gesture>/` and processed keypoints are stored in `/processed_keypoints/<gesture>/<video_id>/keypoints.npy`.
+
+## API Endpoints
+
+- `POST /api/upload-video`: Upload a sign language video
+- `GET /api/processing-status/:processingId`: Check video processing status
+- `GET /api/videos`: Get list of all uploaded videos
+- `GET /api/videos/:id`: Get details of a specific video
+
+## License
+
+[MIT License](LICENSE)
 
 ## Learn More
 
