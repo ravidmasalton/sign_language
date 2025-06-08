@@ -381,7 +381,7 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera - BACK CAMERA ONLY
+  // Setup camera - FORCED BACK CAMERA
   const setupCamera = useCallback(async () => {
     try {
       // Check if mediaDevices is available
@@ -397,19 +397,78 @@ const Sign_language_recognition = () => {
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Always use back camera (environment)
-      const constraints = {
-        video: {
-          width: { ideal: 640, max: 1280 },
-          height: { ideal: 480, max: 720 },
-          facingMode: 'environment', // Always back camera
-          frameRate: { ideal: 30, max: 30 }
+      // Get list of all video devices
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      let stream = null;
+      
+      // Try to find back camera by looking for environment-facing camera
+      for (const device of videoDevices) {
+        try {
+          const testConstraints = {
+            video: {
+              deviceId: { exact: device.deviceId },
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 },
+              frameRate: { ideal: 30, max: 30 }
+            }
+          };
+          
+          const testStream = await navigator.mediaDevices.getUserMedia(testConstraints);
+          
+          // Check if this looks like a back camera (usually has higher resolution capability)
+          const track = testStream.getVideoTracks()[0];
+          const capabilities = track.getCapabilities();
+          
+          // Back cameras usually support higher resolutions
+          const isLikelyBackCamera = capabilities.width?.max > 1000 || 
+                                   device.label.toLowerCase().includes('back') ||
+                                   device.label.toLowerCase().includes('rear') ||
+                                   device.label.toLowerCase().includes('environment');
+          
+          if (isLikelyBackCamera) {
+            stream = testStream;
+            break;
+          } else {
+            // Stop this stream and try next device
+            testStream.getTracks().forEach(track => track.stop());
+          }
+        } catch (err) {
+          // Continue to next device
+          continue;
         }
-      };
+      }
       
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      // If no back camera found, try with explicit environment constraint
+      if (!stream) {
+        try {
+          const constraints = {
+            video: {
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 },
+              facingMode: { exact: 'environment' }, // Force exact match
+              frameRate: { ideal: 30, max: 30 }
+            }
+          };
+          
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (err) {
+          // Fall back to ideal environment
+          const constraints = {
+            video: {
+              width: { ideal: 640, max: 1280 },
+              height: { ideal: 480, max: 720 },
+              facingMode: { ideal: 'environment' },
+              frameRate: { ideal: 30, max: 30 }
+            }
+          };
+          
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        }
+      }
       
-      if (videoRef.current) {
+      if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setCurrentStream(stream);
