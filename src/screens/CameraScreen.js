@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as tf from '@tensorflow/tfjs';
-import { FaCamera, FaSync } from 'react-icons/fa';
 
 // Import all styled components from the separate styles file
 import {
@@ -21,7 +20,6 @@ import {
   LoadingOverlay,
   LoadingSpinner,
   LoadingText,
-  CameraNotification,
   StatusSection,
   StatusCard,
   StatusHeader,
@@ -35,9 +33,7 @@ import {
   ErrorCard,
   ErrorIcon,
   ErrorTitle,
-  ErrorMessage,
-  ErrorHint,
-  ErrorCode
+  ErrorMessage
 } from './CameraStyles';
 
 const Sign_language_recognition = () => {
@@ -56,12 +52,8 @@ const Sign_language_recognition = () => {
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
   
-  // Camera states
-  const [isMobile, setIsMobile] = useState(false);
+  // Simplified camera states - back camera only
   const [currentStream, setCurrentStream] = useState(null);
-  const [facingMode, setFacingMode] = useState('environment');
-  const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
-  const [availableCameras, setAvailableCameras] = useState([]);
   const [cameraReady, setCameraReady] = useState(false);
   const streamRef = useRef(null);
   
@@ -194,11 +186,11 @@ const Sign_language_recognition = () => {
       const resultTensor = modelRef.current.predict(inputTensor);
       const probabilities = await resultTensor.data();
  
-      // 🧠 Keep EMA filtering logic
+      // Keep EMA filtering logic
       const probsEma = emaFilterRef.current.apply(Array.from(probabilities));
       const predictedClassIdx = tf.argMax(tf.tensor1d(probsEma)).dataSync()[0];
       
-      // 🧠 Keep smoothing logic
+      // Keep smoothing logic
       const predSmooth = smootherRef.current.apply(predictedClassIdx);
       const confidence = probsEma[predSmooth];
  
@@ -225,7 +217,7 @@ const Sign_language_recognition = () => {
         resultTensor.dispose();
       }
       
-      // 🧹 FORCE BUFFER RESET after prediction completes
+      // FORCE BUFFER RESET after prediction completes
       setSequenceBuffer([]);
       setFrameCount(0);
       setIsCollecting(false);
@@ -242,7 +234,7 @@ const Sign_language_recognition = () => {
     }
   }, [ACTIONS, THRESHOLD, SEQ_LEN]);
 
-  // MediaPipe results handler
+  // MediaPipe results handler - NO MIRRORING for back camera
   const onResults = useCallback((results) => {
     if (isProcessingFrameRef.current || !canvasRef.current || !videoRef.current) return;
     
@@ -256,22 +248,10 @@ const Sign_language_recognition = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
  
-      // Draw video
-      ctx.save();
-      if (facingMode === 'user') {
-        ctx.scale(-1, 1);
-        ctx.translate(-canvas.width, 0);
-      }
+      // Draw video directly without mirroring (back camera)
       ctx.drawImage(video, 0, 0);
-      ctx.restore();
  
-      // Draw landmarks
-      ctx.save();
-      if (facingMode === 'user') {
-        ctx.scale(-1, 1);
-        ctx.translate(-canvas.width, 0);
-      }
-      
+      // Draw landmarks without mirroring (back camera)
       if (results.poseLandmarks) {
         drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
@@ -284,9 +264,8 @@ const Sign_language_recognition = () => {
         drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
         drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
       }
-      ctx.restore();
  
-      // 🎯 Process keypoints - EXACT 30 frame logic 
+      // Process keypoints - EXACT 30 frame logic 
       const kp = extractKeypoints(results);
       if (kp !== null) {
         setSequenceBuffer(prev => {
@@ -295,7 +274,7 @@ const Sign_language_recognition = () => {
           setIsCollecting(bufferLength < SEQ_LEN);
           setFrameCount(bufferLength);
  
-          // 🔥 EXACTLY 30 frames = trigger prediction (buffer reset happens in makePrediction)
+          // EXACTLY 30 frames = trigger prediction (buffer reset happens in makePrediction)
           if (bufferLength === SEQ_LEN && !isPredictionRunningRef.current) {
             // Deep copy to preserve data during async prediction
             const bufferCopy = newBuffer.map(frame => [...frame]);
@@ -312,7 +291,7 @@ const Sign_language_recognition = () => {
     } finally {
       isProcessingFrameRef.current = false;
     }
-  }, [facingMode, drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN]);
+  }, [drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN]);
 
   // Start processing
   const startProcessing = useCallback(() => {
@@ -328,21 +307,6 @@ const Sign_language_recognition = () => {
     };
     processFrame();
   }, [isMediaPipeLoaded, cameraReady]);
-
-  // Device detection
-  useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    const mobile = /android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) || (window.innerWidth <= 768);
-    setIsMobile(mobile);
-    setFacingMode(mobile ? 'user' : 'environment');
-
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        const cameras = devices.filter(device => device.kind === 'videoinput');
-        setAvailableCameras(cameras);
-      })
-      .catch(() => {});
-  }, []);
 
   // Load MediaPipe
   useEffect(() => {
@@ -417,9 +381,14 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera
+  // Setup camera - BACK CAMERA ONLY
   const setupCamera = useCallback(async () => {
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported in this browser');
+      }
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
@@ -428,11 +397,12 @@ const Sign_language_recognition = () => {
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
+      // Always use back camera (environment)
       const constraints = {
         video: {
-          width: { ideal: isMobile ? 720 : 1280 },
-          height: { ideal: isMobile ? 1280 : 720 },
-          facingMode: { ideal: facingMode },
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
+          facingMode: 'environment', // Always back camera
           frameRate: { ideal: 30, max: 30 }
         }
       };
@@ -461,41 +431,11 @@ const Sign_language_recognition = () => {
       setIsLoading(false);
       setCameraReady(false);
     }
-  }, [facingMode, isMobile, startProcessing]);
-
-  // Camera switching
-  const switchCamera = async () => {
-    if (!isMobile || availableCameras.length < 2) return;
-    
-    setIsSwitchingCamera(true);
-    setCameraReady(false);
-    setIsLoading(true);
-    
-    try {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-        setCurrentStream(null);
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setFacingMode(facingMode === 'user' ? 'environment' : 'user');
-      
-      setTimeout(() => {
-        setIsSwitchingCamera(false);
-      }, 1000);
-      
-    } catch (err) {
-      setError(`Error switching camera: ${err.message}`);
-      setIsSwitchingCamera(false);
-      setIsLoading(false);
-    }
-  };
+  }, [startProcessing]);
 
   // Setup camera when ready
   useEffect(() => {
-    if (isMediaPipeLoaded && isModelLoaded && !isSwitchingCamera) {
+    if (isMediaPipeLoaded && isModelLoaded) {
       setupCamera();
     }
     
@@ -504,7 +444,7 @@ const Sign_language_recognition = () => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isMediaPipeLoaded, isModelLoaded, setupCamera, facingMode, isSwitchingCamera]);
+  }, [isMediaPipeLoaded, isModelLoaded, setupCamera]);
  
   const clearSentence = () => {
     setSentence([]);
@@ -539,14 +479,6 @@ const Sign_language_recognition = () => {
         <Subtitle>AI-powered sign language recognition</Subtitle>
       </HeaderSection>
 
-      {isMobile && availableCameras.length > 0 && (
-        <CameraNotification>
-          <FaCamera />
-          Using {facingMode === 'user' ? 'Front' : 'Back'} Camera
-          {availableCameras.length > 1 && ' - Tap switch to change'}
-        </CameraNotification>
-      )}
-
       <TranslationDisplay>
         <TranslationIcon>💬</TranslationIcon>
         <TranslationText>
@@ -565,19 +497,6 @@ const Sign_language_recognition = () => {
           <ButtonIcon>🗑️</ButtonIcon>
           Clear
         </ModernButton>
-
-        {isMobile && availableCameras.length > 1 && (
-          <ModernButton 
-            onClick={switchCamera}
-            disabled={isSwitchingCamera || isLoading || !cameraReady}
-            $variant="camera"
-          >
-            <ButtonIcon $isSpinning={isSwitchingCamera}>
-              {isSwitchingCamera ? <FaSync /> : <FaCamera />}
-            </ButtonIcon>
-            {isSwitchingCamera ? 'Switching...' : 'Switch Camera'}
-          </ModernButton>
-        )}
       </ControlsSection>
 
       <CameraSection>
@@ -599,12 +518,10 @@ const Sign_language_recognition = () => {
           />
           <ModernCanvas ref={canvasRef} />
           
-          {(isLoading || isSwitchingCamera) && (
+          {isLoading && (
             <LoadingOverlay>
               <LoadingSpinner />
-              <LoadingText>
-                {isSwitchingCamera ? 'Switching camera...' : 'Loading...'}
-              </LoadingText>
+              <LoadingText>Loading...</LoadingText>
             </LoadingOverlay>
           )}
         </VideoContainer>
@@ -621,7 +538,9 @@ const Sign_language_recognition = () => {
             {currentPrediction.word
               ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
               : 'Processing...'}
-          </PredictionDisplay>          <SystemStatus>
+          </PredictionDisplay>
+
+          <SystemStatus>
             <StatusItem>
               <StatusLabel>Buffer:</StatusLabel>
               <StatusValue $isActive={isCollecting}>
