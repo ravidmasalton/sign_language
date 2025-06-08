@@ -158,6 +158,12 @@ export const ModernButton = styled.button`
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 48px;
+  /* הוספתי outline לנגישות */
+  outline: none;
+  
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
@@ -212,6 +218,13 @@ export const VideoContainer = styled.div`
 
   @media (max-width: 768px) {
     aspect-ratio: 16/12;
+    /* שיפור למובייל - מצלמה יותר גדולה */
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 480px) {
+    aspect-ratio: 4/3;
   }
 `;
 
@@ -220,6 +233,9 @@ export const ModernCanvas = styled.canvas`
   height: 100%;
   object-fit: cover;
   border-radius: 20px;
+  /* הוספתי לחדות טובה יותר */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 `;
 
 export const LoadingOverlay = styled.div`
@@ -233,6 +249,7 @@ export const LoadingOverlay = styled.div`
   justify-content: center;
   gap: 1rem;
   z-index: 10;
+  border-radius: 20px;
 `;
 
 export const LoadingSpinner = styled.div`
@@ -314,6 +331,13 @@ export const PredictionDisplay = styled.div`
   color: white;
   transition: all 0.3s ease;
   ${props => props.$confidence && css`animation: ${pulse} 2s infinite;`}
+  /* שיפור לקריאות טובה יותר */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
 `;
 
 export const SystemStatus = styled.div`
@@ -323,6 +347,7 @@ export const SystemStatus = styled.div`
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
 `;
 
@@ -334,6 +359,11 @@ export const StatusItem = styled.div`
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
 `;
 
 export const StatusLabel = styled.span`
@@ -346,6 +376,8 @@ export const StatusValue = styled.span`
   color: ${props => props.$isActive 
     ? '#4ade80'
     : 'rgba(255, 255, 255, 0.9)'};
+  /* הוספתי אנימציה רכה לשינוי צבע */
+  transition: color 0.3s ease;
 `;
 
 // Error Components
