@@ -59,7 +59,7 @@ const Sign_language_recognition = () => {
   // Camera states
   const [isMobile, setIsMobile] = useState(false);
   const [currentStream, setCurrentStream] = useState(null);
-  const [facingMode, setFacingMode] = useState('user');
+  const [facingMode, setFacingMode] = useState('environment');
   const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
   const [availableCameras, setAvailableCameras] = useState([]);
   const [cameraReady, setCameraReady] = useState(false);
@@ -621,30 +621,7 @@ const Sign_language_recognition = () => {
             {currentPrediction.word
               ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
               : 'Processing...'}
-          </PredictionDisplay>
-
-          <SystemStatus>
-            <StatusItem>
-              <StatusLabel>MediaPipe:</StatusLabel>
-              <StatusValue $isActive={isMediaPipeLoaded}>
-                {isMediaPipeLoaded ? '✅' : '⏳'}
-              </StatusValue>
-            </StatusItem>
-            
-            <StatusItem>
-              <StatusLabel>AI Model:</StatusLabel>
-              <StatusValue $isActive={isModelLoaded}>
-                {isModelLoaded ? '✅' : '⏳'}
-              </StatusValue>
-            </StatusItem>
-            
-            <StatusItem>
-              <StatusLabel>Camera:</StatusLabel>
-              <StatusValue $isActive={cameraReady && currentStream}>
-                {cameraReady && currentStream ? '✅' : '⏳'}
-              </StatusValue>
-            </StatusItem>
-            
+          </PredictionDisplay>          <SystemStatus>
             <StatusItem>
               <StatusLabel>Buffer:</StatusLabel>
               <StatusValue $isActive={isCollecting}>
