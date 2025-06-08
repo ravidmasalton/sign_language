@@ -52,9 +52,11 @@ const Sign_language_recognition = () => {
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
   
-  // Simplified camera states - back camera only
+  // Camera states with front/back toggle
   const [currentStream, setCurrentStream] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [facingMode, setFacingMode] = useState('environment'); // 'environment' = back, 'user' = front
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const streamRef = useRef(null);
   
   // Control refs
@@ -234,7 +236,7 @@ const Sign_language_recognition = () => {
     }
   }, [ACTIONS, THRESHOLD, SEQ_LEN]);
 
-  // MediaPipe results handler - NO MIRRORING for back camera
+  // MediaPipe results handler - with mirroring for front camera
   const onResults = useCallback((results) => {
     if (isProcessingFrameRef.current || !canvasRef.current || !videoRef.current) return;
     
@@ -248,21 +250,49 @@ const Sign_language_recognition = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
  
-      // Draw video directly without mirroring (back camera)
-      ctx.drawImage(video, 0, 0);
- 
-      // Draw landmarks without mirroring (back camera)
-      if (results.poseLandmarks) {
-        drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
-      }
-      if (results.leftHandLandmarks) {
-        drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.leftHandLandmarks, '#FF0000', 2);
-      }
-      if (results.rightHandLandmarks) {
-        drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
+      // Mirror for front camera, direct for back camera
+      if (facingMode === 'user') {
+        // Front camera - mirror the video
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        
+        // Mirror landmarks for front camera
+        const mirrorLandmarks = (landmarks) => 
+          landmarks.map(landmark => ({ ...landmark, x: 1 - landmark.x }));
+        
+        if (results.poseLandmarks) {
+          const mirrored = mirrorLandmarks(results.poseLandmarks);
+          drawConnections(ctx, mirrored, POSE_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, mirrored, '#FF0000', 2);
+        }
+        if (results.leftHandLandmarks) {
+          const mirrored = mirrorLandmarks(results.leftHandLandmarks);
+          drawConnections(ctx, mirrored, HAND_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, mirrored, '#FF0000', 2);
+        }
+        if (results.rightHandLandmarks) {
+          const mirrored = mirrorLandmarks(results.rightHandLandmarks);
+          drawConnections(ctx, mirrored, HAND_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, mirrored, '#FF0000', 2);
+        }
+      } else {
+        // Back camera - direct drawing
+        ctx.drawImage(video, 0, 0);
+        
+        if (results.poseLandmarks) {
+          drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
+        }
+        if (results.leftHandLandmarks) {
+          drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, results.leftHandLandmarks, '#FF0000', 2);
+        }
+        if (results.rightHandLandmarks) {
+          drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
+          drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
+        }
       }
  
       // Process keypoints - EXACT 30 frame logic 
@@ -291,7 +321,7 @@ const Sign_language_recognition = () => {
     } finally {
       isProcessingFrameRef.current = false;
     }
-  }, [drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN]);
+  }, [drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN, facingMode]);
 
   // Start processing
   const startProcessing = useCallback(() => {
@@ -381,7 +411,7 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera - FORCED BACK CAMERA
+  // Setup camera - with front/back toggle
   const setupCamera = useCallback(async () => {
     try {
       // Check if mediaDevices is available
@@ -397,69 +427,92 @@ const Sign_language_recognition = () => {
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Get list of all video devices
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      
       let stream = null;
       
-      // Try to find back camera by looking for environment-facing camera
-      for (const device of videoDevices) {
-        try {
-          const testConstraints = {
-            video: {
-              deviceId: { exact: device.deviceId },
-              width: { ideal: 640, max: 1280 },
-              height: { ideal: 480, max: 720 },
-              frameRate: { ideal: 30, max: 30 }
+      if (facingMode === 'environment') {
+        // Back camera logic
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        // Try to find back camera by looking for environment-facing camera
+        for (const device of videoDevices) {
+          try {
+            const testConstraints = {
+              video: {
+                deviceId: { exact: device.deviceId },
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 30, max: 30 }
+              }
+            };
+            
+            const testStream = await navigator.mediaDevices.getUserMedia(testConstraints);
+            
+            // Check if this looks like a back camera
+            const track = testStream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            
+            const isLikelyBackCamera = capabilities.width?.max > 1000 || 
+                                     device.label.toLowerCase().includes('back') ||
+                                     device.label.toLowerCase().includes('rear') ||
+                                     device.label.toLowerCase().includes('environment');
+            
+            if (isLikelyBackCamera) {
+              stream = testStream;
+              break;
+            } else {
+              testStream.getTracks().forEach(track => track.stop());
             }
-          };
-          
-          const testStream = await navigator.mediaDevices.getUserMedia(testConstraints);
-          
-          // Check if this looks like a back camera (usually has higher resolution capability)
-          const track = testStream.getVideoTracks()[0];
-          const capabilities = track.getCapabilities();
-          
-          // Back cameras usually support higher resolutions
-          const isLikelyBackCamera = capabilities.width?.max > 1000 || 
-                                   device.label.toLowerCase().includes('back') ||
-                                   device.label.toLowerCase().includes('rear') ||
-                                   device.label.toLowerCase().includes('environment');
-          
-          if (isLikelyBackCamera) {
-            stream = testStream;
-            break;
-          } else {
-            // Stop this stream and try next device
-            testStream.getTracks().forEach(track => track.stop());
+          } catch (err) {
+            continue;
           }
-        } catch (err) {
-          // Continue to next device
-          continue;
         }
-      }
-      
-      // If no back camera found, try with explicit environment constraint
-      if (!stream) {
+        
+        // If no back camera found, try with explicit environment constraint
+        if (!stream) {
+          try {
+            const constraints = {
+              video: {
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                facingMode: { exact: 'environment' },
+                frameRate: { ideal: 30, max: 30 }
+              }
+            };
+            
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+          } catch (err) {
+            const constraints = {
+              video: {
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                facingMode: { ideal: 'environment' },
+                frameRate: { ideal: 30, max: 30 }
+              }
+            };
+            
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+          }
+        }
+      } else {
+        // Front camera logic
         try {
           const constraints = {
             video: {
               width: { ideal: 640, max: 1280 },
               height: { ideal: 480, max: 720 },
-              facingMode: { exact: 'environment' }, // Force exact match
+              facingMode: { exact: 'user' },
               frameRate: { ideal: 30, max: 30 }
             }
           };
           
           stream = await navigator.mediaDevices.getUserMedia(constraints);
         } catch (err) {
-          // Fall back to ideal environment
           const constraints = {
             video: {
               width: { ideal: 640, max: 1280 },
               height: { ideal: 480, max: 720 },
-              facingMode: { ideal: 'environment' },
+              facingMode: { ideal: 'user' },
               frameRate: { ideal: 30, max: 30 }
             }
           };
@@ -490,7 +543,7 @@ const Sign_language_recognition = () => {
       setIsLoading(false);
       setCameraReady(false);
     }
-  }, [startProcessing]);
+  }, [startProcessing, facingMode]);
 
   // Setup camera when ready
   useEffect(() => {
@@ -503,7 +556,29 @@ const Sign_language_recognition = () => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isMediaPipeLoaded, isModelLoaded, setupCamera]);
+  }, [isMediaPipeLoaded, isModelLoaded, setupCamera, facingMode]);
+ 
+  // Toggle camera facing mode
+  const toggleCamera = useCallback(() => {
+    setIsLoading(true);
+    setCameraReady(false);
+    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+  }, []);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobileDevice = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ||
+                      (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ||
+                      window.innerWidth <= 768;
+      setIsMobileDevice(isMobile);
+    };
+    
+    checkMobileDevice();
+    window.addEventListener('resize', checkMobileDevice);
+    return () => window.removeEventListener('resize', checkMobileDevice);
+  }, []);
  
   const clearSentence = () => {
     setSentence([]);
@@ -548,6 +623,17 @@ const Sign_language_recognition = () => {
       </TranslationDisplay>
 
       <ControlsSection>
+        {isMobileDevice && (
+          <ModernButton 
+            onClick={toggleCamera}
+            disabled={!isMediaPipeLoaded || !isModelLoaded || isLoading}
+            $variant="primary"
+          >
+            <ButtonIcon>{facingMode === 'environment' ? '🤳' : '📷'}</ButtonIcon>
+            {facingMode === 'environment' ? 'Front Cam' : 'Back Cam'}
+          </ModernButton>
+        )}
+        
         <ModernButton 
           onClick={clearSentence}
           disabled={!isMediaPipeLoaded || !isModelLoaded}
@@ -612,5 +698,5 @@ const Sign_language_recognition = () => {
     </ModernCameraContainer>
   );
 };
-// This component is the main screen for sign language recognition
+
 export default Sign_language_recognition;
