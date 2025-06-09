@@ -134,7 +134,7 @@ const SignToAnimationScreen = () => {
     console.log('🔍 Checking word:', word);
     console.log('📝 Formatted word:', formattedWord);
     console.log('📁 Expected file path:', `/sign_videos/${formattedWord}.mp4`);
-    
+    // Debug - רשימת מילים זמינות
     // בדיקה אם המילה קיימת ברשימת המילים הזמינות
     const originalWordLower = word.toLowerCase().trim();
     const normalizedInput = originalWordLower.replace(/\s+/g, ' '); // נרמול רווחים
@@ -302,7 +302,6 @@ const SignToAnimationScreen = () => {
     
     const playNextVideo = () => {
       if (currentIndex >= words.length) {
-        // הגיע לסוף המשפט - חזור לסרטון רגיל
         setTimeout(() => {
           setCurrentSentence([]);
           setInputWord('');
