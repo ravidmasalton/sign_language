@@ -578,5 +578,5 @@ const SignToAnimationScreen = () => {
     </Container>
   );
 };
-
+// Export the component
 export default SignToAnimationScreen;
