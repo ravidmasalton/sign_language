@@ -77,13 +77,22 @@ const SignToAnimationScreen = () => {
     const handleVideoEnd = () => {
       // אם זה לא מצב משפט ויש מילה נוכחית, עבור לסרטון רגיל
       if (!isSentenceMode && currentWord) {
+        console.log('🏁 Video ended, returning to regular video');
         setTimeout(() => {
           setCurrentWord('');
           setInputWord('');
           if (videoRef.current) {
+            console.log('🔄 Loading Regular video after word end');
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
             videoRef.current.src = '/sign_videos/Regular.mp4';
             videoRef.current.load();
-            videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+            
+            setTimeout(() => {
+              if (videoRef.current && videoRef.current.src.includes('Regular')) {
+                videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+              }
+            }, 100);
           }
         }, 500); // המתנה קצרה לפני המעבר
       }
