@@ -112,7 +112,14 @@ const SignToAnimationScreen = () => {
     if (!formattedWord) return false;
     
     // בדיקה אם המילה קיימת ברשימת המילים הזמינות
-    return AVAILABLE_WORDS.includes(formattedWord) || AVAILABLE_WORDS.includes(word.toLowerCase());
+    // בדוק גם את המילה המקורית וגם את המפורמטת
+    const originalWordLower = word.toLowerCase().trim();
+    
+    return AVAILABLE_WORDS.includes(originalWordLower) || 
+           AVAILABLE_WORDS.includes(formattedWord) ||
+           AVAILABLE_WORDS.some(availableWord => 
+             formatWord(availableWord) === formattedWord
+           );
   };
 
   // Check if multiple words exist
