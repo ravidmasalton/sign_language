@@ -111,15 +111,37 @@ const SignToAnimationScreen = () => {
     const formattedWord = formatWord(word);
     if (!formattedWord) return false;
     
+    // Debug - הדפס מה אנחנו מחפשים
+    console.log('Checking word:', word);
+    console.log('Formatted word:', formattedWord);
+    console.log('Expected file path:', `/sign_videos/${formattedWord}.mp4`);
+    
     // בדיקה אם המילה קיימת ברשימת המילים הזמינות
-    // בדוק גם את המילה המקורית וגם את המפורמטת
     const originalWordLower = word.toLowerCase().trim();
     
-    return AVAILABLE_WORDS.includes(originalWordLower) || 
+    const isInList = AVAILABLE_WORDS.includes(originalWordLower) || 
            AVAILABLE_WORDS.includes(formattedWord) ||
            AVAILABLE_WORDS.some(availableWord => 
              formatWord(availableWord) === formattedWord
            );
+    
+    console.log('Is in available words list:', isInList);
+    
+    // אם המילה ברשימה, בדוק בפועל אם הקובץ קיים
+    if (isInList) {
+      try {
+        const response = await fetch(`/sign_videos/${formattedWord}.mp4`, { method: 'HEAD' });
+        const fileExists = response.ok;
+        console.log('File actually exists on server:', fileExists);
+        console.log('Response status:', response.status);
+        return fileExists;
+      } catch (error) {
+        console.error('Error checking file:', error);
+        return false;
+      }
+    }
+    
+    return false;
   };
 
   // Check if multiple words exist
@@ -173,9 +195,27 @@ const SignToAnimationScreen = () => {
         
         // Reset video to ensure it plays from beginning - without loop for single word
         if (videoRef.current) {
+          // עצור הפעלה קודמת לפני טעינת סרטון חדש
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+          
           videoRef.current.src = `/sign_videos/${formattedWord}.mp4`;
           videoRef.current.load();
-          videoRef.current.play().catch(e => console.error("Error playing video:", e));
+          
+          // המתן קצת לפני הפעלה
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.play().catch(e => {
+                console.error("Error playing video:", e);
+                // אם נכשל, נסה לחזור לסרטון רגיל
+                if (videoRef.current) {
+                  videoRef.current.src = '/sign_videos/Regular.mp4';
+                  videoRef.current.load();
+                  videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
+                }
+              });
+            }
+          }, 100);
         }
       } else {
         setVideoExists(false);
@@ -301,10 +341,28 @@ const SignToAnimationScreen = () => {
         
         // Reset video
         if (videoRef.current) {
+          // עצור הפעלה קודמת
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+          
           const formattedWord = formatWord(word);
           videoRef.current.src = `/sign_videos/${formattedWord}.mp4`;
           videoRef.current.load();
-          videoRef.current.play().catch(e => console.error("Error playing video:", e));
+          
+          // המתן קצת לפני הפעלה
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.play().catch(e => {
+                console.error("Error playing video:", e);
+                // אם נכשל, חזור לסרטון רגיל
+                if (videoRef.current) {
+                  videoRef.current.src = '/sign_videos/Regular.mp4';
+                  videoRef.current.load();
+                  videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
+                }
+              });
+            }
+          }, 100);
         }
       } else {
         setVideoExists(false);

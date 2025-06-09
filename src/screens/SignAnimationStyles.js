@@ -338,10 +338,11 @@ export const RecentWordsContainer = styled.div`
 `;
 
 export const RecentWordsTitle = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color || '#64748b'};
-  margin-bottom: 12px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16px;
   font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 export const RecentWordsList = styled.div`
@@ -351,22 +352,24 @@ export const RecentWordsList = styled.div`
 `;
 
 export const RecentWordButton = styled.button`
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  font-size: 0.85rem;
-  color: ${props => props.color || '#1e293b'};
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   
   &:hover:not(:disabled) {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    color: #ffffff;
   }
   
   &:disabled {
