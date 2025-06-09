@@ -50,7 +50,7 @@ const SignToAnimationScreen = () => {
   const videoRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Available words list - כל המילים הזמינות
+  // Available words list - כל המילים הזמינות (לתצוגה ולבדיקת קלט המשתמש)
   const AVAILABLE_WORDS = [
     "bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day",
     "deaf", "drink", "eat", "enjoy", "family", "go", "help", "love", "mom",
@@ -109,10 +109,20 @@ const SignToAnimationScreen = () => {
     };
   }, [currentWord, isSentenceMode]);
 
-  // Process the input word to match video filename format
+  // Process the input word to match video filename format - תיקון לתמיכה באותיות גדולות
   const formatWord = (word) => {
-    // המר "thank you" ל-"thank_you" כדי להתאים לשם הקובץ
-    return word.trim().toLowerCase().replace(/\s+/g, '_');
+    if (!word || typeof word !== 'string') return '';
+    
+    // נקה רווחים מיותרים
+    const cleanWord = word.trim();
+    if (!cleanWord) return '';
+    
+    // טפל במקרים מיוחדים כמו "thank you" -> "thank_you"
+    const processedWord = cleanWord.toLowerCase().replace(/\s+/g, '_');
+    
+    // המר לפורמט עם אות גדולה בהתחלה לפי פורמט הקבצים
+    // דוגמה: "hello" -> "Hello", "thank_you" -> "Thank_you"
+    return processedWord.charAt(0).toUpperCase() + processedWord.slice(1);
   };
 
   // Check if video exists for the given word
@@ -121,35 +131,49 @@ const SignToAnimationScreen = () => {
     if (!formattedWord) return false;
     
     // Debug - הדפס מה אנחנו מחפשים
-    console.log('Checking word:', word);
-    console.log('Formatted word:', formattedWord);
-    console.log('Expected file path:', `/sign_videos/${formattedWord}.mp4`);
+    console.log('🔍 Checking word:', word);
+    console.log('📝 Formatted word:', formattedWord);
+    console.log('📁 Expected file path:', `/sign_videos/${formattedWord}.mp4`);
     
     // בדיקה אם המילה קיימת ברשימת המילים הזמינות
     const originalWordLower = word.toLowerCase().trim();
+    const normalizedInput = originalWordLower.replace(/\s+/g, ' '); // נרמול רווחים
     
-    const isInList = AVAILABLE_WORDS.includes(originalWordLower) || 
-           AVAILABLE_WORDS.includes(formattedWord) ||
+    const isInList = AVAILABLE_WORDS.includes(normalizedInput) || 
            AVAILABLE_WORDS.some(availableWord => 
-             formatWord(availableWord) === formattedWord
+             availableWord.toLowerCase().replace(/\s+/g, ' ') === normalizedInput
            );
     
-    console.log('Is in available words list:', isInList);
+    console.log('📋 Is in available words list:', isInList);
     
     // אם המילה ברשימה, בדוק בפועל אם הקובץ קיים
     if (isInList) {
       try {
-        const response = await fetch(`/sign_videos/${formattedWord}.mp4`, { method: 'HEAD' });
+        const testUrl = `/sign_videos/${formattedWord}.mp4`;
+        console.log('🌐 Testing URL:', testUrl);
+        
+        const response = await fetch(testUrl, { method: 'HEAD' });
         const fileExists = response.ok;
-        console.log('File actually exists on server:', fileExists);
-        console.log('Response status:', response.status);
+        
+        console.log('✅ File actually exists on server:', fileExists);
+        console.log('📊 Response status:', response.status);
+        console.log('🌍 Full URL tested:', window.location.origin + testUrl);
+        console.log('📄 Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        // בדיקה נוספת - נסה לקבל את גודל הקובץ
+        if (fileExists) {
+          const contentLength = response.headers.get('content-length');
+          console.log('📏 File size:', contentLength ? `${contentLength} bytes` : 'unknown');
+        }
+        
         return fileExists;
       } catch (error) {
-        console.error('Error checking file:', error);
+        console.error('❌ Error checking file:', error);
         return false;
       }
     }
     
+    console.log('❌ Word not in available list');
     return false;
   };
 
@@ -198,7 +222,7 @@ const SignToAnimationScreen = () => {
         
         // Add to recent words ONLY if video actually works
         const recentList = JSON.parse(localStorage.getItem('recentSignWords') || '[]');
-        const updatedRecent = [formattedWord, ...recentList.filter(w => w !== formattedWord)].slice(0, 5);
+        const updatedRecent = [words[0], ...recentList.filter(w => w !== words[0])].slice(0, 5);
         setRecentWords(updatedRecent);
         localStorage.setItem('recentSignWords', JSON.stringify(updatedRecent));
         
@@ -208,23 +232,27 @@ const SignToAnimationScreen = () => {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
           
-          videoRef.current.src = `/sign_videos/${formattedWord}.mp4`;
+          const videoSrc = `/sign_videos/${formattedWord}.mp4`;
+          console.log('🎬 Loading video:', videoSrc);
+          
+          videoRef.current.src = videoSrc;
           videoRef.current.load();
           
           // המתן קצת לפני הפעלה
           setTimeout(() => {
-            if (videoRef.current) {
+            if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
               videoRef.current.play().catch(e => {
-                console.error("Error playing video:", e);
+                console.error("❌ Error playing video:", e);
                 // אם נכשל, נסה לחזור לסרטון רגיל
                 if (videoRef.current) {
+                  console.log('🔄 Fallback to Regular video');
                   videoRef.current.src = '/sign_videos/Regular.mp4';
                   videoRef.current.load();
                   videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
                 }
               });
             }
-          }, 100);
+          }, 200);
         }
       } else {
         setVideoExists(false);
@@ -318,7 +346,7 @@ const SignToAnimationScreen = () => {
   };
 
   const handleSelectRecentWord = async (word) => {
-    setInputWord(word.replace(/_/g, ' '));
+    setInputWord(word);
     await handleSubmitWord(word);
   };
 
@@ -344,7 +372,7 @@ const SignToAnimationScreen = () => {
         
         // Update recent words list ONLY if video actually works
         const recentList = JSON.parse(localStorage.getItem('recentSignWords') || '[]');
-        const updatedRecent = [formattedWord, ...recentList.filter(w => w !== formattedWord)].slice(0, 5);
+        const updatedRecent = [word, ...recentList.filter(w => w !== word)].slice(0, 5);
         setRecentWords(updatedRecent);
         localStorage.setItem('recentSignWords', JSON.stringify(updatedRecent));
         
@@ -354,24 +382,27 @@ const SignToAnimationScreen = () => {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
           
-          const formattedWord = formatWord(word);
-          videoRef.current.src = `/sign_videos/${formattedWord}.mp4`;
+          const videoSrc = `/sign_videos/${formattedWord}.mp4`;
+          console.log('🎬 Loading recent video:', videoSrc);
+          
+          videoRef.current.src = videoSrc;
           videoRef.current.load();
           
           // המתן קצת לפני הפעלה
           setTimeout(() => {
-            if (videoRef.current) {
+            if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
               videoRef.current.play().catch(e => {
-                console.error("Error playing video:", e);
+                console.error("❌ Error playing video:", e);
                 // אם נכשל, חזור לסרטון רגיל
                 if (videoRef.current) {
+                  console.log('🔄 Fallback to Regular video');
                   videoRef.current.src = '/sign_videos/Regular.mp4';
                   videoRef.current.load();
                   videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
                 }
               });
             }
-          }, 100);
+          }, 200);
         }
       } else {
         setVideoExists(false);
@@ -445,7 +476,7 @@ const SignToAnimationScreen = () => {
                 onClick={() => handleSelectRecentWord(word)}
                 disabled={isLoading}
               >
-                {word.replace(/_/g, ' ')}
+                {word}
               </RecentWordButton>
             ))}
           </RecentWordsList>
@@ -488,13 +519,32 @@ const SignToAnimationScreen = () => {
                   `/sign_videos/${formatWord(currentWord)}.mp4` : 
                   '/sign_videos/Regular.mp4' // סרטון ברירת מחדל
             }
-            onError={() => {
+            onLoadStart={(e) => {
+              console.log('📺 Video loadstart:', e.target.src);
+            }}
+            onLoadedData={(e) => {
+              console.log('✅ Video loaded successfully:', e.target.src);
+            }}
+            onCanPlay={(e) => {
+              console.log('▶️ Video can play:', e.target.src);
+            }}
+            onError={(e) => {
+              console.error('🚨 Video onError triggered!');
+              console.error('Current video src:', e.target.src);
+              console.error('Video error details:', e.target.error);
+              console.error('Error type:', e.target.error?.code);
+              console.error('Error message:', e.target.error?.message);
+              
               // אם הסרטון הנוכחי נכשל, נסה לטעון את הסרטון הרגיל
-              if (videoRef.current && videoRef.current.src !== '/sign_videos/Regular.mp4') {
+              if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
+                console.log('🔄 Video failed, trying Regular.mp4');
                 videoRef.current.src = '/sign_videos/Regular.mp4';
                 videoRef.current.load();
                 videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+              } else {
+                console.error('❌ Even Regular.mp4 failed!');
               }
+              
               setVideoExists(false);
               setError(`Video file not found`);
             }}
