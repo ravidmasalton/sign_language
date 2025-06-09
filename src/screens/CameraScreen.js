@@ -11,8 +11,7 @@ import {
   TranslationDisplay,
   TranslationIcon,
   TranslationText,
-  ControlsSection,
-  ModernButton,
+  InlineButton,
   ButtonIcon,
   CameraSection,
   VideoContainer,
@@ -538,18 +537,14 @@ const Sign_language_recognition = () => {
             ? sentence.join(' ')
             : 'Perform signs to see translation...'}
         </TranslationText>
-      </TranslationDisplay>
-
-      <ControlsSection>
-        <ModernButton 
+        <InlineButton 
           onClick={clearSentence}
           disabled={!isMediaPipeLoaded || !isModelLoaded}
-          $variant="danger"
         >
           <ButtonIcon>🗑️</ButtonIcon>
           Clear
-        </ModernButton>
-      </ControlsSection>
+        </InlineButton>
+      </TranslationDisplay>
 
       <CameraSection>
         <VideoContainer>

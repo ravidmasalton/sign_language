@@ -21,11 +21,11 @@ export const glow = keyframes`
   50% { box-shadow: 0 0 30px #007bff60; }
 `;
 
-// Main Container
+// Main Container - רקע מודרני ועדין
 export const ModernCameraContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  color: #1e293b;
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -47,13 +47,13 @@ export const HeaderSection = styled.div`
 export const MainTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: white;
+  color: #1e293b;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -73,24 +73,24 @@ export const TitleIcon = styled.span`
 
 export const Subtitle = styled.p`
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #64748b;
   margin: 0;
   font-weight: 400;
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 
   @media (max-width: 768px) {
     font-size: 1rem;
   }
 `;
 
-// Translation Display
+// Translation Display - עיצוב מעודכן לרקע הבהיר
 export const TranslationDisplay = styled.div`
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   display: flex;  
   align-items: center;
   gap: 1rem;
@@ -101,7 +101,7 @@ export const TranslationDisplay = styled.div`
     padding: 1.5rem;
     flex-direction: column;
     text-align: center;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 `;
 
@@ -113,7 +113,7 @@ export const TranslationIcon = styled.span`
 export const TranslationText = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
-  color: white;
+  color: #1e293b;
   flex: 1;
   word-wrap: break-word;
 
@@ -122,16 +122,48 @@ export const TranslationText = styled.div`
   }
 `;
 
-// Controls Section
-export const ControlsSection = styled.div`
+// Controls Section - יוסר מהקובץ כי כפתור Clear יועבר לתוך TranslationDisplay
+export const InlineButton = styled.button`
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 36px;
+  outline: none;
+  white-space: nowrap;
+  
+  &:focus-visible {
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 
   @media (max-width: 768px) {
-    flex-wrap: wrap;
-    align-items: center;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    min-height: 32px;
   }
 `;
 
@@ -158,11 +190,10 @@ export const ModernButton = styled.button`
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 48px;
-  /* הוספתי outline לנגישות */
   outline: none;
   
   &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   }
 
   &:hover:not(:disabled) {
@@ -204,21 +235,25 @@ export const CameraSection = styled.div`
   ${css`animation: ${fadeIn} 1s ease-out 0.4s both;`}
 `;
 
+// VideoContainer מוגדל ומלבני יותר
 export const VideoContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 800px;
-  aspect-ratio: 4/3;
-  background: rgba(255, 255, 255, 0.15);
+  max-width: 1000px;
+  aspect-ratio: 16/9;
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 1024px) {
+    max-width: 900px;
+  }
 
   @media (max-width: 768px) {
-    aspect-ratio: 16/12;
-    /* שיפור למובייל - מצלמה יותר גדולה */
+    aspect-ratio: 16/10;
     max-width: 100%;
     margin: 0 auto;
   }
@@ -233,7 +268,6 @@ export const ModernCanvas = styled.canvas`
   height: 100%;
   object-fit: cover;
   border-radius: 20px;
-  /* הוספתי לחדות טובה יותר */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 `;
@@ -241,7 +275,7 @@ export const ModernCanvas = styled.canvas`
 export const LoadingOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
@@ -255,8 +289,8 @@ export const LoadingOverlay = styled.div`
 export const LoadingSpinner = styled.div`
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
+  border: 4px solid rgba(59, 130, 246, 0.3);
+  border-top: 4px solid #3b82f6;
   border-radius: 50%;
   ${css`animation: ${spin} 1s linear infinite;`}
 `;
@@ -264,19 +298,19 @@ export const LoadingSpinner = styled.div`
 export const LoadingText = styled.div`
   font-size: 1.1rem;
   font-weight: 500;
-  color: white;
+  color: #1e293b;
   text-align: center;
 `;
 
 // Notifications
 export const CameraNotification = styled.div`
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
-  color: white;
+  color: #1e293b;
   text-align: center;
   font-size: 0.9rem;
   display: flex;
@@ -296,12 +330,12 @@ export const StatusSection = styled.div`
 `;
 
 export const StatusCard = styled.div`
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 20px;
   padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 `;
 
 export const StatusHeader = styled.div`
@@ -311,7 +345,7 @@ export const StatusHeader = styled.div`
   margin-bottom: 1rem;
   font-weight: 600;
   font-size: 1.1rem;
-  color: white;
+  color: #1e293b;
 `;
 
 export const StatusIcon = styled.span`
@@ -326,13 +360,12 @@ export const PredictionDisplay = styled.div`
   text-align: center;
   margin-bottom: 1.5rem;
   background: ${props => props.$confidence 
-    ? 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'
-    : 'rgba(255, 255, 255, 0.1)'};
-  color: white;
+    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+    : 'rgba(148, 163, 184, 0.2)'};
+  color: ${props => props.$confidence ? 'white' : '#475569'};
   transition: all 0.3s ease;
   ${props => props.$confidence && css`animation: ${pulse} 2s infinite;`}
-  /* שיפור לקריאות טובה יותר */
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: ${props => props.$confidence ? '0 1px 3px rgba(0, 0, 0, 0.3)' : 'none'};
   
   @media (max-width: 768px) {
     font-size: 1.1rem;
@@ -356,34 +389,33 @@ export const StatusItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(148, 163, 184, 0.1);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(203, 213, 225, 0.5);
   transition: background 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(148, 163, 184, 0.15);
   }
 `;
 
 export const StatusLabel = styled.span`
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: #475569;
 `;
 
 export const StatusValue = styled.span`
   font-weight: 600;
   color: ${props => props.$isActive 
-    ? '#4ade80'
-    : 'rgba(255, 255, 255, 0.9)'};
-  /* הוספתי אנימציה רכה לשינוי צבע */
+    ? '#10b981'
+    : '#64748b'};
   transition: color 0.3s ease;
 `;
 
 // Error Components
 export const ErrorContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -391,14 +423,14 @@ export const ErrorContainer = styled.div`
 `;
 
 export const ErrorCard = styled.div`
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 20px;
   padding: 2rem;  
   text-align: center;
   max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   ${css`animation: ${fadeIn} 0.6s ease-out;`}
 `;
 
@@ -411,31 +443,31 @@ export const ErrorIcon = styled.div`
 export const ErrorTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: white;
+  color: #1e293b;
   margin: 0 0 1rem 0;
 `;
 
 export const ErrorMessage = styled.p`
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #64748b;
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
 
 export const ErrorHint = styled.div`
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.1);
+  color: #64748b;
+  background: rgba(239, 68, 68, 0.1);
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid #ef4444;
 `;
 
 export const ErrorCode = styled.code`
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(148, 163, 184, 0.2);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  color: white;
+  color: #1e293b;
   font-size: 0.875rem;
 `;
