@@ -129,7 +129,7 @@ const SignToAnimationScreen = () => {
   const checkVideoExists = async (word) => {
     const formattedWord = formatWord(word);
     if (!formattedWord) return false;
-    
+    // בדוק אם המילה ריקה או לא תקינה
     // Debug - הדפס מה אנחנו מחפשים
     console.log('🔍 Checking word:', word);
     console.log('📝 Formatted word:', formattedWord);
