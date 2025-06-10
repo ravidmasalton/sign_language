@@ -21,133 +21,150 @@ export const glow = keyframes`
   50% { box-shadow: 0 0 30px #007bff60; }
 `;
 
-// Main Container - רקע מודרני ועדין
-export const ModernCameraContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
-  color: #1e293b;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  ${css`animation: ${fadeIn} 0.6s ease-out;`}
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-    gap: 1.5rem;
-  }
+export const slideUp = keyframes`
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 `;
 
-// Header Section
+export const slideDown = keyframes`
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+`;
+
+// Main Container - Full Screen
+export const ModernCameraContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  color: #1e293b;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  ${css`animation: ${fadeIn} 0.6s ease-out;`}
+`;
+
+// Header Section - Floating Top
 export const HeaderSection = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+  padding: env(safe-area-inset-top, 20px) 20px 40px 20px;
+  z-index: 10;
   text-align: center;
-  margin-bottom: 1rem;
+  ${css`animation: ${slideDown} 0.5s ease-out;`}
 `;
 
 export const MainTitle = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 
   @media (max-width: 768px) {
-    font-size: 2rem;
-    flex-direction: column;
-    gap: 0.5rem;
+    font-size: 1.1rem;
   }
 `;
 
 export const TitleIcon = styled.span`
-  font-size: 2.5rem;
+  font-size: 1.2rem;
   ${css`animation: ${pulse} 2s infinite;`}
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
 `;
 
 export const Subtitle = styled.p`
-  font-size: 1.1rem;
-  color: #64748b;
-  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 0 0 0;
   font-weight: 400;
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 `;
 
-// Translation Display - עיצוב מעודכן לרקע הבהיר
+// Translation Display - Floating Bottom
 export const TranslationDisplay = styled.div`
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  display: flex;  
-  align-items: center;
-  gap: 1rem;
-  min-height: 80px;
-  ${css`animation: ${fadeIn} 0.8s ease-out 0.2s both;`}
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+  padding: 40px 20px env(safe-area-inset-bottom, 20px) 20px;
+  z-index: 10;
+  ${css`animation: ${slideUp} 0.5s ease-out;`}
+`;
 
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
+export const TranslationCard = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  ${css`animation: ${fadeIn} 0.6s ease-out;`}
 `;
 
 export const TranslationIcon = styled.span`
-  font-size: 2rem;
+  font-size: 1.5rem;
   ${css`animation: ${pulse} 2s infinite;`}
+  margin-right: 12px;
 `;
 
 export const TranslationText = styled.div`
-  font-size: 1.5rem;
+  color: white;
+  font-size: 1.4rem;
   font-weight: 600;
-  color: #1e293b;
-  flex: 1;
+  text-align: center;
+  min-height: 1.4em;
+  line-height: 1.4;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  margin-bottom: 12px;
   word-wrap: break-word;
 
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 `;
 
-// Controls Section - יוסר מהקובץ כי כפתור Clear יועבר לתוך TranslationDisplay
+// Buttons
 export const InlineButton = styled.button`
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: rgba(220, 53, 69, 0.8);
+  backdrop-filter: blur(10px);
   color: white;
   border: none;
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  padding: 10px 20px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 36px;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 40px;
   outline: none;
-  white-space: nowrap;
   
   &:focus-visible {
     box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
   }
 
   &:hover:not(:disabled) {
+    background: rgba(220, 53, 69, 0.9);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
   &:active:not(:disabled) {
@@ -155,40 +172,40 @@ export const InlineButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
   }
 
   @media (max-width: 768px) {
     font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
-    min-height: 32px;
+    padding: 8px 16px;
+    min-height: 36px;
   }
 `;
 
 export const ModernButton = styled.button`
   background: ${props => {
     if (props.$variant === 'danger') {
-      return 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+      return 'rgba(220, 53, 69, 0.8)';
     }
     if (props.$variant === 'camera') {
-      return 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+      return 'rgba(40, 167, 69, 0.8)';
     }
-    return 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
+    return 'rgba(0, 123, 255, 0.8)';
   }};
+  backdrop-filter: blur(10px);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 48px;
   outline: none;
   
@@ -198,8 +215,11 @@ export const ModernButton = styled.button`
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    ${css`animation: ${glow} 2s infinite;`}
+    background: ${props => {
+      if (props.$variant === 'danger') return 'rgba(220, 53, 69, 0.9)';
+      if (props.$variant === 'camera') return 'rgba(40, 167, 69, 0.9)';
+      return 'rgba(0, 123, 255, 0.9)';
+    }};
   }
 
   &:active:not(:disabled) {
@@ -207,17 +227,15 @@ export const ModernButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
   }
 
   @media (max-width: 768px) {
-    flex: 1;
-    min-width: 140px;
-    max-width: 200px;
     font-size: 0.9rem;
-    padding: 0.6rem 1rem;
+    padding: 10px 20px;
+    min-height: 44px;
   }
 `;
 
@@ -226,248 +244,301 @@ export const ButtonIcon = styled.span`
   ${props => props.$isSpinning && css`animation: ${spin} 1s linear infinite;`}
 `;
 
-// Camera Section
+// Camera Section - Full Screen
 export const CameraSection = styled.div`
+  position: relative;
   flex: 1;
-  display: flex;  
-  justify-content: center;
-  align-items: center;
-  ${css`animation: ${fadeIn} 1s ease-out 0.4s both;`}
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
 `;
 
-// VideoContainer מוגדל ומלבני יותר
 export const VideoContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 1000px;
-  aspect-ratio: 16/9;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 20px;
+  height: 100%;
+  background: #000;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 1024px) {
-    max-width: 900px;
-  }
-
-  @media (max-width: 768px) {
-    aspect-ratio: 16/10;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  @media (max-width: 480px) {
-    aspect-ratio: 4/3;
-  }
 `;
 
 export const ModernCanvas = styled.canvas`
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 20px;
+  z-index: 2;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 `;
 
+export const LiveVideo = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  z-index: 1;
+`;
+
+// Overlays
 export const LoadingOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  z-index: 10;
-  border-radius: 20px;
+  gap: 20px;
+  z-index: 20;
 `;
 
 export const LoadingSpinner = styled.div`
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(59, 130, 246, 0.3);
-  border-top: 4px solid #3b82f6;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
   border-radius: 50%;
   ${css`animation: ${spin} 1s linear infinite;`}
 `;
 
 export const LoadingText = styled.div`
+  color: white;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #1e293b;
   text-align: center;
 `;
 
-// Notifications
-export const CameraNotification = styled.div`
-  background: rgba(255, 255, 255, 0.9);
+export const PredictionOverlay = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: ${props => props.$confidence > 0.7
+    ? 'rgba(16, 185, 129, 0.9)' 
+    : 'rgba(0, 0, 0, 0.7)'};
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  z-index: 5;
+  ${props => props.$confidence > 0.7 && css`animation: ${pulse} 2s infinite;`}
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  max-width: 80%;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 10px 20px;
+  }
+`;
+
+export const StatusIndicator = styled.div`
+  position: absolute;
+  ${props => {
+    switch(props.$position) {
+      case 'top-left':
+        return 'top: env(safe-area-inset-top, 20px); left: 20px;';
+      case 'top-right':
+        return 'top: env(safe-area-inset-top, 20px); right: 20px;';
+      case 'bottom-left':
+        return 'bottom: env(safe-area-inset-bottom, 20px); left: 20px;';
+      case 'bottom-right':
+        return 'bottom: env(safe-area-inset-bottom, 20px); right: 20px;';
+      default:
+        return 'top: 20px; left: 20px;';
+    }
+  }}
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 15;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  @media (max-width: 768px) {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+  }
+`;
+
+export const CameraNotification = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  color: #1e293b;
+  padding: 20px;
+  color: white;
   text-align: center;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
+  z-index: 15;
+  max-width: 80%;
   
   @media (max-width: 768px) {
     font-size: 0.8rem;
-    padding: 0.8rem;
+    padding: 16px;
   }
 `;
 
-// Status Section
+// Status Section - Debug Info (Hidden on Mobile)
 export const StatusSection = styled.div`
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  width: 200px;
+  z-index: 12;
   ${css`animation: ${fadeIn} 1.2s ease-out 0.6s both;`}
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const StatusCard = styled.div`
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
 `;
 
 export const StatusHeader = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 6px;
+  margin-bottom: 8px;
   font-weight: 600;
-  font-size: 1.1rem;
-  color: #1e293b;
+  font-size: 0.9rem;
 `;
 
 export const StatusIcon = styled.span`
-  font-size: 1.2rem;
+  font-size: 1rem;
 `;
 
 export const PredictionDisplay = styled.div`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 8px;
+  border-radius: 8px;
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 8px;
   background: ${props => props.$confidence 
-    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-    : 'rgba(148, 163, 184, 0.2)'};
-  color: ${props => props.$confidence ? 'white' : '#475569'};
+    ? 'rgba(16, 185, 129, 0.8)'
+    : 'rgba(148, 163, 184, 0.3)'};
+  color: white;
   transition: all 0.3s ease;
   ${props => props.$confidence && css`animation: ${pulse} 2s infinite;`}
-  text-shadow: ${props => props.$confidence ? '0 1px 3px rgba(0, 0, 0, 0.3)' : 'none'};
-  
-  @media (max-width: 768px) {
-    font-size: 1.1rem;
-    padding: 0.8rem;
-  }
 `;
 
 export const SystemStatus = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.8rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 export const StatusItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background: rgba(148, 163, 184, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(203, 213, 225, 0.5);
-  transition: background 0.3s ease;
-  
-  &:hover {
-    background: rgba(148, 163, 184, 0.15);
-  }
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 0.8rem;
 `;
 
 export const StatusLabel = styled.span`
   font-weight: 500;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.8);
 `;
 
 export const StatusValue = styled.span`
   font-weight: 600;
   color: ${props => props.$isActive 
     ? '#10b981'
-    : '#64748b'};
-  transition: color 0.3s ease;
+    : 'rgba(255, 255, 255, 0.6)'};
 `;
 
 // Error Components
 export const ErrorContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 40px;
+  z-index: 30;
 `;
 
 export const ErrorCard = styled.div`
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(220, 53, 69, 0.1);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid rgba(220, 53, 69, 0.3);
   border-radius: 20px;
-  padding: 2rem;  
+  padding: 30px;
   text-align: center;
-  max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
   ${css`animation: ${fadeIn} 0.6s ease-out;`}
 `;
 
 export const ErrorIcon = styled.div`
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 16px;
   ${css`animation: ${pulse} 2s infinite;`}
 `;
 
 export const ErrorTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 1rem 0;
+  color: white;
+  margin: 0 0 12px 0;
 `;
 
 export const ErrorMessage = styled.p`
   font-size: 1rem;
-  color: #64748b;
-  margin: 0 0 1rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
   line-height: 1.5;
 `;
 
 export const ErrorHint = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
-  background: rgba(239, 68, 68, 0.1);
-  padding: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(239, 68, 68, 0.2);
+  padding: 12px;
   border-radius: 8px;
   border-left: 4px solid #ef4444;
+  margin-top: 16px;
 `;
 
 export const ErrorCode = styled.code`
-  background: rgba(148, 163, 184, 0.2);
-  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  color: #1e293b;
+  color: white;
   font-size: 0.875rem;
 `;

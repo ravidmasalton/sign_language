@@ -52,7 +52,6 @@ const Sign_language_recognition = () => {
   const [frameCount, setFrameCount] = useState(0);
   
   // Camera states
-  const [currentStream, setCurrentStream] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
   const streamRef = useRef(null);
   
@@ -72,7 +71,7 @@ const Sign_language_recognition = () => {
   const SEQ_LEN = 30;
   const THRESHOLD = 0.7;
   const SMOOTH_WINDOW = 3;
-  const EMA_ALPHA = 0.7;
+  const EMA_ALPHA = 0.75;
 
   const POSE_CONNECTIONS = React.useMemo(() => [
     [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
@@ -126,8 +125,8 @@ const Sign_language_recognition = () => {
     }
   });
 
-  // Drawing functions
-  const drawLandmarks = useCallback((ctx, landmarks, color = '#FF0000', radius = 2) => {
+  // Drawing functions - נקודות קטנות יותר
+  const drawLandmarks = useCallback((ctx, landmarks, color = '#FF0000', radius = 1) => {
     ctx.fillStyle = color;
     landmarks.forEach(landmark => {
       ctx.beginPath();
@@ -136,7 +135,7 @@ const Sign_language_recognition = () => {
     });
   }, []);
  
-  const drawConnections = useCallback((ctx, landmarks, connections, color = '#00FF00', lineWidth = 2) => {
+  const drawConnections = useCallback((ctx, landmarks, connections, color = '#00FF00', lineWidth = 1) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     connections.forEach(([start, end]) => {
@@ -246,18 +245,18 @@ const Sign_language_recognition = () => {
       // Draw video directly (no mirroring for back camera)
       ctx.drawImage(video, 0, 0);
  
-      // Draw landmarks
+      // Draw landmarks with smaller points and thinner lines
       if (results.poseLandmarks) {
-        drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 2);
+        drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 1);
+        drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 1);
       }
       if (results.leftHandLandmarks) {
-        drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.leftHandLandmarks, '#FF0000', 2);
+        drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, '#00FF00', 1);
+        drawLandmarks(ctx, results.leftHandLandmarks, '#FF0000', 1);
       }
       if (results.rightHandLandmarks) {
-        drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 2);
-        drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 2);
+        drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 1);
+        drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 1);
       }
  
       // Process keypoints
@@ -276,9 +275,7 @@ const Sign_language_recognition = () => {
           
           return newBuffer;
         });
-      } else {
-        setFrameCount(prev => Math.max(0, prev - 1));
-      }
+      } 
     } finally {
       isProcessingFrameRef.current = false;
     }
@@ -372,7 +369,7 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera - SIMPLE BACK CAMERA
+  // Setup camera - זום out יותר
   const setupCamera = useCallback(async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -382,27 +379,26 @@ const Sign_language_recognition = () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
-        setCurrentStream(null);
       }
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Simple approach - try multiple constraints until one works
+      // זום out יותר - רזולוציה גבוהה יותר
       const constraintOptions = [
-        // Option 1: Force exact environment
+        // Option 1: Force exact environment with higher resolution
         {
           video: {
             facingMode: { exact: 'environment' },
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            width: { ideal: 1280, min: 640 },
+            height: { ideal: 720, min: 480 }
           }
         },
-        // Option 2: Prefer environment  
+        // Option 2: Prefer environment with higher resolution
         {
           video: {
             facingMode: 'environment',
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            width: { ideal: 1280, min: 640 },
+            height: { ideal: 720, min: 480 }
           }
         },
         // Option 3: Any back camera by device enumeration
@@ -422,7 +418,11 @@ const Sign_language_recognition = () => {
             for (const device of videoDevices) {
               try {
                 const testStream = await navigator.mediaDevices.getUserMedia({
-                  video: { deviceId: { exact: device.deviceId } }
+                  video: { 
+                    deviceId: { exact: device.deviceId },
+                    width: { ideal: 1280, min: 640 },
+                    height: { ideal: 720, min: 480 }
+                  }
                 });
                 
                 // Test if this is likely a back camera
@@ -454,16 +454,18 @@ const Sign_language_recognition = () => {
       }
       
       if (!stream) {
-        // Last resort - any camera
+        // Last resort - any camera with higher resolution
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 640 }, height: { ideal: 480 } }
+          video: { 
+            width: { ideal: 1280, min: 640 }, 
+            height: { ideal: 720, min: 480 }
+          }
         });
       }
       
       if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
-        setCurrentStream(stream);
         
         videoRef.current.onloadedmetadata = () => {
           videoRef.current.play().then(() => {
