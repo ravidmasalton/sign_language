@@ -117,7 +117,7 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Camera Section - עם מקום לפאנל התחתון הצר
+// Camera Section - עם מקום לפאנל התחתון הצר ומותאם לנייד
 export const CameraSection = styled.div`
   position: relative;
   width: 100%;
@@ -129,12 +129,12 @@ export const CameraSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    height: calc(100vh - 70px);
+    height: calc(100vh - 120px);
     min-height: 300px;
   }
 
   @media (max-width: 480px) {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 110px);
     min-height: 280px;
   }
 `;
@@ -170,7 +170,7 @@ export const LiveVideo = styled.video`
   z-index: 1;
 `;
 
-// Translation Display - פאנל תחתון צר עם תוכן לצדדים
+// Translation Display - פאנל תחתון צר עם תוכן לצדדים בדסקטופ, עמודי בנייד
 export const TranslationDisplay = styled.div`
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(15px);
@@ -198,13 +198,15 @@ export const TranslationDisplay = styled.div`
     left: 0;
     right: 0;
     z-index: 10;
-    height: 70px;
-    padding: 0 15px env(safe-area-inset-bottom, 0) 15px;
+    height: 120px;
+    padding: 10px 15px env(safe-area-inset-bottom, 10px) 15px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   @media (max-width: 480px) {
-    height: 60px;
-    padding: 0 12px env(safe-area-inset-bottom, 0) 12px;
+    height: 110px;
+    padding: 8px 12px env(safe-area-inset-bottom, 8px) 12px;
   }
 `;
 
@@ -504,7 +506,7 @@ export const CameraNotification = styled.div`
   }
 `;
 
-// Status Section - מעל הפאנל התחתון בצד ימין
+// Status Section - מעל הפאנל התחתון בצד ימין בדסקטופ, בתוך הפאנל בנייד
 export const StatusSection = styled.div`
   ${css`animation: ${fadeIn} 1.2s ease-out 0.6s both;`}
   
@@ -517,17 +519,8 @@ export const StatusSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    position: fixed;
-    bottom: 80px;
-    right: 15px;
-    z-index: 11;
-    width: 200px;
-  }
-
-  @media (max-width: 480px) {
-    bottom: 70px;
-    right: 12px;
-    width: 180px;
+    width: 100%;
+    margin-bottom: 8px;
   }
 `;
 
