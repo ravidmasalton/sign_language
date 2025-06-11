@@ -117,7 +117,7 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Camera Section - תופס את כל השטח בנייד
+// Camera Section - עם מקום לפאנל התחתון הצר
 export const CameraSection = styled.div`
   position: relative;
   width: 100%;
@@ -125,17 +125,16 @@ export const CameraSection = styled.div`
   overflow: hidden;
 
   @media (min-width: 769px) {
-    flex: 1;
-    height: 100%;
+    height: calc(100vh - 60px);
   }
 
   @media (max-width: 768px) {
-    height: calc(100vh - 200px);
+    height: calc(100vh - 70px);
     min-height: 300px;
   }
 
   @media (max-width: 480px) {
-    height: calc(100vh - 180px);
+    height: calc(100vh - 60px);
     min-height: 280px;
   }
 `;
@@ -171,32 +170,41 @@ export const LiveVideo = styled.video`
   z-index: 1;
 `;
 
-// Translation Display - תמיד בתחתית עם כל הפרטים
+// Translation Display - פאנל תחתון צר עם תוכן לצדדים
 export const TranslationDisplay = styled.div`
-  background: #000;
-  padding: 20px;
-  ${css`animation: ${slideUp} 0.5s ease-out;`}
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(15px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  ${css`animation: ${slideUp} 0.5s ease-out;`}
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   @media (min-width: 769px) {
-    position: absolute;
+    position: fixed;
+    bottom: 0;
+    left: 250px;
+    right: 0;
+    z-index: 10;
+    height: 60px;
+    padding: 0 20px env(safe-area-inset-bottom, 0) 20px;
+  }
+
+  @media (max-width: 768px) {
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 10;
-    background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
-    padding: 30px 20px env(safe-area-inset-bottom, 20px) 20px;
-  }
-
-  @media (max-width: 768px) {
-    position: relative;
-    min-height: 200px;
-    padding: 20px 15px env(safe-area-inset-bottom, 15px) 15px;
+    height: 70px;
+    padding: 0 15px env(safe-area-inset-bottom, 0) 15px;
   }
 
   @media (max-width: 480px) {
-    min-height: 180px;
-    padding: 15px 12px env(safe-area-inset-bottom, 12px) 12px;
+    height: 60px;
+    padding: 0 12px env(safe-area-inset-bottom, 0) 12px;
   }
 `;
 
@@ -211,64 +219,69 @@ export const TranslationCard = styled.div`
 `;
 
 export const TranslationIcon = styled.span`
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   ${css`animation: ${pulse} 2s infinite;`}
-  margin-right: 12px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
-    font-size: 1.2rem;
-    margin-right: 8px;
+    font-size: 1rem;
+  }
+`;
+
+// תוכן הטקסט בצד שמאל
+export const TranslationContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    gap: 6px;
   }
 `;
 
 export const TranslationText = styled.div`
   color: white;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  text-align: center;
-  min-height: 1.4em;
-  line-height: 1.4;
+  text-align: left;
+  line-height: 1.3;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  margin-bottom: 12px;
   word-wrap: break-word;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    gap: 6px;
+    font-size: 1rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 1rem;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
   }
 `;
 
-// Buttons - מותאם לנייד
+// Buttons - כפתור Clear צמוד לימין
 export const InlineButton = styled.button`
   background: rgba(220, 53, 69, 0.8);
   backdrop-filter: blur(10px);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 0 auto;
+  gap: 6px;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 44px;
-  min-width: 100px;
+  min-height: 36px;
   outline: none;
+  flex-shrink: 0;
   
   &:focus-visible {
     box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
@@ -290,17 +303,16 @@ export const InlineButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 0.85rem;
-    padding: 10px 20px;
-    min-height: 40px;
-    gap: 6px;
-    border-radius: 10px;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    min-height: 32px;
+    gap: 4px;
   }
 
   @media (max-width: 480px) {
-    font-size: 0.8rem;
-    padding: 8px 16px;
-    min-height: 36px;
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    min-height: 28px;
   }
 `;
 
@@ -492,21 +504,30 @@ export const CameraNotification = styled.div`
   }
 `;
 
-// Status Section - מוצג בתחתית בנייד, בצד בדסקטופ
+// Status Section - מעל הפאנל התחתון בצד ימין
 export const StatusSection = styled.div`
-  z-index: 12;
   ${css`animation: ${fadeIn} 1.2s ease-out 0.6s both;`}
   
-  @media (min-width: 1025px) {
-    position: absolute;
-    top: 50%;
+  @media (min-width: 769px) {
+    position: fixed;
+    bottom: 70px;
     right: 20px;
-    transform: translateY(-50%);
+    z-index: 11;
+    width: 220px;
+  }
+
+  @media (max-width: 768px) {
+    position: fixed;
+    bottom: 80px;
+    right: 15px;
+    z-index: 11;
     width: 200px;
   }
 
-  @media (max-width: 1024px) {
-    margin-bottom: 15px;
+  @media (max-width: 480px) {
+    bottom: 70px;
+    right: 12px;
+    width: 180px;
   }
 `;
 
@@ -515,8 +536,12 @@ export const StatusCard = styled.div`
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px;
   color: white;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
 `;
 
 export const StatusHeader = styled.div`
@@ -533,12 +558,12 @@ export const StatusIcon = styled.span`
 `;
 
 export const PredictionDisplay = styled.div`
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: 12px;
+  padding: 8px;
   border-radius: 8px;
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   background: ${props => props.$confidence 
     ? 'rgba(16, 185, 129, 0.8)'
     : 'rgba(148, 163, 184, 0.3)'};
@@ -548,15 +573,15 @@ export const PredictionDisplay = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.2);
 
   @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 10px;
-    margin-bottom: 12px;
+    font-size: 0.8rem;
+    padding: 6px;
+    margin-bottom: 6px;
   }
 
   @media (max-width: 480px) {
-    font-size: 0.85rem;
-    padding: 8px;
-    margin-bottom: 10px;
+    font-size: 0.75rem;
+    padding: 5px;
+    margin-bottom: 5px;
   }
 `;
 

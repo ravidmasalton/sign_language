@@ -11,6 +11,7 @@ import {
   TranslationDisplay,
   TranslationIcon,
   TranslationText,
+  TranslationContent,
   InlineButton,
   ButtonIcon,
   CameraSection,
@@ -42,11 +43,13 @@ const Sign_language_recognition = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isProcessing, setIsProcessing] = useState(false);
   const modelRef = useRef(null);
   const [isMediaPipeLoaded, setIsMediaPipeLoaded] = useState(false);
   const [currentPrediction, setCurrentPrediction] = useState({ word: '', confidence: 0 });
   const [sentence, setSentence] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [sequenceBuffer, setSequenceBuffer] = useState([]);
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
@@ -58,6 +61,7 @@ const Sign_language_recognition = () => {
   // Control refs
   const isPredictionRunningRef = useRef(false);
   const isProcessingFrameRef = useRef(false);
+  // eslint-disable-next-line no-unused-vars
   const [totalPredictions, setTotalPredictions] = useState(0);
  
   // Constants
@@ -565,22 +569,6 @@ const Sign_language_recognition = () => {
         <Subtitle>AI-powered sign language recognition</Subtitle>
       </HeaderSection>
 
-      <TranslationDisplay>
-        <TranslationIcon>💬</TranslationIcon>
-        <TranslationText>
-          {sentence.length > 0
-            ? sentence.join(' ')
-            : 'Perform signs to see translation...'}
-        </TranslationText>
-        <InlineButton 
-          onClick={clearSentence}
-          disabled={!isMediaPipeLoaded || !isModelLoaded}
-        >
-          <ButtonIcon>🗑️</ButtonIcon>
-          Clear
-        </InlineButton>
-      </TranslationDisplay>
-
       <CameraSection>
         <VideoContainer>
           <video
@@ -632,6 +620,25 @@ const Sign_language_recognition = () => {
           </SystemStatus>
         </StatusCard>
       </StatusSection>
+
+      <TranslationDisplay>
+        <TranslationContent>
+          <TranslationIcon>💬</TranslationIcon>
+          <TranslationText>
+            {sentence.length > 0
+              ? sentence.join(' ')
+              : 'Perform signs to see translation...'}
+          </TranslationText>
+        </TranslationContent>
+
+        <InlineButton 
+          onClick={clearSentence}
+          disabled={!isMediaPipeLoaded || !isModelLoaded}
+        >
+          <ButtonIcon>🗑️</ButtonIcon>
+          Clear
+        </InlineButton>
+      </TranslationDisplay>
     </ModernCameraContainer>
   );
 };
