@@ -58,7 +58,7 @@ export const ModernCameraContainer = styled.div`
   }
 `;
 
-// Header Section - רגיל בנייד, floating בדסקטופ
+// Header Section - רק בדסקטופ, מוסתר בנייד
 export const HeaderSection = styled.div`
   background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
   padding: 20px;
@@ -75,9 +75,7 @@ export const HeaderSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    position: relative;
-    background: #000;
-    padding: env(safe-area-inset-top, 15px) 15px 20px 15px;
+    display: none;
   }
 `;
 
@@ -119,7 +117,7 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Camera Section - רגיל בנייד, מותאם בדסקטופ
+// Camera Section - תופס את כל השטח בנייד
 export const CameraSection = styled.div`
   position: relative;
   width: 100%;
@@ -132,13 +130,13 @@ export const CameraSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    height: 60vh;
-    min-height: 400px;
+    height: calc(100vh - 200px);
+    min-height: 300px;
   }
 
   @media (max-width: 480px) {
-    height: 50vh;
-    min-height: 350px;
+    height: calc(100vh - 180px);
+    min-height: 280px;
   }
 `;
 
@@ -173,11 +171,12 @@ export const LiveVideo = styled.video`
   z-index: 1;
 `;
 
-// Translation Display - רגיל בנייד, floating בדסקטופ
+// Translation Display - תמיד בתחתית עם כל הפרטים
 export const TranslationDisplay = styled.div`
-  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
-  padding: 30px 20px;
+  background: #000;
+  padding: 20px;
   ${css`animation: ${slideUp} 0.5s ease-out;`}
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   @media (min-width: 769px) {
     position: absolute;
@@ -185,18 +184,19 @@ export const TranslationDisplay = styled.div`
     left: 0;
     right: 0;
     z-index: 10;
-    min-height: 160px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
     padding: 30px 20px env(safe-area-inset-bottom, 20px) 20px;
   }
 
   @media (max-width: 768px) {
     position: relative;
-    background: #000;
-    padding: 25px 15px env(safe-area-inset-bottom, 15px) 15px;
+    min-height: 200px;
+    padding: 20px 15px env(safe-area-inset-bottom, 15px) 15px;
   }
 
   @media (max-width: 480px) {
-    padding: 20px 12px env(safe-area-inset-bottom, 12px) 12px;
+    min-height: 180px;
+    padding: 15px 12px env(safe-area-inset-bottom, 12px) 12px;
   }
 `;
 
@@ -492,18 +492,21 @@ export const CameraNotification = styled.div`
   }
 `;
 
-// Status Section - מותאם לנייד (מוצג רק בדסקטופ גדול)
+// Status Section - מוצג בתחתית בנייד, בצד בדסקטופ
 export const StatusSection = styled.div`
-  position: absolute;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-  width: 200px;
   z-index: 12;
   ${css`animation: ${fadeIn} 1.2s ease-out 0.6s both;`}
   
+  @media (min-width: 1025px) {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 200px;
+  }
+
   @media (max-width: 1024px) {
-    display: none;
+    margin-bottom: 15px;
   }
 `;
 
@@ -532,16 +535,29 @@ export const StatusIcon = styled.span`
 export const PredictionDisplay = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  padding: 8px;
+  padding: 12px;
   border-radius: 8px;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
   background: ${props => props.$confidence 
     ? 'rgba(16, 185, 129, 0.8)'
     : 'rgba(148, 163, 184, 0.3)'};
   color: white;
   transition: all 0.3s ease;
   ${props => props.$confidence && css`animation: ${pulse} 2s infinite;`}
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
 `;
 
 export const SystemStatus = styled.div`
