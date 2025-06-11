@@ -73,6 +73,25 @@ const Sign_language_recognition = () => {
   const SMOOTH_WINDOW = 3;
   const EMA_ALPHA = 0.75;
 
+  // Color scheme for vibrant skeleton - צבעים חיים ובולטים
+  const COLORS = React.useMemo(() => ({
+    // Body pose - צבע כחול חי
+    pose: {
+      landmarks: '#0080FF',      // כחול חי לנקודות
+      connections: '#4DA6FF'     // כחול בהיר לקווים
+    },
+    // Left hand - צבע ירוק חי
+    leftHand: {
+      landmarks: '#00FF00',      // ירוק חי לנקודות
+      connections: '#4DFF4D'     // ירוק בהיר לקווים
+    },
+    // Right hand - צבע אדום חי
+    rightHand: {
+      landmarks: '#FF0000',      // אדום חי לנקודות
+      connections: '#FF4D4D'     // אדום בהיר לקווים
+    }
+  }), []);
+
   const POSE_CONNECTIONS = React.useMemo(() => [
     [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
     [9, 10], [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
@@ -125,19 +144,27 @@ const Sign_language_recognition = () => {
     }
   });
 
-  // Drawing functions - נקודות קטנות יותר
-  const drawLandmarks = useCallback((ctx, landmarks, color = '#FF0000', radius = 1) => {
+  // Drawing functions - צבעים מינימליים ועדינים יותר
+  const drawLandmarks = useCallback((ctx, landmarks, color, radius = 2) => {
     ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 3;
     landmarks.forEach(landmark => {
       ctx.beginPath();
       ctx.arc(landmark.x * ctx.canvas.width, landmark.y * ctx.canvas.height, radius, 0, 2 * Math.PI);
       ctx.fill();
     });
+    ctx.shadowBlur = 0; // Reset shadow
   }, []);
  
-  const drawConnections = useCallback((ctx, landmarks, connections, color = '#00FF00', lineWidth = 1) => {
+  const drawConnections = useCallback((ctx, landmarks, connections, color, lineWidth = 1.5) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 2;
+    
     connections.forEach(([start, end]) => {
       if (landmarks[start] && landmarks[end]) {
         ctx.beginPath();
@@ -146,6 +173,7 @@ const Sign_language_recognition = () => {
         ctx.stroke();
       }
     });
+    ctx.shadowBlur = 0; // Reset shadow
   }, []);
 
   // Extract keypoints
@@ -228,7 +256,7 @@ const Sign_language_recognition = () => {
     }
   }, [ACTIONS, THRESHOLD, SEQ_LEN]);
 
-  // MediaPipe results handler
+  // MediaPipe results handler - עם צבעים מינימליים חדשים
   const onResults = useCallback((results) => {
     if (isProcessingFrameRef.current || !canvasRef.current || !videoRef.current) return;
     
@@ -242,21 +270,26 @@ const Sign_language_recognition = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
  
-      // Draw video directly (no mirroring for back camera)
+      // Clear canvas with slight transparency for cleaner look
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(video, 0, 0);
  
-      // Draw landmarks with smaller points and thinner lines
+      // Draw pose landmarks with vibrant blue colors
       if (results.poseLandmarks) {
-        drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, '#00FF00', 1);
-        drawLandmarks(ctx, results.poseLandmarks, '#FF0000', 1);
+        drawConnections(ctx, results.poseLandmarks, POSE_CONNECTIONS, COLORS.pose.connections, 1.5);
+        drawLandmarks(ctx, results.poseLandmarks, COLORS.pose.landmarks, 2);
       }
+      
+      // Draw left hand landmarks with vibrant green colors
       if (results.leftHandLandmarks) {
-        drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, '#00FF00', 1);
-        drawLandmarks(ctx, results.leftHandLandmarks, '#FF0000', 1);
+        drawConnections(ctx, results.leftHandLandmarks, HAND_CONNECTIONS, COLORS.leftHand.connections, 1.5);
+        drawLandmarks(ctx, results.leftHandLandmarks, COLORS.leftHand.landmarks, 2);
       }
+      
+      // Draw right hand landmarks with vibrant red colors
       if (results.rightHandLandmarks) {
-        drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, '#00FF00', 1);
-        drawLandmarks(ctx, results.rightHandLandmarks, '#FF0000', 1);
+        drawConnections(ctx, results.rightHandLandmarks, HAND_CONNECTIONS, COLORS.rightHand.connections, 1.5);
+        drawLandmarks(ctx, results.rightHandLandmarks, COLORS.rightHand.landmarks, 2);
       }
  
       // Process keypoints
@@ -279,7 +312,7 @@ const Sign_language_recognition = () => {
     } finally {
       isProcessingFrameRef.current = false;
     }
-  }, [drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, extractKeypoints, makePrediction, SEQ_LEN]);
+  }, [drawConnections, drawLandmarks, POSE_CONNECTIONS, HAND_CONNECTIONS, COLORS, extractKeypoints, makePrediction, SEQ_LEN]);
 
   // Start processing
   const startProcessing = useCallback(() => {
