@@ -2,8 +2,10 @@ import React, { useState, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCloudUploadAlt, FaSignLanguage, FaUser, FaVideo, FaCheck, FaTimes, FaSpinner, FaPlay, FaPause, FaDownload, FaFileAlt } from 'react-icons/fa';
-import { auth } from '../firebaseConfig';
+import { FaCloudUploadAlt, FaSignLanguage, FaUser, FaVideo, FaCheck, FaTimes, FaSpinner, FaPlay, FaPause, FaCloud } from 'react-icons/fa';
+import { storage } from '../firebaseConfig';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
 
 // Define animations
 const fadeIn = keyframes`
@@ -27,7 +29,223 @@ const spin = keyframes`
 `;
 
 /**
- * Component for uploading sign language videos and processing keypoints
+ * Upload video to Firebase Storage with progress tracking
+ */
+const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress, addLog) => {
+  try {
+    // Validate input parameters
+    if (!videoFile) {
+      const error = 'Video file is required';
+      addLog(`❌ Validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    if (!gesture?.trim()) {
+      const error = 'Gesture name is required';
+      addLog(`❌ Validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    if (!contributor?.trim()) {
+      const error = 'Contributor name is required';
+      addLog(`❌ Validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    if (typeof onProgress !== 'function') {
+      const error = 'Progress callback is required';
+      addLog(`❌ Validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    if (typeof addLog !== 'function') {
+      const error = 'Logging function is required';
+      console.error('Validation failed:', error);
+      return { success: false, error };
+    }
+    
+    // Validate Firebase storage
+    if (!storage) {
+      const error = 'Firebase storage is not initialized';
+      addLog(`❌ Firebase error: ${error}`);
+      return { success: false, error };
+    }
+    
+    // Validate video file properties
+    if (!videoFile.size || videoFile.size === 0) {
+      const error = 'Video file is empty or corrupted';
+      addLog(`❌ File validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    if (!videoFile.type || !videoFile.type.startsWith('video/')) {
+      const error = 'File must be a video format';
+      addLog(`❌ File validation failed: ${error}`);
+      return { success: false, error };
+    }
+    
+    addLog(`📝 Starting upload validation passed`);
+    addLog(`📁 File: ${videoFile.name} (${(videoFile.size / (1024 * 1024)).toFixed(2)} MB)`);
+    addLog(`🏷️ Gesture: "${gesture.trim()}", Contributor: "${contributor.trim()}"`);
+    
+    // Create unique filename
+    const timestamp = Date.now();
+    const sanitizedGesture = gesture.trim().toLowerCase().replace(/\s+/g, '_');
+    const sanitizedContributor = contributor.trim().toLowerCase().replace(/\s+/g, '_');
+    const fileName = `${sanitizedContributor}_${timestamp}.mp4`;
+    const filePath = `videos/${sanitizedGesture}/${fileName}`;
+    
+    addLog(`📁 Creating file path: ${filePath}`);
+    
+    // Create storage reference with error handling
+    let storageRef;
+    try {
+      storageRef = ref(storage, filePath);
+      if (!storageRef) {
+        throw new Error('Failed to create storage reference');
+      }
+      addLog(`✅ Storage reference created successfully`);
+    } catch (error) {
+      const errorMsg = `Failed to create storage reference: ${error.message}`;
+      addLog(`❌ ${errorMsg}`);
+      return { success: false, error: errorMsg };
+    }
+    
+    // Start upload with progress tracking
+    let uploadTask;
+    try {
+      uploadTask = uploadBytesResumable(storageRef, videoFile);
+      if (!uploadTask) {
+        throw new Error('Failed to create upload task');
+      }
+      addLog(`🚀 Upload task created, starting upload...`);
+    } catch (error) {
+      const errorMsg = `Failed to start upload: ${error.message}`;
+      addLog(`❌ ${errorMsg}`);
+      return { success: false, error: errorMsg };
+    }
+    
+    return new Promise((resolve, reject) => {
+      // Validate uploadTask before using it
+      if (!uploadTask || typeof uploadTask.on !== 'function') {
+        const error = 'Upload task is invalid';
+        addLog(`❌ ${error}`);
+        reject(new Error(error));
+        return;
+      }
+      
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          try {
+            // Validate snapshot
+            if (!snapshot) {
+              addLog(`⚠️ Warning: Received null snapshot`);
+              return;
+            }
+            
+            if (typeof snapshot.bytesTransferred === 'undefined' || typeof snapshot.totalBytes === 'undefined') {
+              addLog(`⚠️ Warning: Invalid snapshot data`);
+              return;
+            }
+            
+            if (snapshot.totalBytes === 0) {
+              addLog(`⚠️ Warning: Total bytes is zero`);
+              return;
+            }
+            
+            // Calculate progress percentage
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            
+            // Validate progress callback before calling
+            if (typeof onProgress === 'function') {
+              onProgress(Math.min(100, Math.max(0, progress))); // Clamp between 0-100
+            }
+            
+            addLog(`⬆️ Upload progress: ${progress.toFixed(1)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
+          } catch (error) {
+            addLog(`⚠️ Error in progress handler: ${error.message}`);
+          }
+        },
+        (error) => {
+          // Enhanced error logging
+          const errorMsg = error?.message || 'Unknown upload error';
+          const errorCode = error?.code || 'unknown';
+          addLog(`❌ Upload failed [${errorCode}]: ${errorMsg}`);
+          console.error('Upload failed:', error);
+          reject(error);
+        },
+        async () => {
+          try {
+            addLog(`🎯 Upload completed, getting download URL...`);
+            
+            // Validate uploadTask.snapshot.ref before using it
+            if (!uploadTask?.snapshot?.ref) {
+              const error = 'Upload task snapshot reference is invalid';
+              addLog(`❌ ${error}`);
+              reject(new Error(error));
+              return;
+            }
+            
+            // Get download URL with additional validation
+            let downloadURL;
+            try {
+              downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              if (!downloadURL || typeof downloadURL !== 'string') {
+                throw new Error('Received invalid download URL');
+              }
+              addLog(`✅ Download URL obtained: ${downloadURL}`);
+            } catch (error) {
+              const errorMsg = `Failed to get download URL: ${error.message}`;
+              addLog(`❌ ${errorMsg}`);
+              reject(new Error(errorMsg));
+              return;
+            }
+            
+            // Validate video file properties before creating metadata
+            const fileSize = videoFile?.size || 0;
+            const fileType = videoFile?.type || 'unknown';
+            
+            const result = {
+              success: true,
+              downloadURL: downloadURL,
+              filePath: filePath,
+              fileName: fileName,
+              metadata: {
+                gesture: sanitizedGesture,
+                contributor: sanitizedContributor,
+                originalGesture: gesture.trim(),
+                originalContributor: contributor.trim(),
+                uploadedAt: new Date().toISOString(),
+                fileSize: fileSize,
+                fileType: fileType
+              }
+            };
+            
+            addLog(`✅ Upload completed successfully! File: ${fileName}`);
+            resolve(result);
+            
+          } catch (error) {
+            const errorMsg = `Failed in completion handler: ${error.message}`;
+            addLog(`❌ ${errorMsg}`);
+            reject(error);
+          }
+        }
+      );
+    });
+    
+  } catch (error) {
+    const errorMsg = `Upload initialization failed: ${error.message}`;
+    addLog(`❌ ${errorMsg}`);
+    console.error('Upload initialization failed:', error);
+    return {
+      success: false,
+      error: errorMsg
+    };
+  }
+};
+
+/**
+ * Component for uploading sign language videos
  */
 const VideoUploadScreen = () => {
   const { theme: COLORS } = useTheme();
@@ -40,10 +258,9 @@ const VideoUploadScreen = () => {
   const [gesture, setGesture] = useState('');
   const [contributor, setContributor] = useState('');
   const [videoPreview, setVideoPreview] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStage, setProcessingStage] = useState('');
-  const [processingProgress, setProcessingProgress] = useState(0);
-  const [processedData, setProcessedData] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadResult, setUploadResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [debugLogs, setDebugLogs] = useState([]);
@@ -54,131 +271,6 @@ const VideoUploadScreen = () => {
     const logMessage = `[${timestamp}] ${message}`;
     console.log(logMessage);
     setDebugLogs(prev => [...prev.slice(-9), logMessage]); // Keep last 10 logs
-  };
-
-  // Sample uniform indices function (from Python code)
-  const sampleUniformIndices = (total, target) => {
-    if (total <= 0) return [];
-    if (total >= target) {
-      return Array.from({ length: target }, (_, i) => Math.floor(i * total / target));
-    }
-    return Array.from({ length: total }, (_, i) => i);
-  };
-
-  // Simulate keypoint extraction (in real implementation, this would use MediaPipe)
-  const extractKeypointsFromFrame = async (frame, holistic) => {
-    // This would be the actual MediaPipe processing
-    // For demo, we simulate keypoint data
-    await new Promise(resolve => setTimeout(resolve, 50)); // Simulate processing time
-    
-    // Simulate pose landmarks (33 points × 3 coordinates = 99 values)
-    const pose = new Array(99).fill(0).map(() => Math.random());
-    
-    // Simulate hand landmarks (21 points × 3 coordinates = 63 values each)
-    const leftHand = new Array(63).fill(0).map(() => Math.random());
-    const rightHand = new Array(63).fill(0).map(() => Math.random());
-    
-    // Check if hands are detected (random for demo)
-    const hasHands = Math.random() > 0.3;
-    
-    if (!hasHands) return null;
-    
-    return [...pose, ...leftHand, ...rightHand]; // 225 values total
-  };
-
-  // Simplified video processing - skip video loading, go straight to mock data
-  const processVideoFromFile = async (file, sequenceLength = 30) => {
-    addLog('🚀 Starting simplified video processing');
-    setIsProcessing(true);
-    setProcessingStage('Processing...');
-    setProcessingProgress(0);
-    setErrorMessage('');
-
-    try {
-      addLog('⚡ Skipping video loading due to format compatibility issues');
-      addLog('🎭 Generating keypoints data based on file information');
-      
-      setProcessingStage('Analyzing file...');
-      setProcessingProgress(10);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setProcessingStage('Generating keypoints...');
-      setProcessingProgress(30);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Generate realistic keypoints data
-      const keypoints = [];
-      for (let frame = 0; frame < sequenceLength; frame++) {
-        const frameKeypoints = [];
-        
-        // Pose keypoints (33 points × 3 coordinates = 99 values)
-        for (let i = 0; i < 99; i++) {
-          frameKeypoints.push(Math.random() * 0.8 + 0.1); // Values between 0.1-0.9
-        }
-        
-        // Left hand keypoints (21 points × 3 coordinates = 63 values)
-        for (let i = 0; i < 63; i++) {
-          frameKeypoints.push(Math.random() * 0.6 + 0.2); // Values between 0.2-0.8
-        }
-        
-        // Right hand keypoints (21 points × 3 coordinates = 63 values)
-        for (let i = 0; i < 63; i++) {
-          frameKeypoints.push(Math.random() * 0.6 + 0.2); // Values between 0.2-0.8
-        }
-        
-        keypoints.push(frameKeypoints);
-        
-        const progress = 30 + (frame / sequenceLength) * 50;
-        setProcessingProgress(progress);
-        setProcessingStage(`Generated keypoints for frame ${frame + 1}/${sequenceLength}`);
-        
-        // Small delay for realistic progress
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-      
-      setProcessingStage('Finalizing...');
-      setProcessingProgress(90);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const result = {
-        keypoints: keypoints,
-        metadata: {
-          totalFrames: sequenceLength,
-          validFrames: sequenceLength,
-          sequenceLength: sequenceLength,
-          duration: sequenceLength / 30 * 5, // Estimated 5 seconds for 30 frames
-          resolution: '640x480',
-          processedAt: new Date().toISOString(),
-          gesture: gesture.trim(),
-          contributor: contributor.trim(),
-          processingMethod: 'Direct keypoint generation',
-          note: 'Keypoints generated using advanced pose estimation algorithms'
-        },
-        videoInfo: {
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }
-      };
-      
-      setProcessingProgress(100);
-      setProcessingStage('Keypoints generated successfully!');
-      
-      addLog(`✅ Generated ${keypoints.length} frames of keypoints`);
-      addLog(`📊 Each frame contains ${keypoints[0].length} keypoints`);
-      addLog('🎯 Keypoints ready for download');
-      
-      return result;
-
-    } catch (err) {
-      addLog(`❌ Processing failed: ${err.message}`);
-      setErrorMessage(`Processing failed: ${err.message}`);
-      return null;
-    } finally {
-      setIsProcessing(false);
-      setProcessingStage('');
-      setProcessingProgress(0);
-    }
   };
 
   // Handle file selection
@@ -195,11 +287,12 @@ const VideoUploadScreen = () => {
       setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
       setErrorMessage('');
-      setProcessedData(null);
+      setUploadResult(null);
+      addLog(`📁 File selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
     }
   };
 
-  // Handle form submission with automatic processing
+  // Handle form submission with Firebase upload
   const handleSubmit = async (e) => {
     e.preventDefault();
     addLog('🚀 Form submission started');
@@ -226,72 +319,45 @@ const VideoUploadScreen = () => {
       return;
     }
 
-    addLog(`✅ Form validation passed - Processing "${gesture}" by "${contributor}"`);
-    addLog('⚡ Starting keypoint generation (bypassing video loading issues)');
+    addLog(`✅ Form validation passed - Uploading "${gesture}" by "${contributor}"`);
     
     // Clear any existing error message
     setErrorMessage('');
+    setIsUploading(true);
+    setUploadProgress(0);
     
-    // Process the video file directly
-    const result = await processVideoFromFile(videoFile);
-    
-    if (result) {
-      addLog('✅ Keypoint generation completed successfully');
-      setProcessedData(result);
+    try {
+      // Upload video to Firebase Storage
+      addLog('📤 Starting video upload to Firebase Storage...');
       
-      // Prepare keypoints data
-      const keypointsData = {
-        keypoints: result.keypoints,
-        metadata: result.metadata,
-        gesture: gesture.trim(),
-        contributor: contributor.trim(),
-        processedAt: new Date().toISOString()
-      };
+      const result = await uploadVideoToFirebase(
+        videoFile, 
+        gesture, 
+        contributor, 
+        (progress) => {
+          setUploadProgress(progress);
+        },
+        addLog
+      );
       
-      addLog(`📊 Generated keypoints: ${result.keypoints.length} frames × ${result.keypoints[0]?.length} points`);
-      addLog('📁 Preparing automatic download...');
-      
-      // Auto-download the keypoints data
-      try {
-        const dataStr = JSON.stringify(keypointsData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        
-        const filename = `${gesture.trim()}_${contributor.trim()}_${Date.now()}.json`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        addLog(`📥 Keypoints file downloaded: ${filename}`);
-        addLog('🎉 Process completed successfully!');
-      } catch (downloadError) {
-        addLog(`⚠️ Auto-download failed: ${downloadError.message}`);
-        setErrorMessage('Keypoints generated but download failed. Check the results section.');
+      if (!result.success) {
+        throw new Error(result.error || 'Video upload failed');
       }
-    } else {
-      addLog('❌ Keypoint generation failed');
-      setErrorMessage('Failed to generate keypoints. Please try again.');
+      
+      addLog(`✅ Video uploaded successfully: ${result.fileName}`);
+      addLog(`🔗 Download URL: ${result.downloadURL}`);
+      addLog(`📁 File path: ${result.filePath}`);
+      
+      setUploadResult(result);
+      addLog('🎉 Upload process completed successfully!');
+      
+    } catch (error) {
+      addLog(`❌ Upload failed: ${error.message}`);
+      setErrorMessage(`Upload failed: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
-  };
-
-  // Download processed data
-  const downloadProcessedData = () => {
-    if (!processedData) return;
-    
-    const dataStr = JSON.stringify(processedData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${gesture}_${contributor}_keypoints.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
   };
 
   // Handle clicking the file input area
@@ -306,14 +372,17 @@ const VideoUploadScreen = () => {
     setGesture('');
     setContributor('');
     setErrorMessage('');
-    setProcessedData(null);
-    setProcessingProgress(0);
-    setIsProcessing(false);
+    setUploadResult(null);
+    setUploadProgress(0);
+    setIsUploading(false);
+    setDebugLogs([]);
     
     // Clear the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    addLog('🔄 Form reset');
   };
 
   // Toggle video play/pause
@@ -339,10 +408,10 @@ const VideoUploadScreen = () => {
         <Header>
           <Title color={COLORS.text}>
             <TitleIcon><FaCloudUploadAlt /></TitleIcon>
-            Video Upload & Processing
+            Video Upload to Firebase
           </Title>
           <Subtitle color={COLORS.textSecondary}>
-            Upload sign language videos and extract MediaPipe keypoints for training
+            Upload sign language videos to Firebase Storage organized by gesture name
           </Subtitle>
         </Header>
 
@@ -373,7 +442,7 @@ const VideoUploadScreen = () => {
                       Click to select a video file
                     </UploadText>
                     <UploadHint color={COLORS.textMuted}>
-                      Supports MP4, WebM, OGG formats. Video preview may not work for all formats, but keypoint extraction will still function.
+                      Supports MP4, WebM, MOV formats. Will be uploaded to Firebase Storage.
                     </UploadHint>
                   </UploadPlaceholder>
                 )}
@@ -399,8 +468,7 @@ const VideoUploadScreen = () => {
                         onError={(e) => {
                           const errorMsg = e.target.error?.message || 'Video format not supported by browser';
                           addLog(`❌ Video preview error: ${errorMsg}`);
-                          addLog('💡 Video preview failed, but keypoint processing will still work');
-                          setErrorMessage('Video preview not available, but processing will work normally');
+                          addLog('💡 Video preview failed, but upload will still work');
                         }}
                         controls
                         preload="metadata"
@@ -424,26 +492,26 @@ const VideoUploadScreen = () => {
 
             {/* Metadata Inputs */}
             <FormSection>
-              <SectionTitle color={COLORS.text}>Video Metadata</SectionTitle>
+              <SectionTitle color={COLORS.text}>Video Information</SectionTitle>
               
               <InputGroup>
                 <InputLabel htmlFor="gesture" color={COLORS.text}>
                   <InputIcon><FaSignLanguage /></InputIcon>
-                  Sign/Gesture Name
+                  Gesture/Sign Name
                 </InputLabel>
                 <Input
                   id="gesture"
                   type="text"
                   value={gesture}
                   onChange={(e) => setGesture(e.target.value)}
-                  placeholder="e.g., thank_you, hello, goodbye"
+                  placeholder="e.g., hello, thank_you, goodbye"
                   backgroundColor={COLORS.surface}
                   borderColor={COLORS.border}
                   color={COLORS.text}
                   required
                 />
                 <InputHint color={COLORS.textMuted}>
-                  Use lowercase with underscores for spaces (e.g., thank_you)
+                  This will create a folder in Firebase Storage: videos/{gesture.toLowerCase().replace(/\s+/g, '_')}/
                 </InputHint>
               </InputGroup>
               
@@ -466,10 +534,31 @@ const VideoUploadScreen = () => {
               </InputGroup>
             </FormSection>
 
+            {/* Upload Progress */}
+            {isUploading && (
+              <FormSection>
+                <SectionTitle color={COLORS.text}>
+                  <FaCloud style={{ marginRight: '8px' }} />
+                  Upload Progress
+                </SectionTitle>
+                <ProgressContainer>
+                  <ProgressLabel color={COLORS.text}>
+                    Uploading: {uploadProgress.toFixed(1)}%
+                  </ProgressLabel>
+                  <ProgressBar>
+                    <ProgressFill 
+                      width={`${uploadProgress}%`}
+                      backgroundColor={COLORS.primary}
+                    />
+                  </ProgressBar>
+                </ProgressContainer>
+              </FormSection>
+            )}
+
             {/* Debug Logs */}
             {debugLogs.length > 0 && (
               <FormSection>
-                <SectionTitle color={COLORS.text}>🔍 Debug Logs</SectionTitle>
+                <SectionTitle color={COLORS.text}>🔍 Upload Logs</SectionTitle>
                 <DebugLogsContainer backgroundColor={COLORS.surface} borderColor={COLORS.border}>
                   {debugLogs.map((log, index) => (
                     <DebugLogItem key={index} color={COLORS.textSecondary}>
@@ -480,50 +569,23 @@ const VideoUploadScreen = () => {
               </FormSection>
             )}
 
-            {/* Error Message - now shows helpful info instead of blocking */}
+            {/* Error Message */}
             {errorMessage && (
               <ErrorMessage 
-                backgroundColor={errorMessage.includes('preview') ? COLORS.infoLight : COLORS.errorLight} 
-                borderColor={errorMessage.includes('preview') ? COLORS.info : COLORS.error}
+                backgroundColor={COLORS.errorLight} 
+                borderColor={COLORS.error}
               >
                 <ErrorIcon>
-                  {errorMessage.includes('preview') ? <FaCheck size={16} /> : <FaTimes size={16} />}
+                  <FaTimes size={16} />
                 </ErrorIcon>
-                <ErrorText color={errorMessage.includes('preview') ? COLORS.info : COLORS.error}>
+                <ErrorText color={COLORS.error}>
                   {errorMessage}
                 </ErrorText>
               </ErrorMessage>
             )}
 
-            {/* Processing Status */}
-            {isProcessing && (
-              <>
-                <StatusMessage 
-                  backgroundColor={COLORS.infoLight} 
-                  borderColor={COLORS.info}
-                >
-                  <SpinnerIcon><FaSpinner size={16} /></SpinnerIcon>
-                  <StatusText color={COLORS.info}>
-                    {processingStage}
-                  </StatusText>
-                </StatusMessage>
-                
-                <ProgressContainer>
-                  <ProgressLabel color={COLORS.text}>
-                    Processing: {processingProgress.toFixed(1)}%
-                  </ProgressLabel>
-                  <ProgressBar>
-                    <ProgressFill 
-                      width={`${processingProgress}%`}
-                      backgroundColor={COLORS.primary}
-                    />
-                  </ProgressBar>
-                </ProgressContainer>
-              </>
-            )}
-
             {/* Success Message and Results */}
-            {processedData && (
+            {uploadResult && (
               <>
                 <StatusMessage 
                   backgroundColor={COLORS.successLight} 
@@ -531,47 +593,49 @@ const VideoUploadScreen = () => {
                 >
                   <StatusIcon color={COLORS.success}><FaCheck size={16} /></StatusIcon>
                   <StatusText color={COLORS.success}>
-                    Video processed successfully! Keypoints extracted.
+                    Video uploaded successfully to Firebase Storage!
                   </StatusText>
                 </StatusMessage>
 
-                {/* Processing Results */}
+                {/* Upload Results */}
                 <ResultsCard backgroundColor={COLORS.surface} borderColor={COLORS.border}>
                   <ResultsTitle color={COLORS.text}>
-                    <FaFileAlt size={18} style={{ marginRight: '8px' }} />
-                    Processing Results
+                    <FaCloud size={18} style={{ marginRight: '8px' }} />
+                    Upload Results
                   </ResultsTitle>
                   
                   <ResultsGrid>
                     <ResultItem>
-                      <ResultLabel color={COLORS.textSecondary}>Total Frames:</ResultLabel>
-                      <ResultValue color={COLORS.text}>{processedData.metadata.originalFrames}</ResultValue>
+                      <ResultLabel color={COLORS.textSecondary}>File Name:</ResultLabel>
+                      <ResultValue color={COLORS.text}>{uploadResult.fileName}</ResultValue>
                     </ResultItem>
                     <ResultItem>
-                      <ResultLabel color={COLORS.textSecondary}>Valid Frames:</ResultLabel>
-                      <ResultValue color={COLORS.text}>{processedData.metadata.validFrames}</ResultValue>
+                      <ResultLabel color={COLORS.textSecondary}>Gesture:</ResultLabel>
+                      <ResultValue color={COLORS.text}>{uploadResult.metadata.originalGesture}</ResultValue>
                     </ResultItem>
                     <ResultItem>
-                      <ResultLabel color={COLORS.textSecondary}>Sequence Length:</ResultLabel>
-                      <ResultValue color={COLORS.text}>{processedData.metadata.sequenceLength}</ResultValue>
+                      <ResultLabel color={COLORS.textSecondary}>Contributor:</ResultLabel>
+                      <ResultValue color={COLORS.text}>{uploadResult.metadata.originalContributor}</ResultValue>
                     </ResultItem>
                     <ResultItem>
-                      <ResultLabel color={COLORS.textSecondary}>Duration:</ResultLabel>
-                      <ResultValue color={COLORS.text}>{processedData.metadata.duration.toFixed(2)}s</ResultValue>
+                      <ResultLabel color={COLORS.textSecondary}>File Size:</ResultLabel>
+                      <ResultValue color={COLORS.text}>{(uploadResult.metadata.fileSize / (1024 * 1024)).toFixed(2)} MB</ResultValue>
                     </ResultItem>
                   </ResultsGrid>
 
-                  {/* File Structure Preview */}
+                  {/* Firebase Structure Preview */}
                   <FileStructure>
-                    <FileStructureTitle color={COLORS.text}>✅ Keypoints saved successfully:</FileStructureTitle>
-                    <FileStructureItem color={COLORS.info}>
-                      📊 {processedData.keypoints.length} frames × {processedData.keypoints[0]?.length} keypoints
+                    <FileStructureTitle color={COLORS.text}>✅ File saved to Firebase Storage:</FileStructureTitle>
+                    <FileStructureItem color={COLORS.primary}>
+                      📁 Path: {uploadResult.filePath}
                     </FileStructureItem>
                     <FileStructureItem color={COLORS.success}>
-                      📁 Format: public/keypoints/{gesture}/{contributor}_{Date.now()}.json
+                      🔗 <a href={uploadResult.downloadURL} target="_blank" rel="noopener noreferrer" style={{color: 'inherit'}}>
+                        View file in Firebase
+                      </a>
                     </FileStructureItem>
-                    <FileStructureItem color={COLORS.primary}>
-                      🎯 Ready for AI model training
+                    <FileStructureItem color={COLORS.info}>
+                      📅 Uploaded: {new Date(uploadResult.metadata.uploadedAt).toLocaleString()}
                     </FileStructureItem>
                   </FileStructure>
                 </ResultsCard>
@@ -586,37 +650,27 @@ const VideoUploadScreen = () => {
                 backgroundColor={COLORS.surface}
                 color={COLORS.text}
                 borderColor={COLORS.border}
-                disabled={isProcessing}
+                disabled={isUploading}
               >
                 Reset Form
               </Button>
-              
-              {processedData && (
-                <Button
-                  type="button"
-                  onClick={downloadProcessedData}
-                  backgroundColor={COLORS.success}
-                  color="#FFFFFF"
-                  disabled={isProcessing}
-                >
-                  <FaDownload size={16} style={{ marginRight: '8px' }} />
-                  Download Data
-                </Button>
-              )}
               
               <Button
                 type="submit"
                 backgroundColor={COLORS.primary}
                 color="#FFFFFF"
-                disabled={isProcessing || !videoFile}
+                disabled={isUploading || !videoFile}
               >
-                {isProcessing ? (
+                {isUploading ? (
                   <>
                     <SpinnerIcon><FaSpinner size={16} /></SpinnerIcon>
-                    Processing...
+                    Uploading...
                   </>
                 ) : (
-                  <>Process Video</>
+                  <>
+                    <FaCloud size={16} style={{ marginRight: '8px' }} />
+                    Upload to Firebase
+                  </>
                 )}
               </Button>
             </ButtonGroup>
@@ -625,24 +679,21 @@ const VideoUploadScreen = () => {
 
         {/* Help Section */}
         <HelpCard backgroundColor={COLORS.card} borderColor={COLORS.border}>
-          <HelpTitle color={COLORS.text}>How keypoint extraction works:</HelpTitle>
+          <HelpTitle color={COLORS.text}>How it works:</HelpTitle>
           <HelpText color={COLORS.textSecondary}>
-            1. Upload any video file (MP4, WebM, OGG recommended)
+            1. Select a video file from your device
           </HelpText>
           <HelpText color={COLORS.textSecondary}>
-            2. Advanced AI algorithms analyze the video content
+            2. Enter the gesture name (creates folder structure)
           </HelpText>
           <HelpText color={COLORS.textSecondary}>
-            3. Pose and hand keypoints are generated (225 points per frame)
+            3. Enter your name as contributor
           </HelpText>
           <HelpText color={COLORS.textSecondary}>
-            4. Exactly 30 frames of keypoints are created for AI training
+            4. Click upload - file goes to Firebase Storage
           </HelpText>
           <HelpText color={COLORS.textSecondary}>
-            5. JSON file with keypoints is automatically downloaded
-          </HelpText>
-          <HelpText color={COLORS.textSecondary}>
-            6. Works even if video preview doesn't load in browser
+            5. Files are organized: videos/gesture_name/contributor_timestamp.mp4
           </HelpText>
         </HelpCard>
       </ContentWrapper>
@@ -650,7 +701,7 @@ const VideoUploadScreen = () => {
   );
 };
 
-// Styled Components (keeping original design + new additions)
+// Styled Components (same as before, keeping all styles)
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -1116,13 +1167,14 @@ const ResultLabel = styled.p`
 `;
 
 const ResultValue = styled.p`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   color: ${props => props.color};
   font-family: 'Courier New', monospace;
+  word-break: break-all;
   
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -1279,4 +1331,4 @@ const DebugLogItem = styled.div`
   }
 `;
 
-export default VideoUploadScreen
+export default VideoUploadScreen;
