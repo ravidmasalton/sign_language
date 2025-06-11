@@ -117,7 +117,7 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Camera Section - עם מקום לפאנל התחתון העבה יותר + מותאם למצב אופקי
+// Camera Section - עם מקום לפאנל התחתון העבה יותר + מותאם למצב אופקי + מעל התפריט
 export const CameraSection = styled.div`
   position: relative;
   width: 100%;
@@ -129,22 +129,22 @@ export const CameraSection = styled.div`
   }
 
   @media (max-width: 768px) and (orientation: portrait) {
-    height: calc(100vh - 90px);
+    height: calc(100vh - 160px);
     min-height: 300px;
   }
 
   @media (max-width: 480px) and (orientation: portrait) {
-    height: calc(100vh - 85px);
+    height: calc(100vh - 150px);
     min-height: 280px;
   }
 
   @media (max-width: 768px) and (orientation: landscape) {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 110px);
     min-height: 200px;
   }
 
   @media (max-width: 480px) and (orientation: landscape) {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 95px);
     min-height: 180px;
   }
 `;
@@ -180,7 +180,7 @@ export const LiveVideo = styled.video`
   z-index: 1;
 `;
 
-// Translation Display - פאנל תחתון עבה יותר ובצבע לבן + מותאם למצב אופקי
+// Translation Display - פאנל תחתון עבה יותר ובצבע לבן + מותאם למצב אופקי + מעל התפריט
 export const TranslationDisplay = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
@@ -204,32 +204,34 @@ export const TranslationDisplay = styled.div`
 
   @media (max-width: 768px) and (orientation: portrait) {
     position: fixed;
-    bottom: 0;
+    bottom: 70px;
     left: 0;
     right: 0;
     z-index: 10;
     height: 90px;
-    padding: 15px 15px env(safe-area-inset-bottom, 15px) 15px;
+    padding: 15px 15px 15px 15px;
   }
 
   @media (max-width: 480px) and (orientation: portrait) {
     height: 85px;
-    padding: 12px 12px env(safe-area-inset-bottom, 12px) 12px;
+    bottom: 65px;
+    padding: 12px 12px 12px 12px;
   }
 
   @media (max-width: 768px) and (orientation: landscape) {
     position: fixed;
-    bottom: 0;
+    bottom: 50px;
     left: 0;
     right: 0;
     z-index: 10;
     height: 60px;
-    padding: 8px 15px env(safe-area-inset-bottom, 8px) 15px;
+    padding: 8px 15px 8px 15px;
   }
 
   @media (max-width: 480px) and (orientation: landscape) {
     height: 50px;
-    padding: 6px 12px env(safe-area-inset-bottom, 6px) 12px;
+    bottom: 45px;
+    padding: 6px 12px 6px 12px;
   }
 `;
 
@@ -539,7 +541,7 @@ export const CameraNotification = styled.div`
   }
 `;
 
-// Status Section - מעל הפאנל התחתון בצד ימין + מותאם למצב אופקי
+// Status Section - מעל הפאנל התחתון בצד ימין + מותאם למצב אופקי + מעל התפריט
 export const StatusSection = styled.div`
   ${css`animation: ${fadeIn} 1.2s ease-out 0.6s both;`}
   
@@ -553,28 +555,28 @@ export const StatusSection = styled.div`
 
   @media (max-width: 768px) and (orientation: portrait) {
     position: fixed;
-    bottom: 100px;
+    bottom: 170px;
     right: 15px;
     z-index: 11;
     width: 200px;
   }
 
   @media (max-width: 480px) and (orientation: portrait) {
-    bottom: 95px;
+    bottom: 160px;
     right: 12px;
     width: 180px;
   }
 
   @media (max-width: 768px) and (orientation: landscape) {
     position: fixed;
-    bottom: 70px;
+    bottom: 120px;
     right: 15px;
     z-index: 11;
     width: 180px;
   }
 
   @media (max-width: 480px) and (orientation: landscape) {
-    bottom: 60px;
+    bottom: 105px;
     right: 12px;
     width: 160px;
   }
