@@ -31,12 +31,9 @@ export const slideDown = keyframes`
   to { transform: translateY(0); }
 `;
 
-// Main Container - Full Screen
+// Main Container - Full Screen רק בדסקטופ
 export const ModernCameraContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: #000;
   color: #1e293b;
@@ -45,21 +42,41 @@ export const ModernCameraContainer = styled.div`
   flex-direction: column;
   user-select: none;
   ${css`animation: ${fadeIn} 0.6s ease-out;`}
+
+  @media (min-width: 769px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  @media (max-width: 768px) {
+    position: relative;
+    height: auto;
+    min-height: 100vh;
+  }
 `;
 
-// Header Section - Floating Top (עיצוב מותאם לנייד)
+// Header Section - רגיל בנייד, floating בדסקטופ
 export const HeaderSection = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
-  padding: env(safe-area-inset-top, 20px) 20px 30px 20px;
-  z-index: 10;
+  padding: 20px;
   text-align: center;
   ${css`animation: ${slideDown} 0.5s ease-out;`}
 
+  @media (min-width: 769px) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: env(safe-area-inset-top, 20px) 20px 30px 20px;
+  }
+
   @media (max-width: 768px) {
+    position: relative;
+    background: #000;
     padding: env(safe-area-inset-top, 15px) 15px 20px 15px;
   }
 `;
@@ -102,26 +119,84 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Translation Display - מותאם לנייד עם גובה קבוע
-export const TranslationDisplay = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
-  padding: 30px 20px env(safe-area-inset-bottom, 20px) 20px;
-  z-index: 10;
-  min-height: 140px;
-  ${css`animation: ${slideUp} 0.5s ease-out;`}
+// Camera Section - רגיל בנייד, מותאם בדסקטופ
+export const CameraSection = styled.div`
+  position: relative;
+  width: 100%;
+  background: #000;
+  overflow: hidden;
+
+  @media (min-width: 769px) {
+    flex: 1;
+    height: 100%;
+  }
 
   @media (max-width: 768px) {
-    min-height: 120px;
-    padding: 20px 15px env(safe-area-inset-bottom, 15px) 15px;
+    height: 60vh;
+    min-height: 400px;
   }
 
   @media (max-width: 480px) {
-    min-height: 110px;
-    padding: 15px 12px env(safe-area-inset-bottom, 12px) 12px;
+    height: 50vh;
+    min-height: 350px;
+  }
+`;
+
+export const VideoContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+`;
+
+export const ModernCanvas = styled.canvas`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+`;
+
+export const LiveVideo = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  z-index: 1;
+`;
+
+// Translation Display - רגיל בנייד, floating בדסקטופ
+export const TranslationDisplay = styled.div`
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
+  padding: 30px 20px;
+  ${css`animation: ${slideUp} 0.5s ease-out;`}
+
+  @media (min-width: 769px) {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    min-height: 160px;
+    padding: 30px 20px env(safe-area-inset-bottom, 20px) 20px;
+  }
+
+  @media (max-width: 768px) {
+    position: relative;
+    background: #000;
+    padding: 25px 15px env(safe-area-inset-bottom, 15px) 15px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 12px env(safe-area-inset-bottom, 12px) 12px;
   }
 `;
 
@@ -291,60 +366,6 @@ export const ButtonIcon = styled.span`
   @media (max-width: 768px) {
     font-size: 1rem;
   }
-`;
-
-// Camera Section - מותאם לנייד עם מקום לטקסט
-export const CameraSection = styled.div`
-  position: relative;
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    /* מקום לכותרת למעלה ולטקסט למטה */
-    margin-top: 80px;
-    margin-bottom: 120px;
-    height: calc(100vh - 200px);
-  }
-
-  @media (max-width: 480px) {
-    margin-top: 70px;
-    margin-bottom: 110px;
-    height: calc(100vh - 180px);
-  }
-`;
-
-export const VideoContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
-`;
-
-export const ModernCanvas = styled.canvas`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 2;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-`;
-
-export const LiveVideo = styled.video`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 1;
-  z-index: 1;
 `;
 
 // Overlays
