@@ -117,7 +117,7 @@ export const Subtitle = styled.p`
   }
 `;
 
-// Camera Section - עם מקום לפאנל התחתון הצר
+// Camera Section - עם מקום לפאנל התחתון העבה יותר
 export const CameraSection = styled.div`
   position: relative;
   width: 100%;
@@ -125,16 +125,16 @@ export const CameraSection = styled.div`
   overflow: hidden;
 
   @media (min-width: 769px) {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 80px);
   }
 
   @media (max-width: 768px) {
-    height: calc(100vh - 70px);
+    height: calc(100vh - 90px);
     min-height: 300px;
   }
 
   @media (max-width: 480px) {
-    height: calc(100vh - 60px);
+    height: calc(100vh - 85px);
     min-height: 280px;
   }
 `;
@@ -170,14 +170,14 @@ export const LiveVideo = styled.video`
   z-index: 1;
 `;
 
-// Translation Display - פאנל תחתון צר עם תוכן לצדדים
+// Translation Display - פאנל תחתון עבה יותר ובצבע לבן
 export const TranslationDisplay = styled.div`
-  background: rgba(20, 20, 20, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 15px;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  padding: 15px;
   ${css`animation: ${slideUp} 0.5s ease-out;`}
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -188,7 +188,7 @@ export const TranslationDisplay = styled.div`
     left: 250px;
     right: 0;
     z-index: 10;
-    height: 60px;
+    height: 80px;
     padding: 0 20px env(safe-area-inset-bottom, 0) 20px;
   }
 
@@ -198,13 +198,13 @@ export const TranslationDisplay = styled.div`
     left: 0;
     right: 0;
     z-index: 10;
-    height: 70px;
-    padding: 0 15px env(safe-area-inset-bottom, 0) 15px;
+    height: 90px;
+    padding: 15px 15px env(safe-area-inset-bottom, 15px) 15px;
   }
 
   @media (max-width: 480px) {
-    height: 60px;
-    padding: 0 12px env(safe-area-inset-bottom, 0) 12px;
+    height: 85px;
+    padding: 12px 12px env(safe-area-inset-bottom, 12px) 12px;
   }
 `;
 
@@ -219,12 +219,13 @@ export const TranslationCard = styled.div`
 `;
 
 export const TranslationIcon = styled.span`
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   ${css`animation: ${pulse} 2s infinite;`}
   flex-shrink: 0;
+  color: #333;
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -242,54 +243,55 @@ export const TranslationContent = styled.div`
 `;
 
 export const TranslationText = styled.div`
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 700;
   text-align: left;
   line-height: 1.3;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  text-shadow: none;
   word-wrap: break-word;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 `;
 
-// Buttons - כפתור Clear צמוד לימין
+// Buttons - כפתור Clear בולט יותר על רקע לבן
 export const InlineButton = styled.button`
-  background: rgba(220, 53, 69, 0.8);
+  background: rgba(220, 53, 69, 0.9);
   backdrop-filter: blur(10px);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 36px;
+  border: 2px solid rgba(220, 53, 69, 1);
+  min-height: 40px;
   outline: none;
   flex-shrink: 0;
   
   &:focus-visible {
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
   }
 
   &:hover:not(:disabled) {
-    background: rgba(220, 53, 69, 0.9);
-    transform: translateY(-1px);
+    background: rgba(220, 53, 69, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
   }
 
   &:active:not(:disabled) {
@@ -303,16 +305,16 @@ export const InlineButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    min-height: 32px;
-    gap: 4px;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    min-height: 36px;
+    gap: 6px;
   }
 
   @media (max-width: 480px) {
-    font-size: 0.7rem;
-    padding: 5px 10px;
-    min-height: 28px;
+    font-size: 0.8rem;
+    padding: 8px 14px;
+    min-height: 32px;
   }
 `;
 
@@ -510,7 +512,7 @@ export const StatusSection = styled.div`
   
   @media (min-width: 769px) {
     position: fixed;
-    bottom: 70px;
+    bottom: 90px;
     right: 20px;
     z-index: 11;
     width: 220px;
@@ -518,14 +520,14 @@ export const StatusSection = styled.div`
 
   @media (max-width: 768px) {
     position: fixed;
-    bottom: 80px;
+    bottom: 100px;
     right: 15px;
     z-index: 11;
     width: 200px;
   }
 
   @media (max-width: 480px) {
-    bottom: 70px;
+    bottom: 95px;
     right: 12px;
     width: 180px;
   }
