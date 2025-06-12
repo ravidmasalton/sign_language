@@ -158,17 +158,14 @@ export default function Navigation() {
       </View>
     );
   }
-  
-  return (
+    return (
     <NavigationContainer theme={navigationTheme}>
       {isSignedIn ? (
         <Tab.Navigator
           screenOptions={{
             headerShown: false,
             tabBarStyle: { 
-              ...styles.tabBar, 
-              backgroundColor: COLORS.card,
-              shadowColor: COLORS.shadow 
+              display: 'none' // Hide the tab bar completely
             },
             tabBarShowLabel: false,
           }}
@@ -176,11 +173,9 @@ export default function Navigation() {
           <Tab.Screen 
             name="Translation" 
             component={TranslationStack} 
-            options={{ 
-              tabBarIcon: ({ focused, color }) => (
-                <TabIcon 
+            options={{              tabBarIcon: ({ focused, color }) => (                <TabIcon 
                   focused={focused} 
-                  icon="🔄" 
+                  icon="Translate" 
                   label="Translate"
                   color={color}
                 />
@@ -190,10 +185,9 @@ export default function Navigation() {
             name="WordToAnimation" 
             component={SignToAnimationScreen} 
             options={{ 
-              tabBarIcon: ({ focused, color }) => (
-                <TabIcon 
+              tabBarIcon: ({ focused, color }) => (                <TabIcon 
                   focused={focused} 
-                  icon="🎬" 
+                  icon="Play" 
                   label="Word to Animation"
                   color={color}
                 />
@@ -204,10 +198,9 @@ export default function Navigation() {
             name="Settings" 
             component={SettingsScreen} 
             options={{ 
-              tabBarIcon: ({ focused, color }) => (
-                <TabIcon 
+              tabBarIcon: ({ focused, color }) => (                <TabIcon 
                   focused={focused} 
-                  icon="⚙️" 
+                  icon="Settings" 
                   label="Settings"
                   color={color}
                 />

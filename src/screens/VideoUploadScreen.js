@@ -32,29 +32,27 @@ const spin = keyframes`
  * Upload video to Firebase Storage with progress tracking
  */
 const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress, addLog) => {
-  try {
-    // Validate input parameters
+  try {    // Validate input parameters
     if (!videoFile) {
       const error = 'Video file is required';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
     }
     
     if (!gesture?.trim()) {
       const error = 'Gesture name is required';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
     }
     
     if (!contributor?.trim()) {
       const error = 'Contributor name is required';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
     }
-    
-    if (typeof onProgress !== 'function') {
+      if (typeof onProgress !== 'function') {
       const error = 'Progress callback is required';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
     }
     
@@ -67,26 +65,25 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
     // Validate Firebase storage
     if (!storage) {
       const error = 'Firebase storage is not initialized';
-      addLog(`❌ Firebase error: ${error}`);
+      addLog(`ERROR: Firebase error: ${error}`);
       return { success: false, error };
     }
-    
-    // Validate video file properties
+      // Validate video file properties
     if (!videoFile.size || videoFile.size === 0) {
       const error = 'Video file is empty or corrupted';
-      addLog(`❌ File validation failed: ${error}`);
+      addLog(`ERROR: File validation failed: ${error}`);
       return { success: false, error };
     }
     
     if (!videoFile.type || !videoFile.type.startsWith('video/')) {
       const error = 'File must be a video format';
-      addLog(`❌ File validation failed: ${error}`);
+      addLog(`ERROR: File validation failed: ${error}`);
       return { success: false, error };
     }
     
-    addLog(`📝 Starting upload validation passed`);
-    addLog(`📁 File: ${videoFile.name} (${(videoFile.size / (1024 * 1024)).toFixed(2)} MB)`);
-    addLog(`🏷️ Gesture: "${gesture.trim()}", Contributor: "${contributor.trim()}"`);
+    addLog(`INFO: Starting upload validation passed`);
+    addLog(`INFO: File: ${videoFile.name} (${(videoFile.size / (1024 * 1024)).toFixed(2)} MB)`);
+    addLog(`INFO: Gesture: "${gesture.trim()}", Contributor: "${contributor.trim()}"`);
     
     // Create unique filename
     const timestamp = Date.now();
@@ -95,19 +92,18 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
     const fileName = `${sanitizedContributor}_${timestamp}.mp4`;
     const filePath = `videos/${sanitizedGesture}/${fileName}`;
     
-    addLog(`📁 Creating file path: ${filePath}`);
-    
-    // Create storage reference with error handling
+    addLog(`INFO: Creating file path: ${filePath}`);
+      // Create storage reference with error handling
     let storageRef;
     try {
       storageRef = ref(storage, filePath);
       if (!storageRef) {
         throw new Error('Failed to create storage reference');
       }
-      addLog(`✅ Storage reference created successfully`);
+      addLog(`SUCCESS: Storage reference created successfully`);
     } catch (error) {
       const errorMsg = `Failed to create storage reference: ${error.message}`;
-      addLog(`❌ ${errorMsg}`);
+      addLog(`ERROR: ${errorMsg}`);
       return { success: false, error: errorMsg };
     }
     
@@ -118,18 +114,17 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       if (!uploadTask) {
         throw new Error('Failed to create upload task');
       }
-      addLog(`🚀 Upload task created, starting upload...`);
+      addLog(`INFO: Upload task created, starting upload...`);
     } catch (error) {
       const errorMsg = `Failed to start upload: ${error.message}`;
-      addLog(`❌ ${errorMsg}`);
+      addLog(`ERROR: ${errorMsg}`);
       return { success: false, error: errorMsg };
     }
-    
-    return new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
       // Validate uploadTask before using it
       if (!uploadTask || typeof uploadTask.on !== 'function') {
         const error = 'Upload task is invalid';
-        addLog(`❌ ${error}`);
+        addLog(`ERROR: ${error}`);
         reject(new Error(error));
         return;
       }
@@ -139,21 +134,20 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
           try {
             // Validate snapshot
             if (!snapshot) {
-              addLog(`⚠️ Warning: Received null snapshot`);
+              addLog(`WARNING: Received null snapshot`);
               return;
             }
             
             if (typeof snapshot.bytesTransferred === 'undefined' || typeof snapshot.totalBytes === 'undefined') {
-              addLog(`⚠️ Warning: Invalid snapshot data`);
+              addLog(`WARNING: Invalid snapshot data`);
               return;
             }
             
             if (snapshot.totalBytes === 0) {
-              addLog(`⚠️ Warning: Total bytes is zero`);
+              addLog(`WARNING: Total bytes is zero`);
               return;
             }
-            
-            // Calculate progress percentage
+              // Calculate progress percentage
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             
             // Validate progress callback before calling
@@ -161,42 +155,41 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               onProgress(Math.min(100, Math.max(0, progress))); // Clamp between 0-100
             }
             
-            addLog(`⬆️ Upload progress: ${progress.toFixed(1)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
+            addLog(`INFO: Upload progress: ${progress.toFixed(1)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
           } catch (error) {
-            addLog(`⚠️ Error in progress handler: ${error.message}`);
+            addLog(`WARNING: Error in progress handler: ${error.message}`);
           }
         },
         (error) => {
           // Enhanced error logging
           const errorMsg = error?.message || 'Unknown upload error';
           const errorCode = error?.code || 'unknown';
-          addLog(`❌ Upload failed [${errorCode}]: ${errorMsg}`);
+          addLog(`ERROR: Upload failed [${errorCode}]: ${errorMsg}`);
           console.error('Upload failed:', error);
           reject(error);
         },
         async () => {
           try {
-            addLog(`🎯 Upload completed, getting download URL...`);
+            addLog(`INFO: Upload completed, getting download URL...`);
             
             // Validate uploadTask.snapshot.ref before using it
             if (!uploadTask?.snapshot?.ref) {
               const error = 'Upload task snapshot reference is invalid';
-              addLog(`❌ ${error}`);
+              addLog(`ERROR: ${error}`);
               reject(new Error(error));
               return;
             }
-            
-            // Get download URL with additional validation
+              // Get download URL with additional validation
             let downloadURL;
             try {
               downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
               if (!downloadURL || typeof downloadURL !== 'string') {
                 throw new Error('Received invalid download URL');
               }
-              addLog(`✅ Download URL obtained: ${downloadURL}`);
+              addLog(`SUCCESS: Download URL obtained: ${downloadURL}`);
             } catch (error) {
               const errorMsg = `Failed to get download URL: ${error.message}`;
-              addLog(`❌ ${errorMsg}`);
+              addLog(`ERROR: ${errorMsg}`);
               reject(new Error(errorMsg));
               return;
             }
@@ -221,12 +214,11 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               }
             };
             
-            addLog(`✅ Upload completed successfully! File: ${fileName}`);
+            addLog(`SUCCESS: Upload completed successfully! File: ${fileName}`);
             resolve(result);
-            
-          } catch (error) {
+              } catch (error) {
             const errorMsg = `Failed in completion handler: ${error.message}`;
-            addLog(`❌ ${errorMsg}`);
+            addLog(`ERROR: ${errorMsg}`);
             reject(error);
           }
         }
@@ -235,7 +227,7 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
     
   } catch (error) {
     const errorMsg = `Upload initialization failed: ${error.message}`;
-    addLog(`❌ ${errorMsg}`);
+    addLog(`ERROR: ${errorMsg}`);
     console.error('Upload initialization failed:', error);
     return {
       success: false,
@@ -283,43 +275,41 @@ const VideoUploadScreen = () => {
         setVideoPreview('');
         return;
       }
-      
-      setVideoFile(file);
+        setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
       setErrorMessage('');
       setUploadResult(null);
-      addLog(`📁 File selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
+      addLog(`INFO: File selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
     }
   };
 
   // Handle form submission with Firebase upload
   const handleSubmit = async (e) => {
     e.preventDefault();
-    addLog('🚀 Form submission started');
+    addLog('INFO: Form submission started');
     
     // Validate form data
     if (!videoFile) {
       const error = 'Please select a video file.';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
-    
-    if (!gesture.trim()) {
+      if (!gesture.trim()) {
       const error = 'Please enter the gesture/sign name.';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
     
     if (!contributor.trim()) {
       const error = 'Please enter the contributor name.';
-      addLog(`❌ Validation failed: ${error}`);
+      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
 
-    addLog(`✅ Form validation passed - Uploading "${gesture}" by "${contributor}"`);
+    addLog(`SUCCESS: Form validation passed - Uploading "${gesture}" by "${contributor}"`);
     
     // Clear any existing error message
     setErrorMessage('');
@@ -328,7 +318,7 @@ const VideoUploadScreen = () => {
     
     try {
       // Upload video to Firebase Storage
-      addLog('📤 Starting video upload to Firebase Storage...');
+      addLog('INFO: Starting video upload to Firebase Storage...');
       
       const result = await uploadVideoToFirebase(
         videoFile, 
@@ -344,15 +334,15 @@ const VideoUploadScreen = () => {
         throw new Error(result.error || 'Video upload failed');
       }
       
-      addLog(`✅ Video uploaded successfully: ${result.fileName}`);
-      addLog(`🔗 Download URL: ${result.downloadURL}`);
-      addLog(`📁 File path: ${result.filePath}`);
+      addLog(`SUCCESS: Video uploaded successfully: ${result.fileName}`);
+      addLog(`INFO: Download URL: ${result.downloadURL}`);
+      addLog(`INFO: File path: ${result.filePath}`);
       
       setUploadResult(result);
-      addLog('🎉 Upload process completed successfully!');
+      addLog('SUCCESS: Upload process completed successfully!');
       
     } catch (error) {
-      addLog(`❌ Upload failed: ${error.message}`);
+      addLog(`ERROR: Upload failed: ${error.message}`);
       setErrorMessage(`Upload failed: ${error.message}`);
     } finally {
       setIsUploading(false);
@@ -376,13 +366,12 @@ const VideoUploadScreen = () => {
     setUploadProgress(0);
     setIsUploading(false);
     setDebugLogs([]);
-    
-    // Clear the file input
+      // Clear the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     
-    addLog('🔄 Form reset');
+    addLog('INFO: Form reset');
   };
 
   // Toggle video play/pause
@@ -408,10 +397,10 @@ const VideoUploadScreen = () => {
         <Header>
           <Title color={COLORS.text}>
             <TitleIcon><FaCloudUploadAlt /></TitleIcon>
-            Video Upload to Firebase
+            Video Upload
           </Title>
           <Subtitle color={COLORS.textSecondary}>
-            Upload sign language videos to Firebase Storage organized by gesture name
+            Contribute Sign Language Videos to Help Us Improve Gesture Recognition
           </Subtitle>
         </Header>
 
@@ -452,23 +441,22 @@ const VideoUploadScreen = () => {
                     <VideoPreviewWrapper>
                       <VideoPreview 
                         ref={videoRef}
-                        src={videoPreview} 
-                        onPlay={() => {
+                        src={videoPreview}                        onPlay={() => {
                           setIsVideoPlaying(true);
-                          addLog('▶️ Video started playing');
+                          addLog('INFO: Video started playing');
                         }}
                         onPause={() => {
                           setIsVideoPlaying(false);
-                          addLog('⏸️ Video paused');
+                          addLog('INFO: Video paused');
                         }}
-                        onLoadStart={() => addLog('🔄 Video load started')}
-                        onLoadedData={() => addLog('📊 Video data loaded')}
-                        onLoadedMetadata={() => addLog('📋 Video metadata loaded')}
-                        onCanPlay={() => addLog('✅ Video can play')}
+                        onLoadStart={() => addLog('INFO: Video load started')}
+                        onLoadedData={() => addLog('INFO: Video data loaded')}
+                        onLoadedMetadata={() => addLog('INFO: Video metadata loaded')}
+                        onCanPlay={() => addLog('SUCCESS: Video can play')}
                         onError={(e) => {
                           const errorMsg = e.target.error?.message || 'Video format not supported by browser';
-                          addLog(`❌ Video preview error: ${errorMsg}`);
-                          addLog('💡 Video preview failed, but upload will still work');
+                          addLog(`ERROR: Video preview error: ${errorMsg}`);
+                          addLog('INFO: Video preview failed, but upload will still work');
                         }}
                         controls
                         preload="metadata"
@@ -510,9 +498,6 @@ const VideoUploadScreen = () => {
                   color={COLORS.text}
                   required
                 />
-                <InputHint color={COLORS.textMuted}>
-                  This will create a folder in Firebase Storage: videos/{gesture.toLowerCase().replace(/\s+/g, '_')}/
-                </InputHint>
               </InputGroup>
               
               <InputGroup>
@@ -558,7 +543,7 @@ const VideoUploadScreen = () => {
             {/* Debug Logs */}
             {debugLogs.length > 0 && (
               <FormSection>
-                <SectionTitle color={COLORS.text}>🔍 Upload Logs</SectionTitle>
+                <SectionTitle color={COLORS.text}>Upload Logs</SectionTitle>
                 <DebugLogsContainer backgroundColor={COLORS.surface} borderColor={COLORS.border}>
                   {debugLogs.map((log, index) => (
                     <DebugLogItem key={index} color={COLORS.textSecondary}>
@@ -623,19 +608,18 @@ const VideoUploadScreen = () => {
                     </ResultItem>
                   </ResultsGrid>
 
-                  {/* Firebase Structure Preview */}
-                  <FileStructure>
-                    <FileStructureTitle color={COLORS.text}>✅ File saved to Firebase Storage:</FileStructureTitle>
+                  {/* Firebase Structure Preview */}                  <FileStructure>
+                    <FileStructureTitle color={COLORS.text}>SUCCESS: File saved to Firebase Storage:</FileStructureTitle>
                     <FileStructureItem color={COLORS.primary}>
-                      📁 Path: {uploadResult.filePath}
+                      Path: {uploadResult.filePath}
                     </FileStructureItem>
                     <FileStructureItem color={COLORS.success}>
-                      🔗 <a href={uploadResult.downloadURL} target="_blank" rel="noopener noreferrer" style={{color: 'inherit'}}>
+                      <a href={uploadResult.downloadURL} target="_blank" rel="noopener noreferrer" style={{color: 'inherit'}}>
                         View file in Firebase
                       </a>
                     </FileStructureItem>
                     <FileStructureItem color={COLORS.info}>
-                      📅 Uploaded: {new Date(uploadResult.metadata.uploadedAt).toLocaleString()}
+                      Uploaded: {new Date(uploadResult.metadata.uploadedAt).toLocaleString()}
                     </FileStructureItem>
                   </FileStructure>
                 </ResultsCard>
@@ -678,24 +662,25 @@ const VideoUploadScreen = () => {
         </FormCard>
 
         {/* Help Section */}
-        <HelpCard backgroundColor={COLORS.card} borderColor={COLORS.border}>
-          <HelpTitle color={COLORS.text}>How it works:</HelpTitle>
-          <HelpText color={COLORS.textSecondary}>
-            1. Select a video file from your device
-          </HelpText>
-          <HelpText color={COLORS.textSecondary}>
-            2. Enter the gesture name (creates folder structure)
-          </HelpText>
-          <HelpText color={COLORS.textSecondary}>
-            3. Enter your name as contributor
-          </HelpText>
-          <HelpText color={COLORS.textSecondary}>
-            4. Click upload - file goes to Firebase Storage
-          </HelpText>
-          <HelpText color={COLORS.textSecondary}>
-            5. Files are organized: videos/gesture_name/contributor_timestamp.mp4
-          </HelpText>
-        </HelpCard>
+       <HelpCard backgroundColor={COLORS.card} borderColor={COLORS.border}>
+        <HelpTitle color={COLORS.text}>How it works:</HelpTitle>
+        <HelpText color={COLORS.textSecondary}>
+          1. Choose a video from your device that shows a specific gesture
+        </HelpText>
+        <HelpText color={COLORS.textSecondary}>
+          2. Enter the name of the gesture you're demonstrating
+        </HelpText>
+        <HelpText color={COLORS.textSecondary}>
+          3. Add your name to be credited as a contributor
+        </HelpText>
+        <HelpText color={COLORS.textSecondary}>
+          4. Click upload – your video will be added to our training dataset
+        </HelpText>
+        <HelpText color={COLORS.textSecondary}>
+          5. By contributing, you help improve the accuracy of our gesture recognition model over time
+        </HelpText>
+      </HelpCard>
+
       </ContentWrapper>
     </Container>
   );

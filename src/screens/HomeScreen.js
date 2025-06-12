@@ -367,10 +367,9 @@ const HomeScreen = () => {
   };
   
   return (
-    <ModernContainer COLORS={COLORS}>
-      <HeroSection>
+    <ModernContainer COLORS={COLORS}>      <HeroSection>
         <LogoContainer>
-          <ModernLogo>🤟</ModernLogo>
+          <ModernLogo>SL</ModernLogo>
         </LogoContainer>
         
         <MainTitle>Sign Language Recognition</MainTitle>

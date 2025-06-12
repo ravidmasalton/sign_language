@@ -89,10 +89,8 @@ const Layout = ({ children }) => {
           <AppLogo>
             <AppTitle color={COLORS.text}>Sign Language App</AppTitle>
           </AppLogo>
-        )}
-
-        <NavItems>
-          <NavItem isActive={isActive('/') || isActive('/camera')} backgroundColor={COLORS.primaryLight}>
+        )}        <NavItems>
+          <NavItem isActive={isActive('/')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/" color={COLORS.text} activeColor={COLORS.primary}>
               <FaHome size={20} />
               <NavText>Home</NavText>
@@ -103,7 +101,7 @@ const Layout = ({ children }) => {
               <FaCamera size={20} />
               <NavText>Video to Word</NavText>
             </NavLink>
-          </NavItem>          <NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
+          </NavItem><NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/word-to-animation" color={COLORS.text} activeColor={COLORS.primary}>
               <FaClosedCaptioning size={20} />
               <NavText>Word to Animation</NavText>
@@ -165,12 +163,10 @@ const Layout = ({ children }) => {
         isSidebarOpen={!isMobile || isMobileMenuOpen}
       >
         {children}
-      </MainContent>
-
-      {/* Mobile bottom navigation */}
+      </MainContent>      {/* Mobile bottom navigation */}
       {isMobile && (
         <MobileNavBar backgroundColor={COLORS.card} borderColor={COLORS.border}>
-          <MobileNavItem isActive={isActive('/') || isActive('/camera')}>
+          <MobileNavItem isActive={isActive('/')}>
             <MobileNavLink to="/" activeColor={COLORS.primary} color={COLORS.textSecondary}>
               <FaHome size={24} />
               <MobileNavText>Home</MobileNavText>
@@ -181,7 +177,7 @@ const Layout = ({ children }) => {
               <FaCamera size={24} />
               <MobileNavText>Video to Word</MobileNavText>
             </MobileNavLink>
-          </MobileNavItem>          <MobileNavItem isActive={isActive('/word-to-animation')}>
+          </MobileNavItem><MobileNavItem isActive={isActive('/word-to-animation')}>
             <MobileNavLink to="/word-to-animation" activeColor={COLORS.primary} color={COLORS.textSecondary}>
               <FaClosedCaptioning size={24} />
               <MobileNavText>Word to Animation</MobileNavText>

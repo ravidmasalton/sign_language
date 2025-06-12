@@ -549,15 +549,14 @@ const LoginScreen = () => {
               placeholder=" "
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-            />
+              disabled={isLoading}            />
             <Label>Password</Label>
-            <InputIcon>🔒</InputIcon>
+            <InputIcon>Lock</InputIcon>
           </InputGroup>
 
           {error && (
             <ErrorMessage>
-              <ErrorIcon>⚠️</ErrorIcon>
+              <ErrorIcon>Warning</ErrorIcon>
               <ErrorText>{error}</ErrorText>
             </ErrorMessage>
           )}
@@ -571,29 +570,27 @@ const LoginScreen = () => {
                 </LoadingContainer>
               ) : (
                 <>
-                  <span>{isSignup ? '🚀' : '🔑'}</span>
+                  <span>{isSignup ? 'Create' : 'Key'}</span>
                   {isSignup ? 'Create Account' : 'Sign In'}
                 </>
               )}
             </LoginButton>
 
             <SignupButton onClick={() => setIsSignup(!isSignup)} disabled={isLoading}>
-              <span>{isSignup ? '👤' : '✨'}</span>
+              <span>{isSignup ? 'User' : 'New'}</span>
               {isSignup ? 'Already have an account?' : 'Create new account'}
             </SignupButton>
-          </ButtonContainer>
-
-          <Divider>
+          </ButtonContainer>          <Divider>
             <DividerText>Or continue with</DividerText>
           </Divider>
 
           <SocialButtonsGrid>
             <SocialButton onClick={() => handleSocialLogin('Google')}>
-              <SocialIcon>🔍</SocialIcon>
+              <SocialIcon>G</SocialIcon>
               Google
             </SocialButton>
             <SocialButton onClick={() => handleSocialLogin('Apple')}>
-              <SocialIcon>🍎</SocialIcon>
+              <SocialIcon>A</SocialIcon>
               Apple
             </SocialButton>
           </SocialButtonsGrid>

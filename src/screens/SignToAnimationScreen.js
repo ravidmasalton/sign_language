@@ -66,17 +66,14 @@ const SignToAnimationScreen = () => {
       videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
     }
   }, []);
-
   // Handle video end - return to regular video
   useEffect(() => {
     const handleVideoEnd = () => {
       if (!isSentenceMode && currentWord) {
-        console.log('🏁 Video ended, returning to regular video');
         setTimeout(() => {
           setCurrentWord('');
           setInputWord('');
           if (videoRef.current) {
-            console.log('🔄 Loading Regular video after word end');
             videoRef.current.pause();
             videoRef.current.currentTime = 0;
             videoRef.current.src = '/sign_videos/Regular.mp4';
@@ -114,15 +111,10 @@ const SignToAnimationScreen = () => {
     
     return processedWord.charAt(0).toUpperCase() + processedWord.slice(1);
   };
-
   // Check if video exists for the given word
   const checkVideoExists = async (word) => {
     const formattedWord = formatWord(word);
     if (!formattedWord) return false;
-    
-    console.log('🔍 Checking word:', word);
-    console.log('📝 Formatted word:', formattedWord);
-    console.log('📁 Expected file path:', `/sign_videos/${formattedWord}.mp4`);
     
     const originalWordLower = word.toLowerCase().trim();
     const normalizedInput = originalWordLower.replace(/\s+/g, ' ');
@@ -132,26 +124,20 @@ const SignToAnimationScreen = () => {
              availableWord.toLowerCase().replace(/\s+/g, ' ') === normalizedInput
            );
     
-    console.log('📋 Is in available words list:', isInList);
-    
     if (isInList) {
       try {
         const testUrl = `/sign_videos/${formattedWord}.mp4`;
-        console.log('🌐 Testing URL:', testUrl);
         
         const response = await fetch(testUrl, { method: 'HEAD' });
         const fileExists = response.ok;
         
-        console.log('✅ File actually exists on server:', fileExists);
-        
         return fileExists;
       } catch (error) {
-        console.error('❌ Error checking file:', error);
+        console.error('Error checking file:', error);
         return false;
       }
     }
     
-    console.log('❌ Word not in available list');
     return false;
   };
 
@@ -200,9 +186,7 @@ const SignToAnimationScreen = () => {
         if (videoRef.current) {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
-          
-          const videoSrc = `/sign_videos/${formattedWord}.mp4`;
-          console.log('🎬 Loading video:', videoSrc);
+            const videoSrc = `/sign_videos/${formattedWord}.mp4`;
           
           videoRef.current.src = videoSrc;
           videoRef.current.load();
@@ -210,9 +194,8 @@ const SignToAnimationScreen = () => {
           setTimeout(() => {
             if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
               videoRef.current.play().catch(e => {
-                console.error("❌ Error playing video:", e);
+                console.error("Error playing video:", e);
                 if (videoRef.current) {
-                  console.log('🔄 Fallback to Regular video');
                   videoRef.current.src = '/sign_videos/Regular.mp4';
                   videoRef.current.load();
                   videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
@@ -326,18 +309,11 @@ const SignToAnimationScreen = () => {
                   currentWord ? 
                     `/sign_videos/${formatWord(currentWord)}.mp4` : 
                     '/sign_videos/Regular.mp4'
-              }
-              onError={(e) => {
-                console.error('🚨 Video onError triggered!');
-                console.error('Current video src:', e.target.src);
-                
+              }              onError={(e) => {
                 if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
-                  console.log('🔄 Video failed, trying Regular.mp4');
                   videoRef.current.src = '/sign_videos/Regular.mp4';
                   videoRef.current.load();
                   videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-                } else {
-                  console.error('❌ Even Regular.mp4 failed!');
                 }
                 
                 setVideoExists(false);
