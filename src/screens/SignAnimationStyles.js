@@ -1,8 +1,8 @@
-// SignAnimationStyles.js - קובץ העיצוב
+// SignAnimationStyles.js - CLEAN MOBILE APP STYLE
 
 import styled, { keyframes, css } from 'styled-components';
 
-// Define keyframes at the top level
+// Keyframes
 export const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -35,522 +35,187 @@ export const shimmer = keyframes`
   100% { background-position: calc(200px + 100%) 0; }
 `;
 
-// תיקון האייקון המסתובב
 export const SpinningIcon = styled.div`
-  ${css`
-    animation: ${spin} 1s linear infinite;
-  `}
+  ${css`animation: ${spin} 1s linear infinite;`}
 `;
 
-// Main Container
+// MOBILE APP CONTAINER
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 24px;
-  background: linear-gradient(135deg, 
-    #667eea 0%, 
-    #764ba2 25%, 
-    #f093fb 50%, 
-    #f5576c 75%, 
-    #4facfe 100%
-  );
   min-height: 100vh;
   width: 100%;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   
   @media (max-width: 768px) {
-    padding: 16px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-      radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-    z-index: -2;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-      radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-    ${css`
-      animation: ${float} 25s ease-in-out infinite;
-    `}
-    z-index: -1;
+    min-height: 100dvh;
   }
 `;
 
-// Header Section
-export const Header = styled.header`
-  text-align: center;
-  margin-bottom: 32px;
-  z-index: 1;
+// TOP SECTION - FOR HEADER AND ANIMATION (SMALLER)
+export const TopSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  min-height: 55vh;
   
   @media (max-width: 768px) {
-    margin-bottom: 24px;
+    padding: 12px;
+    min-height: 50vh;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px;
+    min-height: 45vh;
+  }
+`;
+
+// HEADER - SMALLER
+export const Header = styled.header`
+  text-align: center;
+  margin-bottom: 20px;
+  z-index: 1;
+  width: 100%;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 12px;
   }
 `;
 
 export const Title = styled.h1`
-  font-size: 3rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, 
-    #ffffff 0%, 
-    #f8fafc 25%, 
-    #e2e8f0 50%, 
-    #cbd5e1 75%, 
-    #94a3b8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 12px;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  letter-spacing: -0.02em;
-  ${css`
-    animation: ${shimmer} 4s ease-in-out infinite;
-  `}
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 4px;
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 1rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 0.9rem;
   }
 `;
 
 export const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 12px;
-  font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin: 0;
+  font-weight: 400;
   
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 0.7rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1rem;
+    font-size: 0.65rem;
   }
 `;
 
 export const AvailableWordsHint = styled.p`
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
-  font-weight: 400;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  text-align: center;
-  line-height: 1.5;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.85rem;
-  }
+  display: none;
 `;
 
-// Search Section
-export const SearchContainer = styled.div`
+// CONTENT CONTAINER - SMALLER MARGINS
+export const ContentContainer = styled.div`
   width: 100%;
-  max-width: 600px;
-  margin-bottom: 24px;
-  z-index: 1;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-  }
-`;
-
-export const SearchForm = styled.form`
   display: flex;
-  gap: 12px;
-  
-  @media (max-width: 480px) {
-    flex-direction: column;
-    gap: 8px;
-  }
-`;
-
-export const InputWrapper = styled.div`
-  position: relative;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
   flex: 1;
-`;
-
-export const SearchIcon = styled.div`
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  
-  @media (max-width: 768px) {
-    left: 16px;
-  }
-  
-  @media (max-width: 480px) {
-    left: 14px;
-  }
-`;
-
-export const Input = styled.input`
-  width: 100%;
-  padding: 18px 18px 18px 52px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  font-size: 1.1rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(30px);
-  color: #ffffff;
-  min-height: 60px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 500;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 
-      0 0 0 4px rgba(255, 255, 255, 0.1),
-      0 12px 40px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px) scale(1.01);
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 16px 16px 16px 48px;
-    min-height: 56px;
-    border-radius: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    padding: 14px 14px 14px 44px;
-    min-height: 52px;
-    border-radius: 18px;
-  }
-`;
-
-export const SearchButton = styled.button`
-  padding: 0 36px;
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(255, 255, 255, 0.8) 100%
-  );
-  color: #4f46e5;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  min-height: 60px;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(20px);
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    background: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.95) 0%, 
-      rgba(255, 255, 255, 0.85) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.5);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(-1px) scale(1.01);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    background: rgba(255, 255, 255, 0.5);
-    color: rgba(79, 70, 229, 0.6);
-  }
+  margin-bottom: 16px;
   
   @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 0 28px;
-    min-height: 56px;
-    border-radius: 20px;
+    margin-bottom: 12px;
   }
   
   @media (max-width: 480px) {
-    font-size: 0.95rem;
-    padding: 0 24px;
-    min-height: 52px;
-    border-radius: 18px;
+    margin-bottom: 8px;
   }
 `;
 
-// Recent Words Section
+// HIDDEN COMPONENTS
 export const RecentWordsContainer = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 24px;
-  z-index: 1;
-  ${css`
-    animation: ${slideIn} 0.6s ease-out;
-  `}
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-  }
+  display: none;
 `;
 
 export const RecentWordsTitle = styled.p`
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 16px;
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: none;
 `;
 
 export const RecentWordsList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: none;
 `;
 
 export const RecentWordButton = styled.button`
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    color: #ffffff;
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  display: none;
 `;
 
-// Error Section
-export const ErrorContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  max-width: 600px;
-  padding: 20px 24px;
-  background: rgba(248, 113, 113, 0.15);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  border-radius: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(248, 113, 113, 0.1);
-  ${css`
-    animation: ${slideIn} 0.4s ease-out;
-  `}
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-    padding: 18px 20px;
-  }
+// HIDDEN INFO CONTAINER
+export const InfoContainer = styled.div`
+  display: none;
 `;
 
-export const ErrorText = styled.p`
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.6;
-  font-weight: 500;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+export const InfoText = styled.p`
+  display: none;
 `;
 
-// Content Section
-export const ContentContainer = styled.div`
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  ${css`
-    animation: ${slideIn} 0.8s ease-out;
-  `}
-  z-index: 1;
-`;
-
+// HIDDEN CURRENT WORD DISPLAY
 export const CurrentWordDisplay = styled.div`
+  display: none;
+`;
+
+export const CurrentWordLabel = styled.span`
+  display: none;
+`;
+
+export const CurrentWord = styled.h2`
+  display: none;
+`;
+
+// VIDEO CONTAINER - SMALLER SIZE
+export const VideoContainer = styled.div`
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 3/4;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 20px; /* הקטנה מ-28px */
-  padding: 20px 24px; /* הקטנה מ-28px 32px */
-  background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.2), 
-    rgba(255, 255, 255, 0.1)
-  );
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px; /* הקטנה מ-24px */
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  ${css`
-    animation: ${pulse} 3s ease-in-out infinite;
-  `}
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
   
   @media (max-width: 768px) {
-    margin-bottom: 16px;
-    padding: 16px 20px;
+    max-width: 280px;
     border-radius: 18px;
   }
   
   @media (max-width: 480px) {
-    padding: 14px 18px;
+    max-width: 240px;
     border-radius: 16px;
-  }
-`;
-
-export const CurrentWordLabel = styled.span`
-  font-size: 0.75rem; /* הקטנה מ-1rem */
-  color: rgba(255, 255, 255, 0.7); /* שקיפות יותר */
-  margin-bottom: 6px; /* הקטנה מ-12px */
-  font-weight: 500; /* הקלה מ-600 */
-  text-transform: uppercase;
-  letter-spacing: 0.5px; /* הקטנה מ-1px */
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-`;
-
-export const CurrentWord = styled.h2`
-  font-size: 1.8rem; /* הקטנה מ-2.8rem */
-  font-weight: 700; /* הקלה מ-900 */
-  text-align: center;
-  margin: 0;
-  text-transform: capitalize;
-  background: linear-gradient(135deg, 
-    #ffffff 0%, 
-    rgba(255, 255, 255, 0.9) 50%, 
-    rgba(255, 255, 255, 0.8) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* הקטנה מ-4px 12px */
-  letter-spacing: -0.01em; /* הקטנה מ--0.02em */
-  
-  @media (max-width: 768px) {
-    font-size: 1.6rem; /* הקטנה מ-2.4rem */
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.4rem; /* הקטנה מ-2rem */
-  }
-`;
-
-export const VideoContainer = styled.div`
-  width: 100%;
-  max-width: 520px; /* גדול יותר */
-  aspect-ratio: 3/4; /* יחס 3:4 - יותר ארוך וגבוה */
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 32px; /* עיגול יותר חלק */
-  overflow: hidden;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  position: relative;
-  
-  /* הוספת גלו עדין */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-      transparent, 
-      rgba(255, 255, 255, 0.1), 
-      transparent
-    );
-    transition: left 0.6s ease;
-  }
-  
-  &:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 
-      0 35px 70px -12px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    border-color: rgba(99, 102, 241, 0.3);
-  }
-  
-  &:hover::before {
-    left: 100%;
-  }
-  
-  @media (max-width: 768px) {
-    margin-bottom: 16px;
-    max-width: 420px;
-    border-radius: 28px;
-  }
-  
-  @media (max-width: 480px) {
-    max-width: 380px;
-    border-radius: 24px;
   }
 `;
 
@@ -558,11 +223,10 @@ export const Video = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 28px; /* התאמה לעיגול החדש */
+  border-radius: 22px;
   cursor: pointer;
-  transition: all 0.3s ease;
   
-  /* הסתרת כל הקונטרולים להופעת GIF */
+  /* Hide all controls */
   &::-webkit-media-controls {
     display: none !important;
   }
@@ -599,167 +263,493 @@ export const Video = styled.video`
     display: none !important;
   }
   
-  /* הסתרת תפריט הקליק הימני */
   &::-webkit-media-controls-enclosure {
     display: none !important;
   }
   
-  /* Firefox */
   &::-moz-media-controls {
     display: none !important;
   }
   
-  /* הסתרת אטריביוטים שיכולים לחשוף שזה סרטון */
   &[controls] {
     controls: none;
   }
   
-  /* הסתרת פוסטר וטעינה */
-  &::before {
-    display: none;
-  }
-  
-  /* עיגול פנימי חלק */
   @media (max-width: 768px) {
-    border-radius: 24px;
+    border-radius: 18px;
   }
   
   @media (max-width: 480px) {
-    border-radius: 20px;
+    border-radius: 16px;
   }
 `;
 
-export const InfoContainer = styled.div`
+// FLOATING BUTTONS - LIKE +/1.0 BUTTONS (ON THE SIDES)
+export const FloatingButtonsContainer = styled.div`
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+  
+  @media (max-width: 768px) {
+    left: 16px;
+    gap: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    left: 12px;
+    gap: 8px;
+  }
+`;
+
+export const FloatingButton = styled.button`
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2c3e50;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+`;
+
+// RIGHT SIDE BUTTONS
+export const RightButtonsContainer = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+  
+  @media (max-width: 768px) {
+    right: 16px;
+    gap: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    right: 12px;
+    gap: 8px;
+  }
+`;
+
+// FLAG BUTTON - US FLAG (BOTTOM LEFT)
+export const FlagButton = styled.button`
+  width: 56px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    width: 52px;
+    height: 36px;
+    left: 16px;
+    bottom: 16px;
+    font-size: 1.3rem;
+  }
+  
+  @media (max-width: 480px) {
+    width: 48px;
+    height: 32px;
+    left: 12px;
+    bottom: 12px;
+    font-size: 1.2rem;
+  }
+`;
+
+// MIDDLE SECTION - SMALLER PADDING
+export const MiddleSection = styled.div`
   width: 100%;
-  padding: 24px 28px;
-  background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.15), 
-    rgba(255, 255, 255, 0.1)
-  );
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  margin-top: 16px;
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  
-  @media (max-width: 768px) {
-    padding: 20px 24px;
-    gap: 16px;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 18px 20px;
-    gap: 14px;
-  }
-`;
-
-export const InfoText = styled.p`
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.6;
-  font-weight: 500;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  
-  @media (max-width: 768px) {
-    font-size: 0.95rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-  }
-`;
-
-// Empty State Section
-export const EmptyStateContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 72px 32px;
+  padding: 16px 16px;
+  position: relative;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    padding: 12px 12px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px 8px;
+  }
+`;
+
+// BOTTOM SECTION - TAB BAR ONLY
+export const BottomSection = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
+`;
+
+// SEARCH CONTAINER (IN MIDDLE SECTION)
+export const SearchContainer = styled.div`
   width: 100%;
   max-width: 600px;
-  background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.08), 
-    rgba(255, 255, 255, 0.04)
-  );
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 28px;
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  ${css`
-    animation: ${float} 8s ease-in-out infinite;
-  `}
-  
-  @media (max-width: 768px) {
-    padding: 56px 28px;
-    border-radius: 24px;
-  }
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+`;
+
+export const SearchForm = styled.form`
+  display: flex;
+  gap: 8px;
+  position: relative;
+  width: 100%;
+  max-width: 500px;
   
   @media (max-width: 480px) {
-    padding: 48px 24px;
-    border-radius: 20px;
+    gap: 6px;
+    max-width: 400px;
   }
 `;
 
-export const EmptyStateIcon = styled.div`
-  font-size: 4.5rem;
-  margin-bottom: 24px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-  ${css`
-    animation: ${wave} 3s ease-in-out infinite;
-  `}
-  
-  @media (max-width: 768px) {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 3rem;
-    margin-bottom: 16px;
-  }
+export const InputWrapper = styled.div`
+  position: relative;
+  flex: 1;
 `;
 
-export const EmptyStateText = styled.p`
-  font-size: 1.3rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-  margin-bottom: 16px;
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  line-height: 1.4;
-  
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.1rem;
-  }
-`;
-
-export const EmptyStateSubText = styled.p`
+export const SearchIcon = styled.div`
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  color: #6c757d;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  margin: 0;
-  font-weight: 400;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  line-height: 1.5;
   
   @media (max-width: 768px) {
+    left: 12px;
     font-size: 0.95rem;
   }
   
   @media (max-width: 480px) {
+    left: 10px;
     font-size: 0.9rem;
   }
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2c3e50;
+  min-height: 46px;
+  transition: all 0.3s ease;
+  font-weight: 400;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(0, 123, 255, 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 10px 14px 10px 40px;
+    min-height: 42px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 8px 12px 8px 36px;
+    min-height: 38px;
+  }
+`;
+
+export const SearchButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-height: 46px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  white-space: nowrap;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #6c757d;
+    transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0 16px;
+    min-height: 42px;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 12px;
+    min-height: 38px;
+    font-size: 0.8rem;
+  }
+`;
+
+// MIC BUTTON - ORANGE LIKE IN IMAGE
+export const MicButton = styled.button`
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f7931e 0%, #ff6b35 100%);
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.98);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #6c757d;
+  }
+  
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    right: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+    right: 4px;
+  }
+`;
+
+// CAMERA BUTTON
+export const CameraButton = styled.button`
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.05);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    left: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+    left: 4px;
+  }
+`;
+
+// TAB BAR - HIDDEN
+export const TabBar = styled.div`
+  display: none;
+`;
+
+export const TabItem = styled.div`
+  display: none;
+`;
+
+export const TabIcon = styled.div`
+  display: none;
+`;
+
+export const TabLabel = styled.span`
+  display: none;
+`;
+
+// ADDITIONAL INFO SECTIONS (BELOW INPUT)
+export const InfoSection = styled.div`
+  width: 100%;
+  max-width: 600px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    margin-top: 6px;
+  }
+`;
+
+// ERROR/INFO MESSAGES
+export const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+  padding: 12px 16px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  ${css`animation: ${slideIn} 0.4s ease-out;`}
+`;
+
+export const ErrorText = styled.p`
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 500;
+`;
+
+// EMPTY STATE - HIDDEN
+export const EmptyStateContainer = styled.div`
+  display: none;
+`;
+
+export const EmptyStateIcon = styled.div`
+  display: none;
+`;
+
+export const EmptyStateText = styled.p`
+  display: none;
+`;
+
+export const EmptyStateSubText = styled.p`
+  display: none;
 `;

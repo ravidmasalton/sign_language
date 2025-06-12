@@ -35,50 +35,55 @@ const sparkle = keyframes`
   50% { opacity: 0.8; transform: scale(1.1) rotate(180deg); }
 `;
 
-// Modern styled components
+// Modern styled components - OPTIMIZED FOR MINIMAL DESIGN
 const ModernContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.COLORS?.gradient || 'linear-gradient(135deg, #6366f1, #8b5cf6)'};
-  color: white; /* Changed to white for better contrast */
+  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 12px; /* Reduced from 2rem */
   ${css`animation: ${fadeIn} 0.8s ease-out;`}
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 8px; /* Reduced from 1rem */
+    min-height: 100dvh;
   }
 `;
 
 const HeroSection = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 16px; /* Reduced from 3rem */
   ${css`animation: ${slideIn} 1s ease-out 0.2s both;`}
 
   @media (max-width: 768px) {
-    margin-bottom: 2rem;
+    margin-bottom: 12px; /* Reduced from 2rem */
   }
 `;
 
 const LogoContainer = styled.div`
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: 12px; /* Reduced from 2rem */
   ${css`animation: ${float} 3s ease-in-out infinite;`}
+
+  @media (max-width: 768px) {
+    margin-bottom: 8px;
+  }
 `;
 
 const ModernLogo = styled.div`
-  width: 120px;
-  height: 120px;
-  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+  width: 80px; /* Reduced from 120px */
+  height: 80px; /* Reduced from 120px */
+  background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 30px;
+  border-radius: 20px; /* Reduced from 30px */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 2rem; /* Reduced from 3rem */
   color: white;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Reduced shadow */
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -92,68 +97,68 @@ const ModernLogo = styled.div`
   }
 
   @media (max-width: 768px) {
-    width: 100px;
-    height: 100px;
-    border-radius: 25px;
-    font-size: 2.5rem;
+    width: 64px; /* Reduced from 100px */
+    height: 64px; /* Reduced from 100px */
+    border-radius: 16px; /* Reduced from 25px */
+    font-size: 1.6rem; /* Reduced from 2.5rem */
   }
 `;
 
 const MainTitle = styled.h1`
-  font-size: 3rem;
+  font-size: 2rem; /* Reduced from 3rem */
   font-weight: 700;
-  color: white; /* Direct white color instead of gradient */
-  margin: 0 0 1rem 0;
+  color: white;
+  margin: 0 0 8px 0; /* Reduced from 1rem */
   line-height: 1.2;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Added text shadow for better readability */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
-    font-size: 2.2rem;
+    font-size: 1.6rem; /* Reduced from 2.2rem */
   }
 
   @media (max-width: 480px) {
-    font-size: 1.8rem;
+    font-size: 1.4rem; /* Reduced from 1.8rem */
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
-  margin: 0 0 2rem 0;
-  max-width: 600px;
-  line-height: 1.6;
+  font-size: 1rem; /* Reduced from 1.25rem */
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0; /* Reduced from 2rem */
+  max-width: 480px; /* Reduced from 600px */
+  line-height: 1.4; /* Reduced from 1.6 */
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.9rem; /* Reduced from 1.1rem */
+    margin-bottom: 12px; /* Reduced from 1.5rem */
   }
 `;
 
 const FeaturesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Reduced from 300px */
+  gap: 1rem; /* Reduced from 1.5rem */
   width: 100%;
-  max-width: 1000px;
-  margin-bottom: 3rem;
+  max-width: 800px; /* Reduced from 1000px */
+  margin-bottom: 20px; /* Reduced from 3rem */
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 8px; /* Reduced from 1rem */
+    margin-bottom: 16px; /* Reduced from 2rem */
   }
 `;
 
 const FeatureCard = styled.div`
-  background: rgba(255, 255, 255, 0.95); /* All cards have white background */
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
+  border-radius: 12px; /* Reduced from 20px */
+  padding: 1.2rem; /* Reduced from 2rem */
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Reduced shadow */
   position: relative;
   overflow: hidden;
   ${css`animation: ${slideIn} 0.8s ease-out;`}
@@ -166,15 +171,15 @@ const FeatureCard = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px; /* Reduced from 4px */
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px); /* Reduced from -8px */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Reduced shadow */
     
     &::before {
       transform: scaleX(1);
@@ -188,144 +193,148 @@ const FeatureCard = styled.div`
   `}
 
   @media (max-width: 768px) {
-    padding: 1.5rem;
+    padding: 1rem; /* Reduced from 1.5rem */
   }
 `;
 
 const FeatureIconContainer = styled.div`
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6); /* All icons have purple background */
+  width: 48px; /* Reduced from 64px */
+  height: 48px; /* Reduced from 64px */
+  border-radius: 12px; /* Reduced from 16px */
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 12px; /* Reduced from 1.5rem */
   transition: all 0.3s ease;
 
   svg {
-    font-size: 1.75rem;
-    color: white; /* Always white for better contrast */
+    font-size: 1.4rem; /* Reduced from 1.75rem */
+    color: white;
     transition: all 0.3s ease;
   }
 
   @media (max-width: 768px) {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 1rem;
+    width: 40px; /* Reduced from 56px */
+    height: 40px; /* Reduced from 56px */
+    margin-bottom: 8px; /* Reduced from 1rem */
+    
+    svg {
+      font-size: 1.2rem;
+    }
   }
 `;
 
 const FeatureTitle = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Reduced from 1.5rem */
   font-weight: 600;
-  margin: 0 0 0.75rem 0;
-  color: #1e293b; /* All titles are dark for white background */
+  margin: 0 0 8px 0; /* Reduced from 0.75rem */
+  color: #1e293b;
 
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.1rem; /* Reduced from 1.25rem */
   }
 `;
 
 const FeatureDescription = styled.p`
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.9rem; /* Reduced from 1rem */
+  line-height: 1.4; /* Reduced from 1.6 */
   margin: 0;
-  color: #64748b; /* All descriptions are dark for white background */
+  color: #64748b;
 
   @media (max-width: 768px) {
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Reduced from 0.9rem */
   }
 `;
 
 const InfoSection = styled.div`
   width: 100%;
-  max-width: 600px;
+  max-width: 480px; /* Reduced from 600px */
   ${css`animation: ${slideIn} 1s ease-out 0.6s both;`}
 `;
 
 const InfoCard = styled.div`
-  background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 12px; /* Reduced from 20px */
+  padding: 16px; /* Reduced from 2rem */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Reduced shadow */
 
   @media (max-width: 768px) {
-    padding: 1.5rem;
+    padding: 12px; /* Reduced from 1.5rem */
   }
 `;
 
 const InfoHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 0.75rem;
+  margin-bottom: 12px; /* Reduced from 1.5rem */
+  gap: 8px; /* Reduced from 0.75rem */
 `;
 
 const InfoIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 32px; /* Reduced from 40px */
+  height: 32px; /* Reduced from 40px */
+  border-radius: 8px; /* Reduced from 10px */
   background: linear-gradient(135deg, #f59e0b, #f97316);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.1rem;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
 `;
 
 const InfoTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.1rem; /* Reduced from 1.25rem */
   font-weight: 600;
-  color: #1e293b; /* Dark text for white background */
+  color: #1e293b;
   margin: 0;
 `;
 
 const InfoList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 8px; /* Reduced from 1rem */
 `;
 
 const InfoItem = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  font-size: 1rem;
-  color: #64748b; /* Dark text for white background */
-  line-height: 1.5;
+  gap: 8px; /* Reduced from 0.75rem */
+  font-size: 0.9rem; /* Reduced from 1rem */
+  color: #64748b;
+  line-height: 1.4; /* Reduced from 1.5 */
 `;
 
 const CheckIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 20px; /* Reduced from 24px */
+  height: 20px; /* Reduced from 24px */
+  border-radius: 4px; /* Reduced from 6px */
   background: #10b981;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.7rem; /* Reduced from 0.75rem */
   flex-shrink: 0;
   margin-top: 0.125rem;
 `;
 
 const CallToAction = styled.div`
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 16px; /* Reduced from 2rem */
   ${css`animation: ${slideIn} 1s ease-out 0.8s both;`}
 `;
 
 const CTAText = styled.p`
-  font-size: 1.1rem;
-  color: #64748b; /* Dark text for white background */
-  margin: 0 0 1rem 0;
+  font-size: 0.9rem; /* Reduced from 1.1rem */
+  color: #64748b;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 6px; /* Reduced from 0.5rem */
 `;
 
 const HeartIcon = styled(FaHeart)`
