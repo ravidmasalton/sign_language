@@ -40,6 +40,7 @@ const Sign_language_recognition = () => {
   const [error, setError] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isMediaPipeLoaded, setIsMediaPipeLoaded] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const [currentPrediction, setCurrentPrediction] = useState({ word: '', confidence: 0 });
   const [sentence, setSentence] = useState([]);
@@ -51,6 +52,85 @@ const Sign_language_recognition = () => {
   const isProcessingFrameRef = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [totalPredictions, setTotalPredictions] = useState(0);
+
+  // Mobile detection and focus handling
+  const isMobile = useCallback(() => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }, []);
+
+  const hideNavigationElements = useCallback(() => {
+    if (isMobile()) {
+      // Hide header/nav elements - adjust selectors based on your app structure
+      const header = document.querySelector('header, .header, .navigation-header');
+      const tabBar = document.querySelector('.tab-bar, .bottom-navigation, nav[role="tablist"]');
+      
+      if (header) {
+        header.style.display = 'none';
+      }
+      if (tabBar) {
+        tabBar.style.display = 'none';
+      }
+      
+      // Hide address bar on mobile browsers
+      if (window.scrollTo) {
+        window.scrollTo(0, 1);
+      }
+    }
+  }, [isMobile]);
+
+  const showNavigationElements = useCallback(() => {
+    if (isMobile()) {
+      // Restore header/nav elements
+      const header = document.querySelector('header, .header, .navigation-header');
+      const tabBar = document.querySelector('.tab-bar, .bottom-navigation, nav[role="tablist"]');
+      
+      if (header) {
+        header.style.display = '';
+      }
+      if (tabBar) {
+        tabBar.style.display = '';
+      }
+    }
+  }, [isMobile]);
+
+  // Handle focus/blur for mobile
+  useEffect(() => {
+    const handleFocus = () => {
+      setIsFocused(true);
+      hideNavigationElements();
+    };
+
+    const handleBlur = () => {
+      setIsFocused(false);
+      showNavigationElements();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleBlur();
+      } else {
+        handleFocus();
+      }
+    };
+
+    if (isMobile()) {
+      // Component mounted (focused)
+      handleFocus();
+
+      // Listen for visibility changes
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
+
+      return () => {
+        // Component unmounted (blurred)
+        handleBlur();
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, [isMobile, hideNavigationElements, showNavigationElements]);
 
   // Constants
   const ACTIONS = React.useMemo(() => [
@@ -453,8 +533,6 @@ const Sign_language_recognition = () => {
 
   return (
     <ModernCameraContainer>
-     
-
       <MainLayout>
         <CameraSection>
           <VideoContainer>
@@ -471,9 +549,10 @@ const Sign_language_recognition = () => {
               </LoadingOverlay>
             )}
           </VideoContainer>
-        </CameraSection>        <TranslationPanel>
-          {/* Small prediction window at the top of the panel */}          <PredictionPanel>            <PredictionHeader>
-              <TitleIcon>AI</TitleIcon>
+        </CameraSection>        
+        <TranslationPanel>
+          <PredictionPanel>            
+            <PredictionHeader> 
               Prediction
             </PredictionHeader>
             <PredictionDisplay>
@@ -484,7 +563,7 @@ const Sign_language_recognition = () => {
             <BufferText $isActive={isCollecting}>
               Buffer: {frameCount}/{SEQ_LEN}
             </BufferText>
-          </PredictionPanel>          {/* Translation text box */}
+          </PredictionPanel>          
           <TranslationContent>
             <TranslationIcon>Speech</TranslationIcon>
             <TranslationText>
