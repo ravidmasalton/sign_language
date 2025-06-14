@@ -331,7 +331,13 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // Setup camera
+  // בדיקה אם זה מובייל
+  const isMobile = useCallback(() => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           window.innerWidth <= 767;
+  }, []);
+
+  // Setup camera - תיקון מיוחד למובייל
   const setupCamera = useCallback(async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -342,7 +348,42 @@ const Sign_language_recognition = () => {
         streamRef.current = null;
       }
       await new Promise(r => setTimeout(r, 300));
-      const constraintOptions = [
+      
+      // תיקון מיוחד למובייל - רזולוציות גמישות יותר
+      const mobile = isMobile();
+      
+      const constraintOptions = mobile ? [
+        // אילוצים מיוחדים למובייל
+        {
+          video: {
+            facingMode: { exact: 'environment' },
+            width: { ideal: 1920, max: 1920, min: 320 },
+            height: { ideal: 1080, max: 1080, min: 240 }
+          }
+        },
+        {
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280, max: 1920, min: 320 },
+            height: { ideal: 720, max: 1080, min: 240 }
+          }
+        },
+        {
+          video: {
+            width: { ideal: 1280, max: 1920, min: 320 },
+            height: { ideal: 720, max: 1080, min: 240 }
+          }
+        },
+        // fallback גמיש מאוד למובייל
+        {
+          video: {
+            width: { min: 240 },
+            height: { min: 180 }
+          }
+        },
+        null
+      ] : [
+        // אילוצים רגילים לדסקטופ - ללא שינוי
         {
           video: {
             facingMode: { exact: 'environment' },
@@ -359,6 +400,7 @@ const Sign_language_recognition = () => {
         },
         null
       ];
+
       let stream = null;
       for (let i = 0; i < constraintOptions.length && !stream; i++) {
         if (constraintOptions[i] === null) {
@@ -367,13 +409,21 @@ const Sign_language_recognition = () => {
             const videoDevices = devices.filter(d => d.kind === 'videoinput');
             for (const device of videoDevices) {
               try {
-                const testStream = await navigator.mediaDevices.getUserMedia({
+                const constraints = mobile ? {
+                  video: {
+                    deviceId: { exact: device.deviceId },
+                    width: { ideal: 1280, max: 1920, min: 240 },
+                    height: { ideal: 720, max: 1080, min: 180 }
+                  }
+                } : {
                   video: {
                     deviceId: { exact: device.deviceId },
                     width: { ideal: 1280, min: 640 },
                     height: { ideal: 720, min: 480 }
                   }
-                });
+                };
+                
+                const testStream = await navigator.mediaDevices.getUserMedia(constraints);
                 const track = testStream.getVideoTracks()[0];
                 const settings = track.getSettings();
                 if (settings.facingMode === 'environment' ||
@@ -394,14 +444,21 @@ const Sign_language_recognition = () => {
         }
       }
       if (!stream) {
-        // fallback
-        stream = await navigator.mediaDevices.getUserMedia({
+        // fallback אחרון - גמיש מאוד למובייל
+        const fallbackConstraints = mobile ? {
+          video: {
+            width: { ideal: 640, min: 240 },
+            height: { ideal: 480, min: 180 }
+          }
+        } : {
           video: {
             width: { ideal: 1280, min: 640 },
             height: { ideal: 720, min: 480 }
           }
-        });
+        };
+        stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
       }
+      
       if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
@@ -421,7 +478,7 @@ const Sign_language_recognition = () => {
       setIsLoading(false);
       setCameraReady(false);
     }
-  }, [startProcessing]);
+  }, [startProcessing, isMobile]);
 
   useEffect(() => {
     if (isMediaPipeLoaded && isModelLoaded) {
@@ -503,7 +560,7 @@ const Sign_language_recognition = () => {
             disabled={!isModelLoaded || !isMediaPipeLoaded}
           >
             <ButtonIcon>🗑️</ButtonIcon>
-           clear
+            clear
           </InlineButton>
         </ControlsPanel>
       </MainLayout>

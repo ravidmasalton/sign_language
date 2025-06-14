@@ -16,7 +16,7 @@ export const spin = keyframes`
 `;
 
 
-// Main wrapper - COMPLETELY FIXED: Now works with Layout properly
+// Main wrapper - Web תקין, רק Mobile מתוקן
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
@@ -31,20 +31,26 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* MOBILE FIX: Completely different approach - let Layout handle positioning */
+  /* MOBILE FIX ONLY - Web נשאר ללא שינוי */
   @media (max-width: 767px) {
-    position: relative !important; /* Keep relative, not static */
-    height: auto !important; /* Let content determine height */
-    min-height: calc(100vh - 80px) !important; /* Minimum height only */
-    max-height: calc(100vh - 80px) !important; /* Maximum height constraint */
+    position: relative !important;
+    height: auto !important;
+    min-height: calc(100vh - 80px) !important;
+    max-height: calc(100vh - 80px) !important;
     margin: 0 !important;
-    padding: 2px !important; /* Smaller padding on mobile */
+    padding: 2px !important;
+  }
+  
+  /* תיקון מיוחד למצב אופקי במובייל */
+  @media (max-width: 767px) and (orientation: landscape) {
+    min-height: 100vh !important;
+    max-height: 100vh !important;
   }
 `;
 
 
 
-// Vertical layout - COMPLETELY REWORKED for mobile
+// Vertical layout - Web תקין, Mobile מתוקן
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -52,21 +58,21 @@ export const MainLayout = styled.div`
   gap: 4px;
   padding: 0;
   margin: 0;
-  flex: 1; /* Take remaining space */
+  flex: 1;
   
-  /* MOBILE FIX: Use flex properly */
+  /* MOBILE FIX ONLY */
   @media (max-width: 767px) {
     height: 100%;
     gap: 2px;
     flex: 1;
-    min-height: 0; /* Allow shrinking */
+    min-height: 0;
   }
 `;
 
-// Camera area - MOBILE RESPONSIVE with proper flex
+// Camera area - Web נשאר 75vh, Mobile משתנה
 export const CameraSection = styled.div`
   width: 100%;
-  height: calc(75vh - 6px);
+  height: calc(75vh - 6px); /* Web - נשאר ללא שינוי */
   position: relative;
   overflow: hidden;
   background: #000;
@@ -74,12 +80,18 @@ export const CameraSection = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex-basis instead of fixed height */
+  /* MOBILE FIX - הגדלת המצלמה רק במובייל */
   @media (max-width: 767px) {
     height: auto !important;
-    flex: 7 !important; /* 70% of available space */
+    flex: 8 !important; /* 80% במקום 70% */
     min-height: 0 !important;
     border-radius: 6px;
+  }
+  
+  /* תיקון למצב אופקי במובייל */
+  @media (max-width: 767px) and (orientation: landscape) {
+    flex: 7 !important;
+    min-height: 50vh !important;
   }
 `;
 
@@ -158,9 +170,9 @@ export const LoadingText = styled.div`
   }
 `;
 
-// Controls panel - MOBILE RESPONSIVE with proper flex
+// Controls panel - Web נשאר 25vh, Mobile קטן יותר
 export const ControlsPanel = styled.div`
-  height: calc(25vh - 6px);
+  height: calc(25vh - 6px); /* Web - נשאר ללא שינוי */
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   flex-direction: column;
@@ -172,18 +184,25 @@ export const ControlsPanel = styled.div`
   overflow: hidden;
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex-basis instead of fixed height */
+  /* MOBILE FIX - הקטנת הקונטרולים רק במובייל */
   @media (max-width: 767px) {
     height: auto !important;
-    flex: 3 !important; /* 30% of available space */
+    flex: 2 !important; /* 20% במקום 30% */
     min-height: 0 !important;
     padding: 3px;
     gap: 1px;
     border-radius: 6px;
   }
+  
+  /* תיקון למצב אופקי במובייל */
+  @media (max-width: 767px) and (orientation: landscape) {
+    flex: 3 !important;
+    min-height: 20vh !important;
+    max-height: 40vh !important;
+  }
 `;
 
-// Minimal prediction section
+// Minimal prediction section - ללא שינוי
 export const PredictionPanel = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 4px;
@@ -245,7 +264,7 @@ export const BufferText = styled.div`
   }
 `;
 
-// Translation section - MOBILE RESPONSIVE
+// Translation section - הקטנת חלון הטקסט רק במובייל
 export const TranslationPanel = styled.div`
   background: white;
   border-radius: 6px;
@@ -287,6 +306,7 @@ export const TranslationIcon = styled.span`
   }
 `;
 
+// הקטנת חלון הטקסט רק במובייל
 export const TranslationText = styled.div`
   color: #212529;
   font-size: 0.75rem;
@@ -303,14 +323,22 @@ export const TranslationText = styled.div`
   min-height: 0;
   overflow-y: auto;
   
+  /* הקטנת הטקסט רק במובייל */
   @media (max-width: 767px) {
-    font-size: 0.7rem;
-    padding: 3px;
+    font-size: 0.65rem;
+    padding: 2px;
     line-height: 1.1;
+    max-height: 40px; /* הגבלת גובה רק במובייל */
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.6rem;
+    padding: 1px;
+    max-height: 30px;
   }
 `;
 
-// MOBILE RESPONSIVE Clear button - SMALLER ON MOBILE
+// הקטנת כפתור Clear רק במובייל - Web נשאר ללא שינוי
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
@@ -345,24 +373,26 @@ export const InlineButton = styled.button`
     box-shadow: none;
   }
   
-  /* MOBILE FIX: Smaller button on mobile */
+  /* הקטנה משמעותית רק במובייל */
   @media (max-width: 767px) {
-    height: 14px !important;
-    padding: 1px 4px !important;
-    font-size: 0.45rem !important;
+    height: 10px !important; /* הקטנה משמעותית */
+    padding: 0px 2px !important;
+    font-size: 0.3rem !important;
     gap: 0px !important;
     border-radius: 2px !important;
+    min-height: 10px !important;
     
     &:hover { 
-      transform: none !important; /* Disable hover effects on mobile */
+      transform: none !important;
       box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
     }
   }
   
   @media (max-width: 480px) {
-    height: 12px !important;
-    padding: 0px 3px !important;
-    font-size: 0.4rem !important;
+    height: 8px !important; /* עוד יותר קטן */
+    padding: 0px 1px !important;
+    font-size: 0.25rem !important;
+    min-height: 8px !important;
   }
 `;
 
@@ -370,10 +400,10 @@ export const ButtonIcon = styled.span`
   font-size: 0.55rem;
   
   @media (max-width: 767px) {
-    font-size: 0.45rem;
+    font-size: 0.3rem; /* הקטנה משמעותית */
   }
   
   @media (max-width: 480px) {
-    font-size: 0.4rem;
+    font-size: 0.25rem;
   }
 `;
