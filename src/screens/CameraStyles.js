@@ -19,7 +19,7 @@ export const slideDown = keyframes`
   to   { transform: translateY(0); }
 `;
 
-// Main wrapper - FIXED: Now respects mobile header
+// Main wrapper - COMPLETELY FIXED: Now works with Layout properly
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
@@ -34,11 +34,14 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* MOBILE FIX: Account for mobile header */
+  /* MOBILE FIX: Completely different approach - let Layout handle positioning */
   @media (max-width: 767px) {
-    height: calc(100vh - 80px) !important; /* Subtract mobile header height */
-    margin-top: 0 !important;
-    position: static !important; /* Don't override layout positioning */
+    position: relative !important; /* Keep relative, not static */
+    height: auto !important; /* Let content determine height */
+    min-height: calc(100vh - 80px) !important; /* Minimum height only */
+    max-height: calc(100vh - 80px) !important; /* Maximum height constraint */
+    margin: 0 !important;
+    padding: 2px !important; /* Smaller padding on mobile */
   }
 `;
 
@@ -78,7 +81,7 @@ export const Subtitle = styled.p`
   margin: 0;
 `;
 
-// Vertical layout: Camera on top, controls below - FIXED height calculation
+// Vertical layout - COMPLETELY REWORKED for mobile
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -86,15 +89,18 @@ export const MainLayout = styled.div`
   gap: 4px;
   padding: 0;
   margin: 0;
+  flex: 1; /* Take remaining space */
   
-  /* MOBILE FIX: Adjusted for smaller screen without internal header */
+  /* MOBILE FIX: Use flex properly */
   @media (max-width: 767px) {
     height: 100%;
     gap: 2px;
+    flex: 1;
+    min-height: 0; /* Allow shrinking */
   }
 `;
 
-// Camera area - MOBILE RESPONSIVE
+// Camera area - MOBILE RESPONSIVE with proper flex
 export const CameraSection = styled.div`
   width: 100%;
   height: calc(75vh - 6px);
@@ -105,9 +111,11 @@ export const CameraSection = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   
-  /* MOBILE FIX: Better proportions for mobile */
+  /* MOBILE FIX: Use flex-basis instead of fixed height */
   @media (max-width: 767px) {
-    height: 70%;
+    height: auto !important;
+    flex: 7 !important; /* 70% of available space */
+    min-height: 0 !important;
     border-radius: 6px;
   }
 `;
@@ -187,7 +195,7 @@ export const LoadingText = styled.div`
   }
 `;
 
-// Controls panel - MOBILE RESPONSIVE
+// Controls panel - MOBILE RESPONSIVE with proper flex
 export const ControlsPanel = styled.div`
   height: calc(25vh - 6px);
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -201,9 +209,11 @@ export const ControlsPanel = styled.div`
   overflow: hidden;
   flex-shrink: 0;
   
-  /* MOBILE FIX: Better proportions and spacing */
+  /* MOBILE FIX: Use flex-basis instead of fixed height */
   @media (max-width: 767px) {
-    height: 30%;
+    height: auto !important;
+    flex: 3 !important; /* 30% of available space */
+    min-height: 0 !important;
     padding: 3px;
     gap: 1px;
     border-radius: 6px;
