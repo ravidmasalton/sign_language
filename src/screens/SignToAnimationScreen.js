@@ -33,6 +33,7 @@ import {
 
 /**
  * Component that displays sign language animations based on user input text
+ * Optimized for mobile with minimal spacing and tight layout
  */
 const SignToAnimationScreen = () => {
   const { theme: COLORS } = useTheme();
@@ -46,7 +47,7 @@ const SignToAnimationScreen = () => {
   const videoRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Available words list
+  // Available words list - all supported sign language words
   const AVAILABLE_WORDS = [
     "bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day",
     "deaf", "drink", "eat", "enjoy", "family", "go", "help", "love", "mom",
@@ -54,7 +55,7 @@ const SignToAnimationScreen = () => {
     "tired", "write", "yes", "you"
   ];
 
-  // Focus input field on mount and load regular video
+  // Initialize component - focus input and load default video
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -66,7 +67,8 @@ const SignToAnimationScreen = () => {
       videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
     }
   }, []);
-  // Handle video end - return to regular video
+
+  // Handle video end - return to regular video after word animation
   useEffect(() => {
     const handleVideoEnd = () => {
       if (!isSentenceMode && currentWord) {
@@ -100,7 +102,7 @@ const SignToAnimationScreen = () => {
     };
   }, [currentWord, isSentenceMode]);
 
-  // Process the input word to match video filename format
+  // Format word to match video filename format (capitalize first letter, replace spaces with underscores)
   const formatWord = (word) => {
     if (!word || typeof word !== 'string') return '';
     
@@ -111,7 +113,8 @@ const SignToAnimationScreen = () => {
     
     return processedWord.charAt(0).toUpperCase() + processedWord.slice(1);
   };
-  // Check if video exists for the given word
+
+  // Check if video file exists for the given word
   const checkVideoExists = async (word) => {
     const formattedWord = formatWord(word);
     if (!formattedWord) return false;
@@ -119,6 +122,7 @@ const SignToAnimationScreen = () => {
     const originalWordLower = word.toLowerCase().trim();
     const normalizedInput = originalWordLower.replace(/\s+/g, ' ');
     
+    // Check if word is in available words list
     const isInList = AVAILABLE_WORDS.includes(normalizedInput) || 
            AVAILABLE_WORDS.some(availableWord => 
              availableWord.toLowerCase().replace(/\s+/g, ' ') === normalizedInput
@@ -128,6 +132,7 @@ const SignToAnimationScreen = () => {
       try {
         const testUrl = `/sign_videos/${formattedWord}.mp4`;
         
+        // Test if video file exists
         const response = await fetch(testUrl, { method: 'HEAD' });
         const fileExists = response.ok;
         
@@ -141,13 +146,13 @@ const SignToAnimationScreen = () => {
     return false;
   };
 
-  // Check if multiple words exist
+  // Check if multiple words exist (for sentence mode)
   const checkMultipleWordsExist = async (words) => {
     const checks = await Promise.all(words.map(word => checkVideoExists(word)));
     return checks;
   };
 
-  // Handle video click for play/pause
+  // Handle video click for play/pause functionality
   const handleVideoClick = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -158,7 +163,7 @@ const SignToAnimationScreen = () => {
     }
   };
 
-  // Handle form submission
+  // Handle form submission - process input and play appropriate video(s)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -186,7 +191,7 @@ const SignToAnimationScreen = () => {
         if (videoRef.current) {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
-            const videoSrc = `/sign_videos/${formattedWord}.mp4`;
+          const videoSrc = `/sign_videos/${formattedWord}.mp4`;
           
           videoRef.current.src = videoSrc;
           videoRef.current.load();
@@ -243,6 +248,7 @@ const SignToAnimationScreen = () => {
     
     const playNextVideo = () => {
       if (currentIndex >= words.length) {
+        // End of sentence - return to regular video
         setTimeout(() => {
           setCurrentSentence([]);
           setInputWord('');
@@ -309,7 +315,9 @@ const SignToAnimationScreen = () => {
                   currentWord ? 
                     `/sign_videos/${formatWord(currentWord)}.mp4` : 
                     '/sign_videos/Regular.mp4'
-              }              onError={(e) => {
+              }              
+              onError={(e) => {
+                // Fallback to regular video on error
                 if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
                   videoRef.current.src = '/sign_videos/Regular.mp4';
                   videoRef.current.load();
@@ -328,7 +336,7 @@ const SignToAnimationScreen = () => {
       <MiddleSection>
         {error && (
           <ErrorContainer>
-            <FiAlertCircle size={20} />
+            <FiAlertCircle size={16} />
             <ErrorText>{error}</ErrorText>
           </ErrorContainer>
         )}
@@ -337,7 +345,7 @@ const SignToAnimationScreen = () => {
           <SearchForm onSubmit={handleSubmit}>
             <InputWrapper>
               <SearchIcon>
-                <FiSearch size={20} />
+                <FiSearch size={18} />
               </SearchIcon>
               <Input
                 ref={inputRef}
@@ -358,15 +366,15 @@ const SignToAnimationScreen = () => {
               type="submit"
               disabled={isLoading}
             >
-              {isLoading ? <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon> : 'Send'}
+              {isLoading ? <SpinningIcon><FiRefreshCw size={14} /></SpinningIcon> : 'Send'}
             </SearchButton>
           </SearchForm>
         </SearchContainer>
       </MiddleSection>
 
-      {/* BOTTOM SECTION - EMPTY NOW */}
+      {/* BOTTOM SECTION - MINIMAL FOOTER */}
       <BottomSection>
-        {/* No content */}
+        {/* Minimal footer space - can be used for additional controls if needed */}
       </BottomSection>
     </Container>
   );

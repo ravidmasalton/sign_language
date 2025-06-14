@@ -19,11 +19,10 @@ export const slideDown = keyframes`
   to   { transform: translateY(0); }
 `;
 
-// Main wrapper - Full screen container
+// Main wrapper - Full screen container with sidebar space
 export const ModernCameraContainer = styled.div`
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
+  position: relative;
+  width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -31,6 +30,8 @@ export const ModernCameraContainer = styled.div`
   color: #e0e0e0;
   user-select: none;
   overflow: hidden;
+  padding: 4px;
+  box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
 `;
 
@@ -62,145 +63,222 @@ export const Subtitle = styled.p`
   margin: 0;
 `;
 
-// Horizontal layout: Camera on left, translation panel on right
+// Vertical layout: Camera on top, controls below - exact height calculation
 export const MainLayout = styled.div`
   display: flex;
-  flex: 1;
-  /* Height is viewport height minus HeaderSection height (~40px) */
-  height: calc(100vh - 40px);
+  flex-direction: column;
+  height: 100vh;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
 `;
 
-// Camera area
+// Camera area - calculated to fit exactly
 export const CameraSection = styled.div`
-  flex: 2;
+  width: 100%;
+  height: calc(75vh - 6px);
   position: relative;
   overflow: hidden;
   background: #000;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 `;
+
 export const VideoContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 `;
+
 export const LiveVideo = styled.video`
   position: absolute;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100%; 
+  height: 100%;
   object-fit: cover;
   z-index: 0;
+  border-radius: 8px;
 `;
+
 export const ModernCanvas = styled.canvas`
   position: absolute;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100%; 
+  height: 100%;
   object-fit: cover;
   z-index: 1;
+  border-radius: 8px;
 `;
 
 // Loading overlay for loading state
 export const LoadingOverlay = styled.div`
-  position: absolute; inset: 0;
+  position: absolute; 
+  inset: 0;
   background: rgba(0,0,0,0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   z-index: 10;
+  border-radius: 8px;
 `;
+
 export const LoadingSpinner = styled.div`
-  width: 40px; height: 40px;
-  border: 3px solid rgba(255,255,255,0.3);
-  border-top: 3px solid #fff;
+  width: 24px; height: 24px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid #fff;
   border-radius: 50%;
   ${css`animation: ${spin} 1s linear infinite;`}
 `;
+
 export const LoadingText = styled.div`
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
 `;
 
-// Translation & Prediction panel (white background for translation box)
-export const TranslationPanel = styled.div`
-  flex: 1;
-  background: #fff; /* White background */
+// Controls panel - exact height to fit screen
+export const ControlsPanel = styled.div`
+  height: calc(25vh - 6px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 12px;
-  border-left: 1px solid #ccc;
-  color: #222; /* Dark text in panel */
-`;
-
-// Compact prediction section
-export const PredictionPanel = styled.div`
-  background: #f0f0f0; /* Light gray */
-  border: 1px solid #ccc;
+  padding: 4px;
+  gap: 2px;
   border-radius: 8px;
-  padding: 8px;
-  margin-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.06);
+  color: #212529;
+  overflow: hidden;
+  flex-shrink: 0;
 `;
-export const PredictionHeader = styled.div`
+
+// Minimal prediction section
+export const PredictionPanel = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: white;
+  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.2);
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #000;
-  gap: 4px;
-`;
-export const PredictionDisplay = styled.div`
-  background: #e0e0e0;
-  color: #000;
-  font-size: 0.85rem;
-  padding: 4px 6px;
-  border-radius: 6px;
-  text-align: center;
-`;
-export const BufferText = styled.div`
-  font-size: 0.75rem;
-  color: ${props => (props.$isActive ? '#388e3c' : '#666')};
+  justify-content: space-between;
+  gap: 6px;
+  height: 24px;
+  flex-shrink: 0;
 `;
 
-// Translation box section
+export const PredictionHeader = styled.div`
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+`;
+
+export const PredictionDisplay = styled.div`
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+  min-width: 0;
+`;
+
+export const BufferText = styled.div`
+  font-size: 0.5rem;
+  color: ${props => (props.$isActive ? '#4ade80' : 'rgba(255, 255, 255, 0.7)')};
+  font-weight: 500;
+  white-space: nowrap;
+`;
+
+// Translation section - takes remaining space exactly
+export const TranslationPanel = styled.div`
+  background: white;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+`;
+
 export const TranslationContent = styled.div`
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-`;
-export const TranslationIcon = styled.span`
-  font-size: 1.2rem;
-  color: #333;
-`;
-export const TranslationText = styled.div`
-  color: #333;
-  font-size: 1rem;
-  font-weight: 500;
-  word-wrap: break-word;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
 `;
 
-// Clear button styling
-export const InlineButton = styled.button`
-  margin-top: auto;
-  background: #d32f2f;
-  color: #fff;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
+export const TranslationIcon = styled.span`
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 1px;
+`;
+
+export const TranslationText = styled.div`
+  color: #212529;
+  font-size: 0.75rem;
   font-weight: 500;
+  word-wrap: break-word;
+  line-height: 1.2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 4px;
+  padding: 4px;
+  border: 1px solid #e9ecef;
+  min-height: 0;
+  overflow-y: auto;
+`;
+
+// Minimal button
+export const InlineButton = styled.button`
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  color: white;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.55rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
   justify-content: center;
-  transition: background 0.3s ease;
-  &:hover { background: #c62828; }
-  &:disabled { background: #aaa; cursor: not-allowed; }
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2);
+  height: 18px;
+  flex-shrink: 0;
+  
+  &:hover { 
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(255, 65, 108, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled { 
+    background: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
 `;
+
 export const ButtonIcon = styled.span`
-  font-size: 1rem;
+  font-size: 0.55rem;
 `;

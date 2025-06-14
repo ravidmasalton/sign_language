@@ -1,4 +1,4 @@
-// SignAnimationStyles.js - CLEAN MOBILE APP STYLE
+// SignAnimationStyles.js - MOBILE OPTIMIZED - NO EXTRA SPACING
 
 import styled, { keyframes, css } from 'styled-components';
 
@@ -39,22 +39,24 @@ export const SpinningIcon = styled.div`
   ${css`animation: ${spin} 1s linear infinite;`}
 `;
 
-// MOBILE APP CONTAINER
+// MOBILE APP CONTAINER - Fixed height, no overflow
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
   background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   overflow: hidden;
   
   @media (max-width: 768px) {
-    min-height: 100dvh;
+    height: 100dvh;
   }
 `;
 
-// TOP SECTION - SMALLER PADDING AND HEIGHT
+// TOP SECTION - Reduced padding and margins for mobile
 export const TopSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -62,34 +64,32 @@ export const TopSection = styled.div`
   width: 100%;
   flex: 1;
   justify-content: center;
-  padding: 12px;
+  padding: 16px 12px 8px 12px;
   position: relative;
-  min-height: 50vh;
+  min-height: 0;
   
   @media (max-width: 768px) {
-    padding: 8px;
-    min-height: 45vh;
+    padding: 12px 8px 4px 8px;
   }
   
   @media (max-width: 480px) {
-    padding: 6px;
-    min-height: 40vh;
+    padding: 8px 6px 2px 6px;
   }
 `;
 
-// HEADER - SMALLER MARGINS
+// HEADER - Minimal margins
 export const Header = styled.header`
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   z-index: 1;
   width: 100%;
   
   @media (max-width: 768px) {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   
   @media (max-width: 480px) {
-    margin-bottom: 6px;
+    margin-bottom: 2px;
   }
 `;
 
@@ -97,14 +97,16 @@ export const Title = styled.h1`
   font-size: 1.1rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   
   @media (max-width: 768px) {
     font-size: 1rem;
+    margin-bottom: 1px;
   }
   
   @media (max-width: 480px) {
     font-size: 0.9rem;
+    margin-bottom: 0;
   }
 `;
 
@@ -127,7 +129,7 @@ export const AvailableWordsHint = styled.p`
   display: none;
 `;
 
-// CONTENT CONTAINER - MINIMAL MARGINS
+// CONTENT CONTAINER - Minimal margins, maximum space for video
 export const ContentContainer = styled.div`
   width: 100%;
   display: flex;
@@ -136,14 +138,14 @@ export const ContentContainer = styled.div`
   z-index: 1;
   flex: 1;
   justify-content: center;
-  margin-bottom: 8px;
+  margin: 0;
   
   @media (max-width: 768px) {
-    margin-bottom: 6px;
+    margin: 0;
   }
   
   @media (max-width: 480px) {
-    margin-bottom: 4px;
+    margin: 0;
   }
 `;
 
@@ -186,10 +188,10 @@ export const CurrentWord = styled.h2`
   display: none;
 `;
 
-// VIDEO CONTAINER - SMALLER SIZE
+// VIDEO CONTAINER - Optimized for mobile, larger size
 export const VideoContainer = styled.div`
   width: 100%;
-  max-width: 320px;
+  max-width: 350px;
   aspect-ratio: 3/4;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -209,13 +211,21 @@ export const VideoContainer = styled.div`
   }
   
   @media (max-width: 768px) {
-    max-width: 280px;
+    max-width: 320px;
     border-radius: 18px;
   }
   
   @media (max-width: 480px) {
-    max-width: 240px;
+    max-width: 290px;
     border-radius: 16px;
+  }
+  
+  @media (max-width: 400px) {
+    max-width: 270px;
+  }
+  
+  @media (max-width: 360px) {
+    max-width: 250px;
   }
 `;
 
@@ -284,7 +294,7 @@ export const Video = styled.video`
   }
 `;
 
-// FLOATING BUTTONS - LIKE +/1.0 BUTTONS (ON THE SIDES)
+// FLOATING BUTTONS - Positioned on video sides
 export const FloatingButtonsContainer = styled.div`
   position: absolute;
   left: 20px;
@@ -409,47 +419,50 @@ export const FlagButton = styled.button`
   }
 `;
 
-// MIDDLE SECTION - MINIMAL PADDING
+// MIDDLE SECTION - MINIMAL padding for input area
 export const MiddleSection = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 16px;
+  padding: 6px 16px;
   position: relative;
   flex-shrink: 0;
   
   @media (max-width: 768px) {
-    padding: 6px 12px;
+    padding: 4px 12px;
   }
   
   @media (max-width: 480px) {
-    padding: 4px 8px;
+    padding: 3px 8px;
   }
 `;
 
-// BOTTOM SECTION - MINIMAL PADDING
+// BOTTOM SECTION - Minimal height
 export const BottomSection = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.95);
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
   flex-shrink: 0;
+  min-height: 20px;
   
   @media (max-width: 768px) {
-    padding: 6px;
+    padding: 3px 6px;
+    min-height: 16px;
   }
   
   @media (max-width: 480px) {
-    padding: 4px;
+    padding: 2px 4px;
+    min-height: 12px;
   }
 `;
 
-// SEARCH CONTAINER (IN MIDDLE SECTION)
+// SEARCH CONTAINER - Tight spacing
 export const SearchContainer = styled.div`
   width: 100%;
   max-width: 600px;
@@ -697,52 +710,54 @@ export const TabLabel = styled.span`
   display: none;
 `;
 
-// ADDITIONAL INFO SECTIONS (BELOW INPUT)
-export const InfoSection = styled.div`
-  width: 100%;
-  max-width: 600px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  margin-top: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  @media (max-width: 480px) {
-    padding: 10px 12px;
-    margin-top: 6px;
-  }
-`;
-
-// ERROR/INFO MESSAGES - SMALLER MARGINS
+// ERROR/INFO MESSAGES - Smaller margins and tight spacing
 export const ErrorContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   max-width: 600px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.2);
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   ${css`animation: ${slideIn} 0.4s ease-out;`}
   
   @media (max-width: 480px) {
-    padding: 6px 10px;
-    margin-bottom: 6px;
+    padding: 4px 8px;
+    margin-bottom: 2px;
+    gap: 6px;
   }
 `;
 
 export const ErrorText = styled.p`
   color: #dc3545;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.2;
   font-weight: 500;
   
   @media (max-width: 480px) {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    line-height: 1.1;
+  }
+`;
+
+// ADDITIONAL INFO SECTIONS - Compact design
+export const InfoSection = styled.div`
+  width: 100%;
+  max-width: 600px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 480px) {
+    padding: 6px 8px;
+    margin-top: 2px;
   }
 `;
 

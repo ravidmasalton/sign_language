@@ -15,11 +15,12 @@ import {
   LoadingOverlay,
   LoadingSpinner,
   LoadingText,
-  TranslationPanel,
+  ControlsPanel,
   PredictionPanel,
   PredictionHeader,
   PredictionDisplay,
   BufferText,
+  TranslationPanel,
   TranslationContent,
   TranslationIcon,
   TranslationText,
@@ -534,6 +535,7 @@ const Sign_language_recognition = () => {
   return (
     <ModernCameraContainer>
       <MainLayout>
+        {/* Camera Section - Top */}
         <CameraSection>
           <VideoContainer>
             <LiveVideo
@@ -549,37 +551,48 @@ const Sign_language_recognition = () => {
               </LoadingOverlay>
             )}
           </VideoContainer>
-        </CameraSection>        
-        <TranslationPanel>
-          <PredictionPanel>            
-            <PredictionHeader> 
-              Prediction
+        </CameraSection>
+
+        {/* Controls Section - Bottom */}
+        <ControlsPanel>
+          {/* Prediction Panel - Horizontal Layout */}
+          <PredictionPanel>
+            <PredictionHeader>
+              🔮 Prediction
             </PredictionHeader>
             <PredictionDisplay>
               {currentPrediction.word
                 ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
-                : '...'}
+                : 'Waiting...'}
             </PredictionDisplay>
             <BufferText $isActive={isCollecting}>
-              Buffer: {frameCount}/{SEQ_LEN}
+              {frameCount}/{SEQ_LEN}
             </BufferText>
-          </PredictionPanel>          
-          <TranslationContent>
-            <TranslationIcon>Speech</TranslationIcon>
-            <TranslationText>
-              {sentence.length > 0
-                ? sentence.join(' ')
-                : 'Perform signs to see translation...'}
-            </TranslationText>
-          </TranslationContent>
+          </PredictionPanel>
 
+          {/* Translation Panel */}
+          <TranslationPanel>
+            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#6c757d', marginBottom: '4px' }}>
+              Translate
+            </div>
+            <TranslationContent>
+              <TranslationText>
+                {sentence.length > 0
+                  ? sentence.join(' ')
+                  : 'Make gestures to get translation...'}
+              </TranslationText>
+            </TranslationContent>
+          </TranslationPanel>
+
+          {/* Clear Button */}
           <InlineButton
             onClick={clearSentence}
             disabled={!isModelLoaded || !isMediaPipeLoaded}
           >
-            <ButtonIcon>Clear</ButtonIcon>Clear
+            <ButtonIcon>🗑️</ButtonIcon>
+           clear
           </InlineButton>
-        </TranslationPanel>
+        </ControlsPanel>
       </MainLayout>
     </ModernCameraContainer>
   );
