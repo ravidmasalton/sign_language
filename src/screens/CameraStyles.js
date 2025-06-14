@@ -14,16 +14,12 @@ export const spin = keyframes`
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 `;
-export const slideDown = keyframes`
-  from { transform: translateY(-100%); }
-  to   { transform: translateY(0); }
-`;
 
-// Main wrapper - DESKTOP: no header, MOBILE: with header
+// Main wrapper - adjusted to work with app header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: #121212;
@@ -34,86 +30,12 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* MOBILE: Account for header */
   @media (max-width: 767px) {
-    height: 100vh !important;
     padding: 0 !important;
   }
 `;
 
-// Header - VISIBLE ONLY ON MOBILE (like other pages)
-export const HeaderSection = styled.div`
-  display: none; /* Hidden on desktop */
-  
-  /* MOBILE ONLY: Show header like other pages */
-  @media (max-width: 767px) {
-    display: flex !important;
-    background: #fff;
-    padding: 12px 16px;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #e9ecef;
-    position: relative;
-    z-index: 100;
-    ${css`animation: ${slideDown} 0.4s ease-out;`}
-  }
-`;
-
-// Mobile header - ALWAYS VISIBLE ON MOBILE
-export const MobileHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-export const AppTitle = styled.h1`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #6366f1;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-export const MenuButton = styled.button`
-  background: none;
-  border: none;
-  color: #6366f1;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(99, 102, 241, 0.1);
-  }
-`;
-
-export const MainTitle = styled.h1`
-  font-size: 1rem;
-  font-weight: 500;
-  color: #fff;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
-
-export const TitleIcon = styled.span`
-  font-size: 1rem;
-  ${css`animation: ${pulse} 2s infinite;`}
-`;
-
-export const Subtitle = styled.p`
-  font-size: 0.75rem;
-  color: #bbb;
-  margin: 0;
-`;
-
-// Main layout - DESKTOP: full height, MOBILE: account for header
+// Main layout - adjusted to work with app header
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -123,9 +45,7 @@ export const MainLayout = styled.div`
   margin: 0;
   flex: 1;
   
-  /* MOBILE: Account for header height */
   @media (max-width: 767px) {
-    height: calc(100vh - 64px); /* Subtract header height */
     gap: 2px;
     padding: 2px;
   }
@@ -142,7 +62,7 @@ export const CameraSection = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex-basis instead of fixed height */
+  /* MOBILE FIX: Use flex ratio for better proportions */
   @media (max-width: 767px) {
     height: auto !important;
     flex: 7 !important; /* 70% of available space */
@@ -240,7 +160,7 @@ export const ControlsPanel = styled.div`
   overflow: hidden;
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex-basis instead of fixed height */
+  /* MOBILE FIX: Use flex ratio for better proportions */
   @media (max-width: 767px) {
     height: auto !important;
     flex: 3 !important; /* 30% of available space */
