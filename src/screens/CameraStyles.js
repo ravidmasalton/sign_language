@@ -19,7 +19,7 @@ export const slideDown = keyframes`
   to   { transform: translateY(0); }
 `;
 
-// Main wrapper - Full screen container with sidebar space
+// Main wrapper - FIXED: Now respects mobile header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
@@ -33,9 +33,16 @@ export const ModernCameraContainer = styled.div`
   padding: 4px;
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
+  
+  /* MOBILE FIX: Account for mobile header */
+  @media (max-width: 767px) {
+    height: calc(100vh - 80px) !important; /* Subtract mobile header height */
+    margin-top: 0 !important;
+    position: static !important; /* Don't override layout positioning */
+  }
 `;
 
-// Compact header
+// Compact header - HIDDEN on mobile (using layout header instead)
 export const HeaderSection = styled.div`
   background: #1f1f1f;
   padding: 8px 12px;
@@ -43,7 +50,13 @@ export const HeaderSection = styled.div`
   align-items: center;
   justify-content: space-between;
   ${css`animation: ${slideDown} 0.4s ease-out;`}
+  
+  /* MOBILE FIX: Hide this header on mobile, use layout header instead */
+  @media (max-width: 767px) {
+    display: none !important;
+  }
 `;
+
 export const MainTitle = styled.h1`
   font-size: 1rem;
   font-weight: 500;
@@ -53,27 +66,35 @@ export const MainTitle = styled.h1`
   align-items: center;
   gap: 6px;
 `;
+
 export const TitleIcon = styled.span`
   font-size: 1rem;
   ${css`animation: ${pulse} 2s infinite;`}
 `;
+
 export const Subtitle = styled.p`
   font-size: 0.75rem;
   color: #bbb;
   margin: 0;
 `;
 
-// Vertical layout: Camera on top, controls below - exact height calculation
+// Vertical layout: Camera on top, controls below - FIXED height calculation
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   gap: 4px;
   padding: 0;
   margin: 0;
+  
+  /* MOBILE FIX: Adjusted for smaller screen without internal header */
+  @media (max-width: 767px) {
+    height: 100%;
+    gap: 2px;
+  }
 `;
 
-// Camera area - calculated to fit exactly
+// Camera area - MOBILE RESPONSIVE
 export const CameraSection = styled.div`
   width: 100%;
   height: calc(75vh - 6px);
@@ -83,6 +104,12 @@ export const CameraSection = styled.div`
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
+  
+  /* MOBILE FIX: Better proportions for mobile */
+  @media (max-width: 767px) {
+    height: 70%;
+    border-radius: 6px;
+  }
 `;
 
 export const VideoContainer = styled.div`
@@ -91,6 +118,10 @@ export const VideoContainer = styled.div`
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
+  
+  @media (max-width: 767px) {
+    border-radius: 6px;
+  }
 `;
 
 export const LiveVideo = styled.video`
@@ -101,6 +132,10 @@ export const LiveVideo = styled.video`
   object-fit: cover;
   z-index: 0;
   border-radius: 8px;
+  
+  @media (max-width: 767px) {
+    border-radius: 6px;
+  }
 `;
 
 export const ModernCanvas = styled.canvas`
@@ -111,6 +146,10 @@ export const ModernCanvas = styled.canvas`
   object-fit: cover;
   z-index: 1;
   border-radius: 8px;
+  
+  @media (max-width: 767px) {
+    border-radius: 6px;
+  }
 `;
 
 // Loading overlay for loading state
@@ -125,6 +164,10 @@ export const LoadingOverlay = styled.div`
   gap: 4px;
   z-index: 10;
   border-radius: 8px;
+  
+  @media (max-width: 767px) {
+    border-radius: 6px;
+  }
 `;
 
 export const LoadingSpinner = styled.div`
@@ -138,9 +181,13 @@ export const LoadingSpinner = styled.div`
 export const LoadingText = styled.div`
   color: #fff;
   font-size: 0.7rem;
+  
+  @media (max-width: 767px) {
+    font-size: 0.65rem;
+  }
 `;
 
-// Controls panel - exact height to fit screen
+// Controls panel - MOBILE RESPONSIVE
 export const ControlsPanel = styled.div`
   height: calc(25vh - 6px);
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -153,6 +200,14 @@ export const ControlsPanel = styled.div`
   color: #212529;
   overflow: hidden;
   flex-shrink: 0;
+  
+  /* MOBILE FIX: Better proportions and spacing */
+  @media (max-width: 767px) {
+    height: 30%;
+    padding: 3px;
+    gap: 1px;
+    border-radius: 6px;
+  }
 `;
 
 // Minimal prediction section
@@ -168,6 +223,12 @@ export const PredictionPanel = styled.div`
   gap: 6px;
   height: 24px;
   flex-shrink: 0;
+  
+  @media (max-width: 767px) {
+    height: 22px;
+    padding: 1px 3px;
+    gap: 4px;
+  }
 `;
 
 export const PredictionHeader = styled.div`
@@ -175,6 +236,10 @@ export const PredictionHeader = styled.div`
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
+  
+  @media (max-width: 767px) {
+    font-size: 0.5rem;
+  }
 `;
 
 export const PredictionDisplay = styled.div`
@@ -189,6 +254,11 @@ export const PredictionDisplay = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex: 1;
   min-width: 0;
+  
+  @media (max-width: 767px) {
+    font-size: 0.55rem;
+    padding: 1px 3px;
+  }
 `;
 
 export const BufferText = styled.div`
@@ -196,9 +266,13 @@ export const BufferText = styled.div`
   color: ${props => (props.$isActive ? '#4ade80' : 'rgba(255, 255, 255, 0.7)')};
   font-weight: 500;
   white-space: nowrap;
+  
+  @media (max-width: 767px) {
+    font-size: 0.45rem;
+  }
 `;
 
-// Translation section - takes remaining space exactly
+// Translation section - MOBILE RESPONSIVE
 export const TranslationPanel = styled.div`
   background: white;
   border-radius: 6px;
@@ -211,6 +285,12 @@ export const TranslationPanel = styled.div`
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  
+  @media (max-width: 767px) {
+    padding: 3px;
+    gap: 1px;
+    border-radius: 4px;
+  }
 `;
 
 export const TranslationContent = styled.div`
@@ -218,12 +298,20 @@ export const TranslationContent = styled.div`
   flex-direction: column;
   gap: 2px;
   height: 100%;
+  
+  @media (max-width: 767px) {
+    gap: 1px;
+  }
 `;
 
 export const TranslationIcon = styled.span`
   font-size: 0.8rem;
   color: #6c757d;
   margin-top: 1px;
+  
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
+  }
 `;
 
 export const TranslationText = styled.div`
@@ -241,9 +329,15 @@ export const TranslationText = styled.div`
   border: 1px solid #e9ecef;
   min-height: 0;
   overflow-y: auto;
+  
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
+    padding: 3px;
+    line-height: 1.1;
+  }
 `;
 
-// Minimal button
+// MOBILE RESPONSIVE Clear button - SMALLER ON MOBILE
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
@@ -277,8 +371,36 @@ export const InlineButton = styled.button`
     transform: none;
     box-shadow: none;
   }
+  
+  /* MOBILE FIX: Smaller button on mobile */
+  @media (max-width: 767px) {
+    height: 14px !important;
+    padding: 1px 4px !important;
+    font-size: 0.45rem !important;
+    gap: 0px !important;
+    border-radius: 2px !important;
+    
+    &:hover { 
+      transform: none !important; /* Disable hover effects on mobile */
+      box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    height: 12px !important;
+    padding: 0px 3px !important;
+    font-size: 0.4rem !important;
+  }
 `;
 
 export const ButtonIcon = styled.span`
   font-size: 0.55rem;
+  
+  @media (max-width: 767px) {
+    font-size: 0.45rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.4rem;
+  }
 `;
