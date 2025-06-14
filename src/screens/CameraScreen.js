@@ -17,10 +17,11 @@ import {
   PredictionDisplay,
   BufferText,
   TranslationPanel,
+  TranslationHeader,
   TranslationContent,
   TranslationIcon,
   TranslationText,
-  InlineButton,
+  ClearButton,
   ButtonIcon,
   ButtonText
 } from './CameraStyles';
@@ -49,6 +50,7 @@ const Sign_language_recognition = () => {
   const isProcessingFrameRef = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [totalPredictions, setTotalPredictions] = useState(0);
+  
   // Constants
   const ACTIONS = React.useMemo(() => [
     "Bye","beautiful","bird","book","but","can","dad","dance","day",
@@ -126,6 +128,7 @@ const Sign_language_recognition = () => {
     });
     ctx.shadowBlur = 0;
   }, []);
+  
   const drawConnections = useCallback((ctx, landmarks, connections, color, lineWidth = 1.5) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
@@ -332,11 +335,10 @@ const Sign_language_recognition = () => {
     };
   }, []);
 
-  // בדיקה אם זה מובייל
+  // פונקציה לבדיקת מובייל
   const isMobile = useCallback(() => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-           window.innerWidth <= 767 ||
-           'ontouchstart' in window;
+           window.innerWidth <= 768;
   }, []);
 
   // Setup camera - תיקון מיוחד למובייל
@@ -345,149 +347,84 @@ const Sign_language_recognition = () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported in this browser');
       }
+      
+      // עצור מצלמה קיימת
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
         streamRef.current = null;
       }
-      await new Promise(r => setTimeout(r, 300));
       
-      // תיקון מיוחד למובייל - רזולוציות גמישות יותר
+      // המתן רגע
+      await new Promise(r => setTimeout(r, 500));
+      
       const mobile = isMobile();
       
-      const constraintOptions = mobile ? [
-        // אילוצים מיוחדים למובייל
-        {
-          video: {
-            facingMode: { exact: 'environment' },
-            width: { ideal: 1920, max: 1920, min: 320 },
-            height: { ideal: 1080, max: 1080, min: 240 }
-          }
+      // הגדרות שונות למובייל ודסקטופ
+      const constraints = mobile ? {
+        video: {
+          facingMode: 'user', // קדמית במובייל
+          width: { ideal: 640, max: 1280, min: 320 },
+          height: { ideal: 480, max: 720, min: 240 },
+          frameRate: { ideal: 20, max: 30 }
         },
-        {
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280, max: 1920, min: 320 },
-            height: { ideal: 720, max: 1080, min: 240 }
-          }
+        audio: false
+      } : {
+        video: {
+          facingMode: 'user', // קדמית גם בדסקטופ
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 },
+          frameRate: { ideal: 30 }
         },
-        {
-          video: {
-            width: { ideal: 1280, max: 1920, min: 320 },
-            height: { ideal: 720, max: 1080, min: 240 }
-          }
-        },
-        // fallback גמיש מאוד למובייל
-        {
-          video: {
-            width: { min: 240 },
-            height: { min: 180 }
-          }
-        },
-        null
-      ] : [
-        // אילוצים רגילים לדסקטופ - ללא שינוי
-        {
-          video: {
-            facingMode: { exact: 'environment' },
-            width: { ideal: 1280, min: 640 },
-            height: { ideal: 720, min: 480 }
-          }
-        },
-        {
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280, min: 640 },
-            height: { ideal: 720, min: 480 }
-          }
-        },
-        null
-      ];
+        audio: false
+      };
 
-      let stream = null;
-      for (let i = 0; i < constraintOptions.length && !stream; i++) {
-        if (constraintOptions[i] === null) {
-          try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(d => d.kind === 'videoinput');
-            for (const device of videoDevices) {
-              try {
-                const constraints = mobile ? {
-                  video: {
-                    deviceId: { exact: device.deviceId },
-                    width: { ideal: 1280, max: 1920, min: 240 },
-                    height: { ideal: 720, max: 1080, min: 180 }
-                  }
-                } : {
-                  video: {
-                    deviceId: { exact: device.deviceId },
-                    width: { ideal: 1280, min: 640 },
-                    height: { ideal: 720, min: 480 }
-                  }
-                };
-                
-                const testStream = await navigator.mediaDevices.getUserMedia(constraints);
-                const track = testStream.getVideoTracks()[0];
-                const settings = track.getSettings();
-                if (settings.facingMode === 'environment' ||
-                    device.label.toLowerCase().includes('back') ||
-                    device.label.toLowerCase().includes('rear')) {
-                  stream = testStream;
-                  break;
-                } else {
-                  testStream.getTracks().forEach(t => t.stop());
-                }
-              } catch {}
-            }
-          } catch {}
-        } else {
-          try {
-            stream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
-          } catch {}
-        }
-      }
-      if (!stream) {
-        // fallback אחרון - גמיש מאוד למובייל
-        const fallbackConstraints = mobile ? {
-          video: {
-            width: { ideal: 640, min: 240 },
-            height: { ideal: 480, min: 180 }
-          }
-        } : {
-          video: {
-            width: { ideal: 1280, min: 640 },
-            height: { ideal: 720, min: 480 }
-          }
-        };
-        stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
-      }
+      console.log('מנסה לפתוח מצלמה עם:', constraints);
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
+        
+        // מחכה לטעינת הווידאו
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().then(() => {
-            setCameraReady(true);
-            setIsLoading(false);
-            startProcessing();
-          }).catch(() => {
-            setError('Failed to start video playback');
-          });
+          console.log('מטא-דטה נטענה, מתחיל להשמיע');
+          videoRef.current.play()
+            .then(() => {
+              console.log('וידאו מתחיל לפעול');
+              setCameraReady(true);
+              setIsLoading(false);
+              setError(null);
+              startProcessing();
+            })
+            .catch(err => {
+              console.error('שגיאה בהשמעת וידאו:', err);
+              setError('Failed to start video playback');
+            });
         };
-        setError(null);
+        
+        videoRef.current.onerror = (err) => {
+          console.error('שגיאה בווידאו:', err);
+          setError('Video error occurred');
+        };
       }
     } catch (err) {
+      console.error('שגיאה בהגדרת מצלמה:', err);
       setError(`Camera error: ${err.message}`);
       setIsLoading(false);
       setCameraReady(false);
     }
   }, [startProcessing, isMobile]);
 
+  // טעינת המצלמה
   useEffect(() => {
     if (isMediaPipeLoaded && isModelLoaded) {
       setupCamera();
     }
     return () => {
-      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
     };
   }, [isMediaPipeLoaded, isModelLoaded, setupCamera]);
 
@@ -501,33 +438,37 @@ const Sign_language_recognition = () => {
     isProcessingFrameRef.current = false;
     setTotalPredictions(0);
   };
+
   if (error) {
     return <div style={{ color: 'white', padding: 16 }}>{error}</div>;
   }
+
   return (
     <ModernCameraContainer>
       <MainLayout>
-        {/* Camera Section - Top */}
+        {/* Camera Section */}
         <CameraSection>
           <VideoContainer>
             <LiveVideo
               ref={videoRef}
-              autoPlay muted playsInline
+              autoPlay 
+              muted 
+              playsInline
               style={{ visibility: 'hidden' }}
             />
             <ModernCanvas ref={canvasRef} />
             {isLoading && (
               <LoadingOverlay>
                 <LoadingSpinner />
-                <LoadingText>Loading...</LoadingText>
+                <LoadingText>Loading camera...</LoadingText>
               </LoadingOverlay>
             )}
           </VideoContainer>
         </CameraSection>
 
-        {/* Controls Section - Bottom */}
+        {/* Controls Section */}
         <ControlsPanel>
-          {/* Prediction Panel - Horizontal Layout */}
+          {/* Prediction Panel */}
           <PredictionPanel>
             <PredictionHeader>
               🔮 Prediction
@@ -544,27 +485,35 @@ const Sign_language_recognition = () => {
 
           {/* Translation Panel */}
           <TranslationPanel>
-            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#6c757d', marginBottom: '4px' }}>
-              Translate
-            </div>
+            <TranslationHeader>
+              <div className="translation-title">
+                Translate
+              </div>
+              <ClearButton
+                onClick={clearSentence}
+                disabled={!isModelLoaded || !isMediaPipeLoaded}
+              >
+                <ButtonText>clear</ButtonText>
+              </ClearButton>
+            </TranslationHeader>
             <TranslationContent>
               <TranslationText>
                 {sentence.length > 0
-                  ? sentence.join(' ')
+                  ? sentence.join('')
                   : 'Make gestures to get translation...'}
               </TranslationText>
             </TranslationContent>
           </TranslationPanel>
-
-          {/* Clear Button - ריבוע יפה במובייל */}
-          <InlineButton
-            onClick={clearSentence}
-            disabled={!isModelLoaded || !isMediaPipeLoaded}
-          >
-            <ButtonIcon>🗑️</ButtonIcon>
-            <ButtonText>clear</ButtonText>
-          </InlineButton>
         </ControlsPanel>
+
+        {/* Clear Button - רק במובייל */}
+        <ClearButton
+          onClick={clearSentence}
+          disabled={!isModelLoaded || !isMediaPipeLoaded}
+          className="mobile-only"
+        >
+          <ButtonIcon>🗑️</ButtonIcon>
+        </ClearButton>
       </MainLayout>
     </ModernCameraContainer>
   );
