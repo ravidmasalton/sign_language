@@ -7,6 +7,9 @@ import {
   MainTitle,
   TitleIcon,
   Subtitle,
+  MobileHeader,
+  AppTitle,
+  MenuButton,
   MainLayout,
   CameraSection,
   VideoContainer,
@@ -534,6 +537,18 @@ const Sign_language_recognition = () => {
 
   return (
     <ModernCameraContainer>
+      {/* Header - MOBILE ONLY (like other pages) */}
+      <HeaderSection>
+        <MobileHeader>
+          <AppTitle>
+            Sign Language App
+          </AppTitle>
+          <MenuButton onClick={() => console.log('Menu clicked')}>
+            ☰
+          </MenuButton>
+        </MobileHeader>
+      </HeaderSection>
+
       <MainLayout>
         {/* Camera Section - Top */}
         <CameraSection>

@@ -19,14 +19,14 @@ export const slideDown = keyframes`
   to   { transform: translateY(0); }
 `;
 
-// Main wrapper - COMPLETELY FIXED: Now works with Layout properly
+// Main wrapper - DESKTOP: no header, MOBILE: with header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #121212; /* Dark background */
+  background: #121212;
   color: #e0e0e0;
   user-select: none;
   overflow: hidden;
@@ -34,29 +34,61 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* MOBILE FIX: Completely different approach - let Layout handle positioning */
+  /* MOBILE: Account for header */
   @media (max-width: 767px) {
-    position: relative !important; /* Keep relative, not static */
-    height: auto !important; /* Let content determine height */
-    min-height: calc(100vh - 80px) !important; /* Minimum height only */
-    max-height: calc(100vh - 80px) !important; /* Maximum height constraint */
-    margin: 0 !important;
-    padding: 2px !important; /* Smaller padding on mobile */
+    height: 100vh !important;
+    padding: 0 !important;
   }
 `;
 
-// Compact header - HIDDEN on mobile (using layout header instead)
+// Header - VISIBLE ONLY ON MOBILE (like other pages)
 export const HeaderSection = styled.div`
-  background: #1f1f1f;
-  padding: 8px 12px;
+  display: none; /* Hidden on desktop */
+  
+  /* MOBILE ONLY: Show header like other pages */
+  @media (max-width: 767px) {
+    display: flex !important;
+    background: #fff;
+    padding: 12px 16px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+    z-index: 100;
+    ${css`animation: ${slideDown} 0.4s ease-out;`}
+  }
+`;
+
+// Mobile header - ALWAYS VISIBLE ON MOBILE
+export const MobileHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  ${css`animation: ${slideDown} 0.4s ease-out;`}
+  width: 100%;
+`;
+
+export const AppTitle = styled.h1`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6366f1;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const MenuButton = styled.button`
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
   
-  /* MOBILE FIX: Hide this header on mobile, use layout header instead */
-  @media (max-width: 767px) {
-    display: none !important;
+  &:hover {
+    background: rgba(99, 102, 241, 0.1);
   }
 `;
 
@@ -81,7 +113,7 @@ export const Subtitle = styled.p`
   margin: 0;
 `;
 
-// Vertical layout - COMPLETELY REWORKED for mobile
+// Main layout - DESKTOP: full height, MOBILE: account for header
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,14 +121,13 @@ export const MainLayout = styled.div`
   gap: 4px;
   padding: 0;
   margin: 0;
-  flex: 1; /* Take remaining space */
+  flex: 1;
   
-  /* MOBILE FIX: Use flex properly */
+  /* MOBILE: Account for header height */
   @media (max-width: 767px) {
-    height: 100%;
+    height: calc(100vh - 64px); /* Subtract header height */
     gap: 2px;
-    flex: 1;
-    min-height: 0; /* Allow shrinking */
+    padding: 2px;
   }
 `;
 
@@ -347,7 +378,7 @@ export const TranslationText = styled.div`
   }
 `;
 
-// MOBILE RESPONSIVE Clear button - SMALLER ON MOBILE
+// Clear button - NORMAL SIZE, slightly smaller on mobile
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
@@ -382,24 +413,16 @@ export const InlineButton = styled.button`
     box-shadow: none;
   }
   
-  /* MOBILE FIX: Smaller button on mobile */
+  /* MOBILE: Slightly smaller */
   @media (max-width: 767px) {
-    height: 14px !important;
+    height: 16px !important;
     padding: 1px 4px !important;
-    font-size: 0.45rem !important;
-    gap: 0px !important;
-    border-radius: 2px !important;
+    font-size: 0.5rem !important;
     
     &:hover { 
-      transform: none !important; /* Disable hover effects on mobile */
+      transform: none !important;
       box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
     }
-  }
-  
-  @media (max-width: 480px) {
-    height: 12px !important;
-    padding: 0px 3px !important;
-    font-size: 0.4rem !important;
   }
 `;
 
@@ -407,10 +430,6 @@ export const ButtonIcon = styled.span`
   font-size: 0.55rem;
   
   @media (max-width: 767px) {
-    font-size: 0.45rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.4rem;
+    font-size: 0.5rem;
   }
 `;
