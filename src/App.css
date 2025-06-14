@@ -108,6 +108,27 @@ body {
   transition: background-color var(--transition-base);
 }
 
+/* MOBILE LAYOUT FIXES - No Bottom Navigation */
+@media (max-width: 767px) {
+  /* Ensure mobile pages use full height without bottom nav space */
+  body {
+    padding-bottom: 0 !important;
+  }
+  
+  /* Main content adjustments for mobile header only */
+  main, .main-content, .page-wrapper {
+    padding-top: 80px !important; /* Space for fixed header */
+    padding-bottom: 20px !important; /* Normal bottom padding */
+    min-height: calc(100vh - 80px) !important; /* Full height minus header */
+  }
+  
+  /* Remove any bottom navigation spacing */
+  .mobile-nav-spacer,
+  .bottom-nav-padding {
+    display: none !important;
+  }
+}
+
 /* Modern Button Styles */
 .btn {
   display: inline-flex;
@@ -234,7 +255,7 @@ body {
   animation: fadeIn 0.5s ease forwards;
 }
 
-/* Responsive Design */
+/* MOBILE RESPONSIVE FIXES */
 @media (max-width: 768px) {
   .btn {
     min-height: 44px;
@@ -245,6 +266,96 @@ body {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
   }
+  
+  /* Mobile-specific layout improvements */
+  .container {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+  
+  /* Ensure text is readable on mobile */
+  h1 { font-size: var(--font-size-2xl); }
+  h2 { font-size: var(--font-size-xl); }
+  h3 { font-size: var(--font-size-lg); }
+}
+
+/* CAMERA FULLSCREEN MODE - Enhanced for mobile without bottom nav */
+/* Special styles for the camera screen in fullscreen mode */
+body.camera-fullscreen {
+  overflow: hidden !important;
+}
+
+/* Hide header and sidebar on camera fullscreen mode */
+body.camera-fullscreen .MobileHeader,
+body.camera-fullscreen .Sidebar,
+body.camera-fullscreen .Overlay {
+  display: none !important;
+}
+
+/* Make camera container take full screen */
+body.camera-fullscreen .camera-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: calc(var(--vh, 1vh) * 100) !important;
+  z-index: 9999 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Fix for mobile browsers that have issues with 100vh */
+:root {
+  --vh: 1vh;
+}
+
+/* Safe area insets for modern mobile browsers */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body.camera-fullscreen .camera-container {
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    padding-left: env(safe-area-inset-left) !important;
+    padding-right: env(safe-area-inset-right) !important;
+  }
+}
+
+/* Hide scrollbars in fullscreen mode */
+body.camera-fullscreen::-webkit-scrollbar {
+  display: none;
+}
+
+body.camera-fullscreen {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth transition for camera */
+.camera-container {
+  transition: all 0.3s ease;
+}
+
+/* Add exit button for fullscreen camera mode */
+.camera-exit-button {
+  position: absolute;
+  top: env(safe-area-inset-top, 10px);
+  right: env(safe-area-inset-right, 10px);
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.camera-exit-button:hover {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 /* Utility Classes */
@@ -255,3 +366,77 @@ body {
 .justify-center { justify-content: center; }
 .w-full { width: 100%; }
 .mb-lg { margin-bottom: var(--spacing-lg); }
+
+/* Mobile Navigation Removed Classes - For cleanup if needed */
+.mobile-bottom-nav,
+.mobile-nav-bar,
+.bottom-navigation {
+  display: none !important;
+}
+
+/* Enhanced mobile experience without bottom navigation */
+@media (max-width: 767px) {
+  .content-wrapper {
+    padding-bottom: 20px !important; /* No extra space for removed bottom nav */
+  }
+  
+  /* Better touch targets for mobile */
+  button, .btn, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improved mobile typography */
+  body {
+    font-size: 16px; /* Prevent zoom on iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Better mobile input handling */
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  /* Mobile-friendly focus states */
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  
+  /* Better mobile scrolling */
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile safe areas */
+  .mobile-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .mobile-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Mobile header spacing fix */
+  .mobile-content {
+    margin-top: 60px; /* Fixed header height */
+  }
+  
+  /* Remove any iOS default styling */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    -webkit-appearance: none;
+    border-radius: var(--radius-md);
+  }
+  
+  /* Better mobile button press feedback */
+  button:active,
+  .btn:active {
+    transform: translateY(1px);
+  }
+}

@@ -56,7 +56,7 @@ const Layout = ({ children }) => {
 
   return (
     <LayoutContainer backgroundColor={COLORS.background}>
-      {/* Mobile header with hamburger menu */}
+      {/* Mobile header with hamburger menu - ALWAYS VISIBLE ON MOBILE */}
       {isMobile && (
         <MobileHeader backgroundColor={COLORS.card}>
           {location.pathname !== '/' && location.pathname !== '/camera' && (
@@ -89,19 +89,24 @@ const Layout = ({ children }) => {
           <AppLogo>
             <AppTitle color={COLORS.text}>Sign Language App</AppTitle>
           </AppLogo>
-        )}        <NavItems>
+        )}        
+        
+        <NavItems>
           <NavItem isActive={isActive('/')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/" color={COLORS.text} activeColor={COLORS.primary}>
               <FaHome size={20} />
               <NavText>Home</NavText>
             </NavLink>
           </NavItem>
-            <NavItem isActive={isActive('/camera')} backgroundColor={COLORS.primaryLight}>
+          
+          <NavItem isActive={isActive('/camera')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/camera" color={COLORS.text} activeColor={COLORS.primary}>
               <FaCamera size={20} />
               <NavText>Video to Word</NavText>
             </NavLink>
-          </NavItem><NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
+          </NavItem>
+          
+          <NavItem isActive={isActive('/word-to-animation')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/word-to-animation" color={COLORS.text} activeColor={COLORS.primary}>
               <FaClosedCaptioning size={20} />
               <NavText>Word to Animation</NavText>
@@ -156,49 +161,17 @@ const Layout = ({ children }) => {
         <Overlay onClick={toggleMobileMenu} />
       )}
 
-      {/* Main content */}
+      {/* Main content - ADJUSTED PADDING FOR MOBILE */}
       <MainContent 
         isMobile={isMobile} 
         isTablet={isTablet}
         isSidebarOpen={!isMobile || isMobileMenuOpen}
       >
         {children}
-      </MainContent>      {/* Mobile bottom navigation */}
-      {isMobile && (
-        <MobileNavBar backgroundColor={COLORS.card} borderColor={COLORS.border}>
-          <MobileNavItem isActive={isActive('/')}>
-            <MobileNavLink to="/" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaHome size={24} />
-              <MobileNavText>Home</MobileNavText>
-            </MobileNavLink>
-          </MobileNavItem>
-            <MobileNavItem isActive={isActive('/camera')}>
-            <MobileNavLink to="/camera" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaCamera size={24} />
-              <MobileNavText>Video to Word</MobileNavText>
-            </MobileNavLink>
-          </MobileNavItem><MobileNavItem isActive={isActive('/word-to-animation')}>
-            <MobileNavLink to="/word-to-animation" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaClosedCaptioning size={24} />
-              <MobileNavText>Word to Animation</MobileNavText>
-            </MobileNavLink>
-          </MobileNavItem>
-          
-          <MobileNavItem isActive={isActive('/video-upload')}>
-            <MobileNavLink to="/video-upload" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaCloudUploadAlt size={24} />
-              <MobileNavText>Upload</MobileNavText>
-            </MobileNavLink>
-          </MobileNavItem>
-          
-          <MobileNavItem isActive={isActive('/settings')}>
-            <MobileNavLink to="/settings" activeColor={COLORS.primary} color={COLORS.textSecondary}>
-              <FaCog size={24} />
-              <MobileNavText>Settings</MobileNavText>
-            </MobileNavLink>
-          </MobileNavItem>
-        </MobileNavBar>
-      )}
+      </MainContent>
+
+      {/* REMOVED: Mobile bottom navigation - NO LONGER DISPLAYED */}
+      {/* The MobileNavBar component has been completely removed for mobile */}
     </LayoutContainer>
   );
 };
@@ -230,6 +203,7 @@ const MobileHeader = styled.header`
   right: 0;
   z-index: 100;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 60px; /* Fixed height for consistent layout */
 `;
 
 const BackButton = styled.button`
@@ -257,7 +231,7 @@ const BackButton = styled.button`
 `;
 
 const AppTitle = styled.h1`
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   -webkit-background-clip: text;
@@ -265,6 +239,10 @@ const AppTitle = styled.h1`
   background-clip: text;
   margin: 0;
   letter-spacing: -0.5px;
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const MenuButton = styled.button`
@@ -429,67 +407,23 @@ const Overlay = styled.div`
   transition: all 0.3s ease;
 `;
 
+/* UPDATED: MainContent with proper mobile padding */
 const MainContent = styled.main`
   flex: 1;
-  padding: ${props => props.isMobile ? '90px 20px 90px' : '32px'};
+  padding: ${props => props.isMobile ? '80px 20px 20px' : '32px'};
   transition: all 0.3s ease;
   overflow-x: hidden;
-`;
-
-const MobileNavBar = styled.nav`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: ${props => props.backgroundColor};
-  backdrop-filter: blur(20px);
-  border-top: 1px solid ${props => props.borderColor};
-  z-index: 100;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
   
-  /* Safe area support for iOS */
-  padding-bottom: env(safe-area-inset-bottom);
-`;
-
-const MobileNavItem = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-`;
-
-const MobileNavLink = styled(Link)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 56px;
-  min-height: 56px;
-  color: ${props => props.isActive ? props.activeColor : props.color};
-  text-decoration: none;
-  border-radius: 16px;
-  padding: 8px;
-  transition: all 0.3s ease;
-  background: ${props => props.isActive ? 
-    'rgba(99, 102, 241, 0.1)' : 
-    'transparent'};
-  
-  &:hover {
-    transform: translateY(-2px);
-    background: rgba(99, 102, 241, 0.05);
+  /* Ensure content takes full height on mobile without bottom nav */
+  @media (max-width: 767px) {
+    padding-top: 80px; /* Space for fixed header */
+    padding-bottom: 20px; /* No extra space for removed bottom nav */
+    min-height: calc(100vh - 80px); /* Full height minus header */
   }
 `;
 
-const MobileNavText = styled.span`
-  font-size: 11px;
-  margin-top: 4px;
-  font-weight: 500;
-  text-align: center;
-`;
+/* REMOVED: All MobileNavBar related styled components */
+/* MobileNavBar, MobileNavItem, MobileNavLink, MobileNavText are no longer needed */
 
 export default Layout;
