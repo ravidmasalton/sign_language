@@ -338,7 +338,7 @@ export const TranslationText = styled.div`
   }
 `;
 
-// הקטנת כפתור Clear רק במובייל - Web נשאר ללא שינוי
+// כפתור Clear מעוצב כריבוע יפה - Web נשאר מלבני, Mobile ריבועי
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
@@ -373,26 +373,36 @@ export const InlineButton = styled.button`
     box-shadow: none;
   }
   
-  /* הקטנה משמעותית רק במובייל */
+  /* כפתור ריבועי יפה למובייל */
   @media (max-width: 767px) {
-    height: 10px !important; /* הקטנה משמעותית */
-    padding: 0px 2px !important;
-    font-size: 0.3rem !important;
+    width: 16px !important;
+    height: 16px !important;
+    padding: 0 !important;
+    font-size: 0.5rem !important;
     gap: 0px !important;
-    border-radius: 2px !important;
-    min-height: 10px !important;
+    border-radius: 4px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%) !important;
+    box-shadow: 0 2px 4px rgba(255, 65, 108, 0.3) !important;
     
     &:hover { 
       transform: none !important;
-      box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
+      box-shadow: 0 2px 4px rgba(255, 65, 108, 0.4) !important;
+    }
+    
+    &:active {
+      transform: scale(0.95) !important;
     }
   }
   
   @media (max-width: 480px) {
-    height: 8px !important; /* עוד יותר קטן */
-    padding: 0px 1px !important;
-    font-size: 0.25rem !important;
-    min-height: 8px !important;
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 0.45rem !important;
+    border-radius: 3px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
   }
 `;
 
@@ -400,10 +410,18 @@ export const ButtonIcon = styled.span`
   font-size: 0.55rem;
   
   @media (max-width: 767px) {
-    font-size: 0.3rem; /* הקטנה משמעותית */
+    font-size: 0.5rem !important;
+    line-height: 1 !important;
   }
   
   @media (max-width: 480px) {
-    font-size: 0.25rem;
+    font-size: 0.45rem !important;
+  }
+`;
+
+// הוספת סטייל לטקסט של הכפתור - יוסתר במובייל
+export const ButtonText = styled.span`
+  @media (max-width: 767px) {
+    display: none !important; /* הסתרת הטקסט במובייל */
   }
 `;

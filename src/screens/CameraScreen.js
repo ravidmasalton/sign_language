@@ -21,7 +21,8 @@ import {
   TranslationIcon,
   TranslationText,
   InlineButton,
-  ButtonIcon
+  ButtonIcon,
+  ButtonText
 } from './CameraStyles';
 
 const Sign_language_recognition = () => {
@@ -334,7 +335,8 @@ const Sign_language_recognition = () => {
   // בדיקה אם זה מובייל
   const isMobile = useCallback(() => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-           window.innerWidth <= 767;
+           window.innerWidth <= 767 ||
+           'ontouchstart' in window;
   }, []);
 
   // Setup camera - תיקון מיוחד למובייל
@@ -554,13 +556,13 @@ const Sign_language_recognition = () => {
             </TranslationContent>
           </TranslationPanel>
 
-          {/* Clear Button */}
+          {/* Clear Button - ריבוע יפה במובייל */}
           <InlineButton
             onClick={clearSentence}
             disabled={!isModelLoaded || !isMediaPipeLoaded}
           >
             <ButtonIcon>🗑️</ButtonIcon>
-            clear
+            <ButtonText>clear</ButtonText>
           </InlineButton>
         </ControlsPanel>
       </MainLayout>
