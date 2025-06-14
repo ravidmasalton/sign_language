@@ -15,14 +15,14 @@ export const spin = keyframes`
   to   { transform: rotate(360deg); }
 `;
 
-// Main wrapper - adjusted to work with app header
+// Main wrapper - Works with Layout properly
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #121212;
+  background: #121212; /* Dark background */
   color: #e0e0e0;
   user-select: none;
   overflow: hidden;
@@ -30,12 +30,16 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
+  /* MOBILE FIX: Work with Layout component */
   @media (max-width: 767px) {
-    padding: 0 !important;
+    position: relative !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 2px !important; /* Smaller padding on mobile */
   }
 `;
 
-// Main layout - adjusted to work with app header
+// Vertical layout - REWORKED to work without custom header
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
@@ -43,11 +47,14 @@ export const MainLayout = styled.div`
   gap: 4px;
   padding: 0;
   margin: 0;
-  flex: 1;
+  flex: 1; /* Take remaining space */
   
+  /* MOBILE FIX: Use flex properly */
   @media (max-width: 767px) {
+    height: 100%;
     gap: 2px;
-    padding: 2px;
+    flex: 1;
+    min-height: 0; /* Allow shrinking */
   }
 `;
 
@@ -62,7 +69,7 @@ export const CameraSection = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex ratio for better proportions */
+  /* MOBILE FIX: Use flex-basis instead of fixed height */
   @media (max-width: 767px) {
     height: auto !important;
     flex: 7 !important; /* 70% of available space */
@@ -160,7 +167,7 @@ export const ControlsPanel = styled.div`
   overflow: hidden;
   flex-shrink: 0;
   
-  /* MOBILE FIX: Use flex ratio for better proportions */
+  /* MOBILE FIX: Use flex-basis instead of fixed height */
   @media (max-width: 767px) {
     height: auto !important;
     flex: 3 !important; /* 30% of available space */
@@ -298,7 +305,7 @@ export const TranslationText = styled.div`
   }
 `;
 
-// Clear button - NORMAL SIZE, slightly smaller on mobile
+// MOBILE RESPONSIVE Clear button - SMALLER ON MOBILE
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
@@ -333,16 +340,24 @@ export const InlineButton = styled.button`
     box-shadow: none;
   }
   
-  /* MOBILE: Slightly smaller */
+  /* MOBILE FIX: Smaller button on mobile */
   @media (max-width: 767px) {
-    height: 16px !important;
+    height: 14px !important;
     padding: 1px 4px !important;
-    font-size: 0.5rem !important;
+    font-size: 0.45rem !important;
+    gap: 0px !important;
+    border-radius: 2px !important;
     
     &:hover { 
-      transform: none !important;
+      transform: none !important; /* Disable hover effects on mobile */
       box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
     }
+  }
+  
+  @media (max-width: 480px) {
+    height: 12px !important;
+    padding: 0px 3px !important;
+    font-size: 0.4rem !important;
   }
 `;
 
@@ -350,6 +365,10 @@ export const ButtonIcon = styled.span`
   font-size: 0.55rem;
   
   @media (max-width: 767px) {
-    font-size: 0.5rem;
+    font-size: 0.45rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.4rem;
   }
 `;
