@@ -6,70 +6,109 @@ export const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 `;
-
 export const pulse = keyframes`
   0%,100% { transform: scale(1); }
   50%    { transform: scale(1.05); }
 `;
-
 export const spin = keyframes`
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 `;
+export const slideDown = keyframes`
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+`;
 
-// Main container - פשוט וברור
+// Main wrapper - FIXED: Now respects mobile header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #121212;
+  background: #121212; /* Dark background */
   color: #e0e0e0;
   user-select: none;
   overflow: hidden;
-  padding: 8px;
+  padding: 4px;
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* Mobile adjustments */
-  @media (max-width: 768px) {
-    padding: 4px;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  /* MOBILE FIX: Account for mobile header */
+  @media (max-width: 767px) {
+    height: calc(100vh - 80px) !important; /* Subtract mobile header height */
+    margin-top: 0 !important;
+    position: static !important; /* Don't override layout positioning */
   }
 `;
 
-// Layout - vertical split
+// Compact header - HIDDEN on mobile (using layout header instead)
+export const HeaderSection = styled.div`
+  background: #1f1f1f;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  ${css`animation: ${slideDown} 0.4s ease-out;`}
+  
+  /* MOBILE FIX: Hide this header on mobile, use layout header instead */
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+`;
+
+export const MainTitle = styled.h1`
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const TitleIcon = styled.span`
+  font-size: 1rem;
+  ${css`animation: ${pulse} 2s infinite;`}
+`;
+
+export const Subtitle = styled.p`
+  font-size: 0.75rem;
+  color: #bbb;
+  margin: 0;
+`;
+
+// Vertical layout: Camera on top, controls below - FIXED height calculation
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 8px;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
   
-  @media (max-width: 768px) {
-    gap: 4px;
+  /* MOBILE FIX: Adjusted for smaller screen without internal header */
+  @media (max-width: 767px) {
     height: 100%;
+    gap: 2px;
   }
 `;
 
-// Camera section - מצלמה תופסת 70% מהמסך
+// Camera area - MOBILE RESPONSIVE
 export const CameraSection = styled.div`
-  flex: 7;
+  width: 100%;
+  height: calc(75vh - 6px);
   position: relative;
   overflow: hidden;
   background: #000;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  min-height: 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
   
-  @media (max-width: 768px) {
-    flex: 8;
-    border-radius: 8px;
+  /* MOBILE FIX: Better proportions for mobile */
+  @media (max-width: 767px) {
+    height: 70%;
+    border-radius: 6px;
   }
 `;
 
@@ -77,150 +116,129 @@ export const VideoContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   
-  @media (max-width: 768px) {
-    border-radius: 8px;
+  @media (max-width: 767px) {
+    border-radius: 6px;
   }
 `;
 
 export const LiveVideo = styled.video`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 0; left: 0;
+  width: 100%; 
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   
-  @media (max-width: 768px) {
-    border-radius: 8px;
+  @media (max-width: 767px) {
+    border-radius: 6px;
   }
 `;
 
 export const ModernCanvas = styled.canvas`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 0; left: 0;
+  width: 100%; 
   height: 100%;
   object-fit: cover;
   z-index: 1;
-  border-radius: 12px;
+  border-radius: 8px;
   
-  @media (max-width: 768px) {
-    border-radius: 8px;
+  @media (max-width: 767px) {
+    border-radius: 6px;
   }
 `;
 
-// Loading overlay
+// Loading overlay for loading state
 export const LoadingOverlay = styled.div`
-  position: absolute;
+  position: absolute; 
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0,0,0,0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 4px;
   z-index: 10;
-  border-radius: 12px;
+  border-radius: 8px;
   
-  @media (max-width: 768px) {
-    border-radius: 8px;
-    gap: 8px;
+  @media (max-width: 767px) {
+    border-radius: 6px;
   }
 `;
 
 export const LoadingSpinner = styled.div`
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top: 3px solid #fff;
+  width: 24px; height: 24px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid #fff;
   border-radius: 50%;
   ${css`animation: ${spin} 1s linear infinite;`}
-  
-  @media (max-width: 768px) {
-    width: 24px;
-    height: 24px;
-    border-width: 2px;
-  }
 `;
 
 export const LoadingText = styled.div`
   color: #fff;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.7rem;
   
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
+  @media (max-width: 767px) {
+    font-size: 0.65rem;
   }
 `;
 
-// Controls panel - תופס 30% מהמסך
+// Controls panel - MOBILE RESPONSIVE
 export const ControlsPanel = styled.div`
-  flex: 3;
+  height: calc(25vh - 6px);
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 8px;
-  border-radius: 12px;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  gap: 2px;
+  border-radius: 8px;
+  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.06);
   color: #212529;
   overflow: hidden;
-  min-height: 0;
+  flex-shrink: 0;
   
-  @media (max-width: 768px) {
-    flex: 2;
-    padding: 8px;
-    gap: 6px;
-    border-radius: 8px;
-    
-    /* הסתרת הכפתור הרגיל במובייל */
-    .desktop-only {
-      display: none;
-    }
-  }
-  
-  /* הצגת הכפתור הרגיל רק בדסקטופ */
-  .mobile-only {
-    display: none;
+  /* MOBILE FIX: Better proportions and spacing */
+  @media (max-width: 767px) {
+    height: 30%;
+    padding: 3px;
+    gap: 1px;
+    border-radius: 6px;
   }
 `;
 
-// Prediction panel - קטן עוד יותר
+// Minimal prediction section
 export const PredictionPanel = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 4px;
+  padding: 2px 4px;
   color: white;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 32px;
+  gap: 6px;
+  height: 24px;
   flex-shrink: 0;
   
-  @media (max-width: 768px) {
-    padding: 4px 6px;
+  @media (max-width: 767px) {
+    height: 22px;
+    padding: 1px 3px;
     gap: 4px;
-    min-height: 28px;
-    border-radius: 4px;
   }
 `;
 
 export const PredictionHeader = styled.div`
-  font-size: 0.65rem;
+  font-size: 0.55rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   
-  @media (max-width: 768px) {
-    font-size: 0.6rem;
+  @media (max-width: 767px) {
+    font-size: 0.5rem;
   }
 `;
 
@@ -228,145 +246,120 @@ export const PredictionDisplay = styled.div`
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex: 1;
   min-width: 0;
   
-  @media (max-width: 768px) {
-    font-size: 0.6rem;
-    padding: 3px 5px;
-    border-radius: 3px;
+  @media (max-width: 767px) {
+    font-size: 0.55rem;
+    padding: 1px 3px;
   }
 `;
 
 export const BufferText = styled.div`
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   color: ${props => (props.$isActive ? '#4ade80' : 'rgba(255, 255, 255, 0.7)')};
   font-weight: 500;
   white-space: nowrap;
   
-  @media (max-width: 768px) {
-    font-size: 0.55rem;
+  @media (max-width: 767px) {
+    font-size: 0.45rem;
   }
 `;
 
-// Translation panel - גדול יותר עם יותר מקום
+// Translation section - MOBILE RESPONSIVE
 export const TranslationPanel = styled.div`
   background: white;
-  border-radius: 8px;
-  padding: 16px 16px 24px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  position: relative;
   
-  @media (max-width: 768px) {
-    padding: 12px 12px 20px 12px;
-    gap: 10px;
-    border-radius: 6px;
-  }
-`;
-
-// Translation header with clear button
-export const TranslationHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  
-  .translation-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #6c757d;
-  }
-  
-  @media (max-width: 768px) {
-    margin-bottom: 2px;
-    
-    .translation-title {
-      font-size: 0.75rem;
-    }
+  @media (max-width: 767px) {
+    padding: 3px;
+    gap: 1px;
+    border-radius: 4px;
   }
 `;
 
 export const TranslationContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   height: 100%;
   
-  @media (max-width: 768px) {
-    gap: 6px;
+  @media (max-width: 767px) {
+    gap: 1px;
   }
 `;
 
 export const TranslationIcon = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #6c757d;
+  margin-top: 1px;
   
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
+  @media (max-width: 767px) {
+    font-size: 0.7rem;
   }
 `;
-
 export const TranslationText = styled.div`
   color: #212529;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   word-wrap: break-word;
   line-height: 1.5;
-  flex: 1;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 5px;
   border: 1px solid #e9ecef;
-  min-height: 160px;
+  min-height: 100px;
   overflow-y: auto;
   text-align: left;
-  vertical-align: top;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 10px;
-    min-height: 160px;
+
+  display: flex;
+  align-items: flex-start;
+
+  @media (max-width: 767px) {
+    font-size: 0.85rem;
+    padding: 5px;
     line-height: 1.4;
-    border-radius: 6px;
+    min-height: 80px;
   }
 `;
 
-// Clear button - עם שני מצבים
-export const ClearButton = styled.button`
+// MOBILE RESPONSIVE Clear button - SMALLER ON MOBILE
+export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
+  padding: 2px 6px;
   border: none;
+  border-radius: 3px;
+  font-size: 0.55rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 1px;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(255, 65, 108, 0.3);
-  
-  /* Desktop version - inside translation panel */
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  min-height: 32px;
+  box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2);
+  height: 18px;
+  flex-shrink: 0;
   
   &:hover { 
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 65, 108, 0.4);
+    box-shadow: 0 2px 4px rgba(255, 65, 108, 0.3);
   }
   
   &:active {
@@ -377,64 +370,38 @@ export const ClearButton = styled.button`
     background: #adb5bd;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   
-  /* Mobile version - floating button */
-  &.mobile-only {
-    display: none;
+  /* MOBILE FIX: Smaller button on mobile */
+  @media (max-width: 767px) {
+    height: 14px !important;
+    padding: 1px 4px !important;
+    font-size: 0.45rem !important;
+    gap: 0px !important;
+    border-radius: 2px !important;
     
-    @media (max-width: 768px) {
-      display: flex;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 60px;
-      padding: 0;
-      border-radius: 30px;
-      z-index: 1000;
-      box-shadow: 0 4px 16px rgba(255, 65, 108, 0.4);
-      
-      &:hover { 
-        transform: translateX(-50%) scale(1.05);
-        box-shadow: 0 6px 20px rgba(255, 65, 108, 0.5);
-      }
-      
-      &:active {
-        transform: translateX(-50%) scale(0.95);
-      }
-      
-      &:disabled {
-        background: #adb5bd;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        transform: translateX(-50%);
-      }
+    &:hover { 
+      transform: none !important; /* Disable hover effects on mobile */
+      box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
     }
   }
   
-  /* Hide desktop version on mobile */
-  @media (max-width: 768px) {
-    &:not(.mobile-only) {
-      display: none;
-    }
+  @media (max-width: 480px) {
+    height: 12px !important;
+    padding: 0px 3px !important;
+    font-size: 0.4rem !important;
   }
 `;
 
 export const ButtonIcon = styled.span`
-  font-size: 0.8rem;
-  line-height: 1;
+  font-size: 0.55rem;
   
-  @media (max-width: 768px) {
-    .mobile-only & {
-      font-size: 1.4rem;
-    }
+  @media (max-width: 767px) {
+    font-size: 0.45rem;
   }
-`;
-
-export const ButtonText = styled.span`
-  @media (max-width: 768px) {
-    display: none;
+  
+  @media (max-width: 480px) {
+    font-size: 0.4rem;
   }
 `;
