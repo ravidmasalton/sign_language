@@ -15,11 +15,12 @@ export const spin = keyframes`
   to   { transform: rotate(360deg); }
 `;
 
-// Main wrapper - Works with Layout properly
+
+// Main wrapper - COMPLETELY FIXED: Now works with Layout properly
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: #121212; /* Dark background */
@@ -30,16 +31,20 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* MOBILE FIX: Work with Layout component */
+  /* MOBILE FIX: Completely different approach - let Layout handle positioning */
   @media (max-width: 767px) {
-    position: relative !important;
-    height: 100% !important;
+    position: relative !important; /* Keep relative, not static */
+    height: auto !important; /* Let content determine height */
+    min-height: calc(100vh - 80px) !important; /* Minimum height only */
+    max-height: calc(100vh - 80px) !important; /* Maximum height constraint */
     margin: 0 !important;
     padding: 2px !important; /* Smaller padding on mobile */
   }
 `;
 
-// Vertical layout - REWORKED to work without custom header
+
+
+// Vertical layout - COMPLETELY REWORKED for mobile
 export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
