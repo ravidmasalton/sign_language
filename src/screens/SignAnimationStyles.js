@@ -1,28 +1,30 @@
-// SignAnimationStyles.js - MOBILE OPTIMIZED - NO EXTRA SPACING
+// SignAnimationStyles.js - DESIGN ONLY (NO LOGIC)
 
 import styled, { keyframes, css } from 'styled-components';
 
-// Keyframes
+// ========================
+// KEYFRAMES ANIMATIONS
+// ========================
+
 export const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 `;
 
-export const wave = keyframes`
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
-  100% { transform: rotate(0deg); }
-`;
-
-export const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`;
-
 export const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+`;
+
+export const micPulse = keyframes`
+  0%, 100% { 
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  }
+  50% { 
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.5);
+  }
 `;
 
 export const slideIn = keyframes`
@@ -30,16 +32,18 @@ export const slideIn = keyframes`
   100% { opacity: 1; transform: translateY(0); }
 `;
 
-export const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-`;
+// ========================
+// HELPER COMPONENTS
+// ========================
 
 export const SpinningIcon = styled.div`
-  ${css`animation: ${spin} 1s linear infinite;`}
+  animation: ${spin} 1s linear infinite;
 `;
 
-// MOBILE APP CONTAINER - Fixed height, no overflow
+// ========================
+// MAIN LAYOUT CONTAINERS
+// ========================
+
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,7 +60,6 @@ export const Container = styled.div`
   }
 `;
 
-// TOP SECTION - Reduced padding and margins for mobile
 export const TopSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -77,7 +80,54 @@ export const TopSection = styled.div`
   }
 `;
 
-// HEADER - Minimal margins
+export const MiddleSection = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  position: relative;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 123, 255, 0.1);
+  
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px 8px;
+  }
+`;
+
+export const BottomSection = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(248, 249, 250, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  flex-shrink: 0;
+  min-height: 16px;
+  
+  @media (max-width: 768px) {
+    padding: 4px 6px;
+    min-height: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 3px 4px;
+    min-height: 10px;
+  }
+`;
+
+// ========================
+// HEADER COMPONENTS
+// ========================
+
 export const Header = styled.header`
   text-align: center;
   margin-bottom: 8px;
@@ -125,11 +175,10 @@ export const Subtitle = styled.p`
   }
 `;
 
-export const AvailableWordsHint = styled.p`
-  display: none;
-`;
+// ========================
+// VIDEO COMPONENTS
+// ========================
 
-// CONTENT CONTAINER - Minimal margins, maximum space for video
 export const ContentContainer = styled.div`
   width: 100%;
   display: flex;
@@ -139,85 +188,46 @@ export const ContentContainer = styled.div`
   flex: 1;
   justify-content: center;
   margin: 0;
-  
-  @media (max-width: 768px) {
-    margin: 0;
-  }
-  
-  @media (max-width: 480px) {
-    margin: 0;
-  }
 `;
 
-// HIDDEN COMPONENTS
-export const RecentWordsContainer = styled.div`
-  display: none;
-`;
-
-export const RecentWordsTitle = styled.p`
-  display: none;
-`;
-
-export const RecentWordsList = styled.div`
-  display: none;
-`;
-
-export const RecentWordButton = styled.button`
-  display: none;
-`;
-
-// HIDDEN INFO CONTAINER
-export const InfoContainer = styled.div`
-  display: none;
-`;
-
-export const InfoText = styled.p`
-  display: none;
-`;
-
-// HIDDEN CURRENT WORD DISPLAY
-export const CurrentWordDisplay = styled.div`
-  display: none;
-`;
-
-export const CurrentWordLabel = styled.span`
-  display: none;
-`;
-
-export const CurrentWord = styled.h2`
-  display: none;
-`;
-
-// VIDEO CONTAINER - Optimized for mobile, larger size
 export const VideoContainer = styled.div`
   width: 100%;
   max-width: 350px;
   aspect-ratio: 3/4;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(0, 123, 255, 0.1);
+  border-radius: 24px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 123, 255, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   
   &:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.16),
+      0 6px 20px rgba(0, 123, 255, 0.12);
+    border-color: rgba(0, 123, 255, 0.2);
+  }
+  
+  &:active {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
   
   @media (max-width: 768px) {
     max-width: 320px;
-    border-radius: 18px;
+    border-radius: 20px;
   }
   
   @media (max-width: 480px) {
     max-width: 290px;
-    border-radius: 16px;
+    border-radius: 18px;
   }
   
   @media (max-width: 400px) {
@@ -233,10 +243,10 @@ export const Video = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 22px;
+  border-radius: 20px;
   cursor: pointer;
   
-  /* Hide all controls */
+  /* Hide all native video controls */
   &::-webkit-media-controls {
     display: none !important;
   }
@@ -294,178 +304,13 @@ export const Video = styled.video`
   }
 `;
 
-// FLOATING BUTTONS - Positioned on video sides
-export const FloatingButtonsContainer = styled.div`
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 10;
-  
-  @media (max-width: 768px) {
-    left: 16px;
-    gap: 10px;
-  }
-  
-  @media (max-width: 480px) {
-    left: 12px;
-    gap: 8px;
-  }
-`;
+// ========================
+// FORM & INPUT COMPONENTS
+// ========================
 
-export const FloatingButton = styled.button`
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2c3e50;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  @media (max-width: 768px) {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
-  }
-  
-  @media (max-width: 480px) {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-`;
-
-// RIGHT SIDE BUTTONS
-export const RightButtonsContainer = styled.div`
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 10;
-  
-  @media (max-width: 768px) {
-    right: 16px;
-    gap: 10px;
-  }
-  
-  @media (max-width: 480px) {
-    right: 12px;
-    gap: 8px;
-  }
-`;
-
-// FLAG BUTTON - US FLAG (BOTTOM LEFT)
-export const FlagButton = styled.button`
-  width: 56px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: absolute;
-  left: 20px;
-  bottom: 20px;
-  
-  &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  @media (max-width: 768px) {
-    width: 52px;
-    height: 36px;
-    left: 16px;
-    bottom: 16px;
-    font-size: 1.3rem;
-  }
-  
-  @media (max-width: 480px) {
-    width: 48px;
-    height: 32px;
-    left: 12px;
-    bottom: 12px;
-    font-size: 1.2rem;
-  }
-`;
-
-// MIDDLE SECTION - MINIMAL padding for input area
-export const MiddleSection = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 6px 16px;
-  position: relative;
-  flex-shrink: 0;
-  
-  @media (max-width: 768px) {
-    padding: 4px 12px;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 3px 8px;
-  }
-`;
-
-// BOTTOM SECTION - Minimal height
-export const BottomSection = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.95);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  position: relative;
-  flex-shrink: 0;
-  min-height: 20px;
-  
-  @media (max-width: 768px) {
-    padding: 3px 6px;
-    min-height: 16px;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 2px 4px;
-    min-height: 12px;
-  }
-`;
-
-// SEARCH CONTAINER - Tight spacing
 export const SearchContainer = styled.div`
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -473,60 +318,64 @@ export const SearchContainer = styled.div`
 
 export const SearchForm = styled.form`
   display: flex;
-  gap: 8px;
+  gap: 12px;
   position: relative;
   width: 100%;
-  max-width: 500px;
+  align-items: center;
   
   @media (max-width: 480px) {
-    gap: 6px;
-    max-width: 400px;
+    gap: 8px;
   }
 `;
 
 export const InputWrapper = styled.div`
   position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
 `;
 
 export const SearchIcon = styled.div`
   position: absolute;
-  left: 14px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
   color: #6c757d;
   font-size: 1rem;
   
   @media (max-width: 768px) {
-    left: 12px;
+    left: 14px;
     font-size: 0.95rem;
   }
   
   @media (max-width: 480px) {
-    left: 10px;
+    left: 12px;
     font-size: 0.9rem;
   }
 `;
 
 export const Input = styled.input`
   width: 100%;
-  padding: 12px 16px 12px 44px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50px;
+  padding: 14px 50px 14px 48px;
+  border: 2px solid rgba(0, 123, 255, 0.1);
+  border-radius: 24px;
   font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: ${props => props.isListening ? 'rgba(0, 123, 255, 0.1)' : 'rgba(255, 255, 255, 0.95)'};
   color: #2c3e50;
-  min-height: 46px;
-  transition: all 0.3s ease;
-  font-weight: 400;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 52px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  border-color: ${props => props.isListening ? '#007bff' : 'rgba(0, 123, 255, 0.1)'};
   
   &::placeholder {
     color: #adb5bd;
     font-style: italic;
+    font-weight: 400;
   }
   
   &:focus {
@@ -534,19 +383,96 @@ export const Input = styled.input`
     border-color: #007bff;
     background: rgba(255, 255, 255, 1);
     transform: translateY(-1px);
-    box-shadow: 0 3px 12px rgba(0, 123, 255, 0.2);
+    box-shadow: 
+      0 6px 20px rgba(0, 123, 255, 0.15),
+      0 0 0 4px rgba(0, 123, 255, 0.1);
+  }
+  
+  &:disabled {
+    background: rgba(0, 123, 255, 0.05);
+    border-color: rgba(0, 123, 255, 0.2);
+    color: #007bff;
   }
   
   @media (max-width: 768px) {
     font-size: 0.9rem;
-    padding: 10px 14px 10px 40px;
-    min-height: 42px;
+    padding: 12px 46px 12px 44px;
+    min-height: 48px;
   }
   
   @media (max-width: 480px) {
     font-size: 0.85rem;
-    padding: 8px 12px 8px 36px;
-    min-height: 38px;
+    padding: 10px 42px 10px 40px;
+    min-height: 44px;
+  }
+`;
+
+// ========================
+// BUTTON COMPONENTS
+// ========================
+
+export const MicButton = styled.button`
+  width: 32px;
+  height: 32px;
+  background: ${props => 
+    props.isListening 
+      ? 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'  /* כחול כשמקליט */
+      : props.disabled
+        ? '#e9ecef'
+        : 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'  /* כחול כשזמין */
+  };
+  color: ${props => props.disabled ? '#6c757d' : 'white'};
+  border: none;
+  border-radius: 50%;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${props => 
+    props.disabled 
+      ? 'none'
+      : props.isListening
+        ? '0 3px 12px rgba(0, 123, 255, 0.4)'  /* צל כחול כשמקליט */
+        : '0 2px 6px rgba(0, 123, 255, 0.3)'   /* צל כחול רגיל */
+  };
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  
+  ${props => props.isListening && css`
+    animation: ${micPulse} 1.5s ease-in-out infinite;
+  `}
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-50%) scale(1.1);
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);  /* כחול כהה יותר בהובר */
+    box-shadow: ${props => 
+      props.isListening
+        ? '0 4px 16px rgba(0, 123, 255, 0.5)'
+        : '0 3px 10px rgba(0, 123, 255, 0.4)'
+    };
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.95);
+  }
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+    right: 9px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+    right: 8px;
   }
 `;
 
@@ -554,28 +480,29 @@ export const SearchButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  padding: 0 24px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
   border: none;
-  border-radius: 50px;
+  border-radius: 24px;
   font-size: 0.9rem;
   font-weight: 600;
-  min-height: 46px;
+  min-height: 52px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
   white-space: nowrap;
+  backdrop-filter: blur(10px);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
   }
   
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
   }
   
   &:disabled {
@@ -583,197 +510,112 @@ export const SearchButton = styled.button`
     cursor: not-allowed;
     background: #6c757d;
     transform: none;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
   }
   
   @media (max-width: 768px) {
-    padding: 0 16px;
-    min-height: 42px;
+    padding: 0 20px;
+    min-height: 48px;
     font-size: 0.85rem;
   }
   
   @media (max-width: 480px) {
-    padding: 0 12px;
-    min-height: 38px;
+    padding: 0 16px;
+    min-height: 44px;
     font-size: 0.8rem;
   }
 `;
 
-// MIC BUTTON - ORANGE LIKE IN IMAGE
-export const MicButton = styled.button`
-  width: 52px;
-  height: 52px;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  color: white;
-  border: none;
+// ========================
+// STATUS & ERROR COMPONENTS
+// ========================
+
+export const SpeechStatusContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08), rgba(0, 123, 255, 0.12));
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  border-radius: 16px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(10px);
+  animation: ${slideIn} 0.3s ease-out;
+  
+  @media (max-width: 480px) {
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+`;
+
+export const SpeechStatusDot = styled.div`
+  width: 10px;
+  height: 10px;
+  background: #007bff;
   border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #f7931e 0%, #ff6b35 100%);
-    transform: translateY(-50%) scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(-50%) scale(0.98);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #6c757d;
-  }
-  
-  @media (max-width: 768px) {
-    width: 48px;
-    height: 48px;
-    font-size: 1.2rem;
-    right: 6px;
-  }
-  
-  @media (max-width: 480px) {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
-    right: 4px;
-  }
+  animation: ${pulse} 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
 `;
 
-// CAMERA BUTTON
-export const CameraButton = styled.button`
-  width: 36px;
-  height: 36px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+export const SpeechStatusText = styled.span`
+  font-size: 0.85rem;
+  color: #007bff;
+  font-weight: 600;
   
-  &:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.8);
-    transform: translateY(-50%) scale(1.05);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  @media (max-width: 768px) {
-    width: 32px;
-    height: 32px;
+  @media (max-width: 480px) {
     font-size: 0.8rem;
-    left: 6px;
-  }
-  
-  @media (max-width: 480px) {
-    width: 28px;
-    height: 28px;
-    font-size: 0.7rem;
-    left: 4px;
   }
 `;
 
-// TAB BAR - HIDDEN
-export const TabBar = styled.div`
-  display: none;
-`;
-
-export const TabItem = styled.div`
-  display: none;
-`;
-
-export const TabIcon = styled.div`
-  display: none;
-`;
-
-export const TabLabel = styled.span`
-  display: none;
-`;
-
-// ERROR/INFO MESSAGES - Smaller margins and tight spacing
 export const ErrorContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  max-width: 600px;
-  padding: 6px 10px;
-  background: rgba(248, 113, 113, 0.1);
+  max-width: 500px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.08), rgba(248, 113, 113, 0.12));
   border: 1px solid rgba(248, 113, 113, 0.2);
-  border-radius: 8px;
-  margin-bottom: 4px;
-  ${css`animation: ${slideIn} 0.4s ease-out;`}
+  border-radius: 16px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(10px);
+  animation: ${slideIn} 0.4s ease-out;
   
   @media (max-width: 480px) {
-    padding: 4px 8px;
-    margin-bottom: 2px;
-    gap: 6px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    gap: 8px;
   }
 `;
 
 export const ErrorText = styled.p`
   color: #dc3545;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.3;
   font-weight: 500;
+  flex: 1;
   
   @media (max-width: 480px) {
-    font-size: 0.75rem;
-    line-height: 1.1;
+    font-size: 0.8rem;
+    line-height: 1.2;
   }
 `;
 
-// ADDITIONAL INFO SECTIONS - Compact design
-export const InfoSection = styled.div`
-  width: 100%;
-  max-width: 600px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  margin-top: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+export const SupportInfo = styled.div`
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+  font-weight: 400;
+  opacity: 0.8;
   
   @media (max-width: 480px) {
-    padding: 6px 8px;
-    margin-top: 2px;
+    font-size: 0.7rem;
+    margin-top: 6px;
   }
-`;
-
-// EMPTY STATE - HIDDEN
-export const EmptyStateContainer = styled.div`
-  display: none;
-`;
-
-export const EmptyStateIcon = styled.div`
-  display: none;
-`;
-
-export const EmptyStateText = styled.p`
-  display: none;
-`;
-
-export const EmptyStateSubText = styled.p`
-  display: none;
 `;

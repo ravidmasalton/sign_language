@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { FiSearch, FiAlertCircle, FiRefreshCw } from 'react-icons/fi';
+import { FiSearch, FiAlertCircle, FiRefreshCw, FiMic, FiMicOff } from 'react-icons/fi';
 import {
   Container,
   TopSection,
@@ -18,36 +18,46 @@ import {
   Input,
   SearchButton,
   SpinningIcon,
+  MicButton,
   BottomSection,
-  TabBar,
-  TabItem,
-  TabIcon,
-  TabLabel,
   ErrorContainer,
   ErrorText,
-  EmptyStateContainer,
-  EmptyStateIcon,
-  EmptyStateText,
-  EmptyStateSubText
+  SpeechStatusContainer,
+  SpeechStatusDot,
+  SpeechStatusText,
+  SupportInfo,
 } from './SignAnimationStyles';
 
 /**
  * Component that displays sign language animations based on user input text
- * Optimized for mobile with minimal spacing and tight layout
+ * With Speech Recognition support
  */
 const SignToAnimationScreen = () => {
   const { theme: COLORS } = useTheme();
+  
+  // ========================
+  // STATE MANAGEMENT
+  // ========================
   const [inputWord, setInputWord] = useState('');
   const [currentWord, setCurrentWord] = useState('');
   const [currentSentence, setCurrentSentence] = useState([]);
   const [isSentenceMode, setIsSentenceMode] = useState(false);
-  const [videoExists, setVideoExists] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Speech Recognition states
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [speechError, setSpeechError] = useState('');
+  
+  // Refs
   const videoRef = useRef(null);
   const inputRef = useRef(null);
+  const recognitionRef = useRef(null);
 
-  // Available words list - all supported sign language words
+  // ========================
+  // CONSTANTS
+  // ========================
   const AVAILABLE_WORDS = [
     "bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day",
     "deaf", "drink", "eat", "enjoy", "family", "go", "help", "love", "mom",
@@ -55,66 +65,17 @@ const SignToAnimationScreen = () => {
     "tired", "write", "yes", "you"
   ];
 
-  // Initialize component - focus input and load default video
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-    
-    if (videoRef.current) {
-      videoRef.current.src = '/sign_videos/Regular.mp4';
-      videoRef.current.load();
-      videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-    }
-  }, []);
-
-  // Handle video end - return to regular video after word animation
-  useEffect(() => {
-    const handleVideoEnd = () => {
-      if (!isSentenceMode && currentWord) {
-        setTimeout(() => {
-          setCurrentWord('');
-          setInputWord('');
-          if (videoRef.current) {
-            videoRef.current.pause();
-            videoRef.current.currentTime = 0;
-            videoRef.current.src = '/sign_videos/Regular.mp4';
-            videoRef.current.load();
-            
-            setTimeout(() => {
-              if (videoRef.current && videoRef.current.src.includes('Regular')) {
-                videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-              }
-            }, 100);
-          }
-        }, 500);
-      }
-    };
-
-    if (videoRef.current) {
-      videoRef.current.addEventListener('ended', handleVideoEnd);
-    }
-
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('ended', handleVideoEnd);
-      }
-    };
-  }, [currentWord, isSentenceMode]);
-
-  // Format word to match video filename format (capitalize first letter, replace spaces with underscores)
+  // ========================
+  // UTILITY FUNCTIONS
+  // ========================
   const formatWord = (word) => {
     if (!word || typeof word !== 'string') return '';
-    
     const cleanWord = word.trim();
     if (!cleanWord) return '';
-    
     const processedWord = cleanWord.toLowerCase().replace(/\s+/g, '_');
-    
     return processedWord.charAt(0).toUpperCase() + processedWord.slice(1);
   };
 
-  // Check if video file exists for the given word
   const checkVideoExists = async (word) => {
     const formattedWord = formatWord(word);
     if (!formattedWord) return false;
@@ -122,7 +83,6 @@ const SignToAnimationScreen = () => {
     const originalWordLower = word.toLowerCase().trim();
     const normalizedInput = originalWordLower.replace(/\s+/g, ' ');
     
-    // Check if word is in available words list
     const isInList = AVAILABLE_WORDS.includes(normalizedInput) || 
            AVAILABLE_WORDS.some(availableWord => 
              availableWord.toLowerCase().replace(/\s+/g, ' ') === normalizedInput
@@ -131,12 +91,8 @@ const SignToAnimationScreen = () => {
     if (isInList) {
       try {
         const testUrl = `/sign_videos/${formattedWord}.mp4`;
-        
-        // Test if video file exists
         const response = await fetch(testUrl, { method: 'HEAD' });
-        const fileExists = response.ok;
-        
-        return fileExists;
+        return response.ok;
       } catch (error) {
         console.error('Error checking file:', error);
         return false;
@@ -146,13 +102,59 @@ const SignToAnimationScreen = () => {
     return false;
   };
 
-  // Check if multiple words exist (for sentence mode)
   const checkMultipleWordsExist = async (words) => {
     const checks = await Promise.all(words.map(word => checkVideoExists(word)));
     return checks;
   };
 
-  // Handle video click for play/pause functionality
+  // ========================
+  // VIDEO FUNCTIONS
+  // ========================
+  const playSequenceOfVideos = async (words) => {
+    if (!videoRef.current) return;
+    
+    let currentIndex = 0;
+    
+    const playNextVideo = () => {
+      if (currentIndex >= words.length) {
+        setTimeout(() => {
+          setCurrentSentence([]);
+          setInputWord('');
+          setIsSentenceMode(false);
+          if (videoRef.current) {
+            videoRef.current.src = '/sign_videos/Regular.mp4';
+            videoRef.current.load();
+            videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+          }
+        }, 800);
+        return;
+      }
+      
+      const currentWord = words[currentIndex];
+      const videoSrc = `/sign_videos/${formatWord(currentWord)}.mp4`;
+      
+      videoRef.current.src = videoSrc;
+      videoRef.current.load();
+      videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
+      
+      currentIndex++;
+    };
+    
+    playNextVideo();
+    
+    const handleVideoEnd = () => {
+      setTimeout(playNextVideo, 500);
+    };
+    
+    videoRef.current.addEventListener('ended', handleVideoEnd);
+    
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.removeEventListener('ended', handleVideoEnd);
+      }
+    };
+  };
+
   const handleVideoClick = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -163,19 +165,29 @@ const SignToAnimationScreen = () => {
     }
   };
 
-  // Handle form submission - process input and play appropriate video(s)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!inputWord.trim()) {
+  const handleVideoError = () => {
+    if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
+      videoRef.current.src = '/sign_videos/Regular.mp4';
+      videoRef.current.load();
+      videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+    }
+    setError(`Video file not found`);
+  };
+
+  // ========================
+  // FORM & INPUT HANDLERS
+  // ========================
+  const processVideoSubmission = async (inputText) => {
+    if (!inputText.trim()) {
       setError('Please enter a word or sentence');
       return;
     }
     
     setIsLoading(true);
     setError('');
+    setSpeechError('');
     
-    const words = inputWord.trim().split(/\s+/).filter(word => word.length > 0);
+    const words = inputText.trim().split(/\s+/).filter(word => word.length > 0);
     
     if (words.length === 1) {
       // Single word mode
@@ -186,7 +198,6 @@ const SignToAnimationScreen = () => {
         setCurrentWord(words[0]);
         setCurrentSentence([]);
         setIsSentenceMode(false);
-        setVideoExists(true);
         
         if (videoRef.current) {
           videoRef.current.pause();
@@ -210,7 +221,6 @@ const SignToAnimationScreen = () => {
           }, 200);
         }
       } else {
-        setVideoExists(false);
         setCurrentWord('');
         setCurrentSentence([]);
         setIsSentenceMode(false);
@@ -223,7 +233,6 @@ const SignToAnimationScreen = () => {
       
       if (missingWords.length > 0) {
         setError(`Missing videos for: ${missingWords.join(', ')}. Available words: ${AVAILABLE_WORDS.join(', ')}`);
-        setVideoExists(false);
         setCurrentWord('');
         setCurrentSentence([]);
         setIsSentenceMode(false);
@@ -231,7 +240,6 @@ const SignToAnimationScreen = () => {
         setCurrentSentence(words);
         setCurrentWord('');
         setIsSentenceMode(true);
-        setVideoExists(true);
         
         playSequenceOfVideos(words);
       }
@@ -240,54 +248,189 @@ const SignToAnimationScreen = () => {
     setIsLoading(false);
   };
 
-  // Play sequence of videos for sentence mode
-  const playSequenceOfVideos = async (words) => {
-    if (!videoRef.current) return;
-    
-    let currentIndex = 0;
-    
-    const playNextVideo = () => {
-      if (currentIndex >= words.length) {
-        // End of sentence - return to regular video
-        setTimeout(() => {
-          setCurrentSentence([]);
-          setInputWord('');
-          setIsSentenceMode(false);
-          if (videoRef.current) {
-            videoRef.current.src = '/sign_videos/Regular.mp4';
-            videoRef.current.load();
-            videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-          }
-        }, 800);
-        return;
-      }
-      
-      const currentWord = words[currentIndex];
-      const videoSrc = `/sign_videos/${formatWord(currentWord)}.mp4`;
-      
-      videoRef.current.src = videoSrc;
-      videoRef.current.load();
-      
-      videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
-      
-      currentIndex++;
-    };
-    
-    playNextVideo();
-    
-    const handleVideoEnd = () => {
-      setTimeout(playNextVideo, 500);
-    };
-    
-    videoRef.current.addEventListener('ended', handleVideoEnd);
-    
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('ended', handleVideoEnd);
-      }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await processVideoSubmission(inputWord);
   };
 
+  // ========================
+  // SPEECH RECOGNITION
+  // ========================
+  const handleSpeechSubmit = useCallback(async (transcript) => {
+    await processVideoSubmission(transcript);
+  }, []);
+
+  const handleMicClick = async () => {
+    if (!speechSupported) {
+      setSpeechError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (!recognitionRef.current) {
+      setSpeechError('Speech recognition not initialized. Please refresh the page.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        setSpeechError('');
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setSpeechError('Failed to start speech recognition. Please try again.');
+      }
+    }
+  };
+
+  // ========================
+  // EFFECTS
+  // ========================
+  
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+      setSpeechSupported(true);
+      
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        console.log('Speech recognized:', transcript);
+        
+        setInputWord(transcript);
+        setSpeechError('');
+        
+        if (transcript.trim()) {
+          setTimeout(() => {
+            handleSpeechSubmit(transcript.trim());
+          }, 100);
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        switch (event.error) {
+          case 'no-speech':
+            setSpeechError('No speech detected. Please try again.');
+            break;
+          case 'audio-capture':
+            setSpeechError('Microphone not accessible. Please check permissions.');
+            break;
+          case 'not-allowed':
+            setSpeechError('Microphone permission denied. Please allow microphone access.');
+            break;
+          case 'network':
+            setSpeechError('Network error occurred. Please check your connection.');
+            break;
+          default:
+            setSpeechError('Speech recognition failed. Please try again.');
+        }
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+        console.log('Speech recognition ended');
+      };
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+        setSpeechError('');
+        console.log('Speech recognition started');
+      };
+      
+      recognitionRef.current = recognition;
+    } else {
+      setSpeechSupported(false);
+      console.warn('Speech recognition not supported in this browser');
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, [handleSpeechSubmit]);
+
+  // Initialize component
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.src = '/sign_videos/Regular.mp4';
+      videoRef.current.load();
+      videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+    }
+  }, []);
+
+  // Handle video end
+  useEffect(() => {
+    const video = videoRef.current;
+    
+    const handleVideoEnd = () => {
+      if (!isSentenceMode && currentWord) {
+        setTimeout(() => {
+          setCurrentWord('');
+          setInputWord('');
+          if (video) {
+            video.pause();
+            video.currentTime = 0;
+            video.src = '/sign_videos/Regular.mp4';
+            video.load();
+            
+            setTimeout(() => {
+              if (video && video.src.includes('Regular')) {
+                video.play().catch(e => console.error("Error playing Regular video:", e));
+              }
+            }, 100);
+          }
+        }, 500);
+      }
+    };
+
+    if (video) {
+      video.addEventListener('ended', handleVideoEnd);
+    }
+
+    return () => {
+      if (video) {
+        video.removeEventListener('ended', handleVideoEnd);
+      }
+    };
+  }, [currentWord, isSentenceMode]);
+
+  // ========================
+  // COMPUTED VALUES
+  // ========================
+  const videoSrc = isSentenceMode ? 
+    `/sign_videos/${formatWord(currentSentence[0])}.mp4` : 
+    currentWord ? 
+      `/sign_videos/${formatWord(currentWord)}.mp4` : 
+      '/sign_videos/Regular.mp4';
+
+  const inputPlaceholder = isListening ? "Listening..." : "Enter a word or sentence...";
+  
+  const micButtonTitle = !speechSupported 
+    ? "Speech recognition not supported" 
+    : isListening 
+      ? "Stop listening"
+      : "Start voice input";
+
+  // ========================
+  // RENDER
+  // ========================
   return (
     <Container COLORS={COLORS}>
       {/* TOP SECTION - HEADER AND ANIMATION */}
@@ -295,7 +438,7 @@ const SignToAnimationScreen = () => {
         <Header>
           <Title>Word to Sign Animation</Title>
           <Subtitle>
-            Type a word to see its sign language animation
+            Type a word or use voice input to see its sign language animation
           </Subtitle>
         </Header>
 
@@ -309,24 +452,8 @@ const SignToAnimationScreen = () => {
               playsInline
               disablePictureInPicture
               controlsList="nodownload noplaybackrate nofullscreen"
-              src={
-                isSentenceMode ? 
-                  `/sign_videos/${formatWord(currentSentence[0])}.mp4` : 
-                  currentWord ? 
-                    `/sign_videos/${formatWord(currentWord)}.mp4` : 
-                    '/sign_videos/Regular.mp4'
-              }              
-              onError={(e) => {
-                // Fallback to regular video on error
-                if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
-                  videoRef.current.src = '/sign_videos/Regular.mp4';
-                  videoRef.current.load();
-                  videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-                }
-                
-                setVideoExists(false);
-                setError(`Video file not found`);
-              }}
+              src={videoSrc}
+              onError={handleVideoError}
             />
           </VideoContainer>
         </ContentContainer>
@@ -334,11 +461,20 @@ const SignToAnimationScreen = () => {
 
       {/* MIDDLE SECTION - INPUT AREA */}
       <MiddleSection>
-        {error && (
+        {/* Error Messages */}
+        {(error || speechError) && (
           <ErrorContainer>
             <FiAlertCircle size={16} />
-            <ErrorText>{error}</ErrorText>
+            <ErrorText>{error || speechError}</ErrorText>
           </ErrorContainer>
+        )}
+
+        {/* Speech Status */}
+        {isListening && (
+          <SpeechStatusContainer>
+            <SpeechStatusDot />
+            <SpeechStatusText>Listening... Speak now</SpeechStatusText>
+          </SpeechStatusContainer>
         )}
 
         <SearchContainer>
@@ -352,29 +488,55 @@ const SignToAnimationScreen = () => {
                 type="text"
                 value={inputWord}
                 onChange={(e) => setInputWord(e.target.value)}
-                placeholder="Enter a word or sentence..."
+                placeholder={inputPlaceholder}
                 aria-label="Enter a word"
                 list="available-words"
+                disabled={isListening}
+                isListening={isListening}
               />
               <datalist id="available-words">
                 {AVAILABLE_WORDS.map(word => (
                   <option key={word} value={word} />
                 ))}
               </datalist>
+              
+              {/* Microphone Button */}
+              <MicButton
+                type="button"
+                onClick={handleMicClick}
+                disabled={!speechSupported}
+                title={micButtonTitle}
+                isListening={isListening}
+                speechSupported={speechSupported}
+              >
+                {isListening ? <FiMicOff size={18} /> : <FiMic size={18} />}
+              </MicButton>
             </InputWrapper>
+            
             <SearchButton
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isListening}
             >
-              {isLoading ? <SpinningIcon><FiRefreshCw size={14} /></SpinningIcon> : 'Send'}
+              {isLoading ? (
+                <SpinningIcon><FiRefreshCw size={14} /></SpinningIcon>
+              ) : (
+                'Send'
+              )}
             </SearchButton>
           </SearchForm>
         </SearchContainer>
+
+        {/* Speech Support Info */}
+        {!speechSupported && (
+          <SupportInfo>
+            Voice input requires Chrome, Edge, or Safari browser
+          </SupportInfo>
+        )}
       </MiddleSection>
 
-      {/* BOTTOM SECTION - MINIMAL FOOTER */}
+      {/* BOTTOM SECTION */}
       <BottomSection>
-        {/* Minimal footer space - can be used for additional controls if needed */}
+        {/* Minimal footer space */}
       </BottomSection>
     </Container>
   );
