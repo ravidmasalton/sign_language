@@ -396,14 +396,20 @@ export const Input = styled.input`
   
   @media (max-width: 768px) {
     font-size: 0.9rem;
-    padding: 12px 46px 12px 44px;
+    padding: 12px 38px 12px 44px;
     min-height: 48px;
   }
   
   @media (max-width: 480px) {
     font-size: 0.85rem;
-    padding: 10px 42px 10px 40px;
+    padding: 10px 34px 10px 40px;
     min-height: 44px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 0.8rem;
+    padding: 9px 30px 9px 38px;
+    min-height: 42px;
   }
 `;
 
@@ -462,17 +468,24 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    font-size: 0.75rem;
-    right: 9px;
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+    right: 8px;
   }
   
   @media (max-width: 480px) {
-    width: 26px;
-    height: 26px;
-    font-size: 0.7rem;
-    right: 8px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.6rem;
+    right: 7px;
+  }
+  
+  @media (max-width: 360px) {
+    width: 20px;
+    height: 20px;
+    font-size: 0.55rem;
+    right: 6px;
   }
 `;
 
@@ -523,6 +536,12 @@ export const SearchButton = styled.button`
     padding: 0 16px;
     min-height: 44px;
     font-size: 0.8rem;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 0 14px;
+    min-height: 42px;
+    font-size: 0.75rem;
   }
 `;
 

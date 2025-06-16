@@ -30,7 +30,7 @@ import {
 
 /**
  * Component that displays sign language animations based on user input text
- * With Speech Recognition support
+ * With Speech Recognition support and optimized video preloading
  */
 const SignToAnimationScreen = () => {
   const { theme: COLORS } = useTheme();
@@ -49,6 +49,10 @@ const SignToAnimationScreen = () => {
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const [speechError, setSpeechError] = useState('');
+  
+  // Video preloading states
+  const [preloadedVideos, setPreloadedVideos] = useState(new Map());
+  const [isPreloading, setIsPreloading] = useState(false);
   
   // Refs
   const videoRef = useRef(null);
@@ -108,10 +112,62 @@ const SignToAnimationScreen = () => {
   };
 
   // ========================
-  // VIDEO FUNCTIONS
+  // VIDEO PRELOADING FUNCTIONS
+  // ========================
+  const preloadVideo = (videoSrc) => {
+    return new Promise((resolve, reject) => {
+      if (preloadedVideos.has(videoSrc)) {
+        resolve(preloadedVideos.get(videoSrc));
+        return;
+      }
+
+      const video = document.createElement('video');
+      video.preload = 'auto';
+      video.muted = true;
+      
+      const handleCanPlayThrough = () => {
+        video.removeEventListener('canplaythrough', handleCanPlayThrough);
+        video.removeEventListener('error', handleError);
+        
+        setPreloadedVideos(prev => new Map(prev.set(videoSrc, video)));
+        resolve(video);
+      };
+      
+      const handleError = () => {
+        video.removeEventListener('canplaythrough', handleCanPlayThrough);
+        video.removeEventListener('error', handleError);
+        reject(new Error(`Failed to preload ${videoSrc}`));
+      };
+      
+      video.addEventListener('canplaythrough', handleCanPlayThrough);
+      video.addEventListener('error', handleError);
+      video.src = videoSrc;
+    });
+  };
+
+  const preloadMultipleVideos = async (words) => {
+    setIsPreloading(true);
+    const videoSources = words.map(word => `/sign_videos/${formatWord(word)}.mp4`);
+    
+    try {
+      const preloadPromises = videoSources.map(src => preloadVideo(src));
+      await Promise.all(preloadPromises);
+      console.log('Successfully preloaded all videos:', videoSources);
+    } catch (error) {
+      console.error('Error preloading videos:', error);
+    } finally {
+      setIsPreloading(false);
+    }
+  };
+
+  // ========================
+  // OPTIMIZED VIDEO FUNCTIONS
   // ========================
   const playSequenceOfVideos = async (words) => {
     if (!videoRef.current) return;
+    
+    // Preload all videos first
+    await preloadMultipleVideos(words);
     
     let currentIndex = 0;
     
@@ -133,9 +189,19 @@ const SignToAnimationScreen = () => {
       const currentWord = words[currentIndex];
       const videoSrc = `/sign_videos/${formatWord(currentWord)}.mp4`;
       
-      videoRef.current.src = videoSrc;
-      videoRef.current.load();
-      videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
+      // Use preloaded video if available
+      const preloadedVideo = preloadedVideos.get(videoSrc);
+      if (preloadedVideo) {
+        // Copy the preloaded video source to main video element
+        videoRef.current.src = videoSrc;
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
+      } else {
+        // Fallback to regular loading
+        videoRef.current.src = videoSrc;
+        videoRef.current.load();
+        videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
+      }
       
       currentIndex++;
     };
@@ -143,7 +209,8 @@ const SignToAnimationScreen = () => {
     playNextVideo();
     
     const handleVideoEnd = () => {
-      setTimeout(playNextVideo, 500);
+      // Reduced delay since videos are preloaded
+      setTimeout(playNextVideo, 200);
     };
     
     videoRef.current.addEventListener('ended', handleVideoEnd);
@@ -155,6 +222,9 @@ const SignToAnimationScreen = () => {
     };
   };
 
+  // ========================
+  // VIDEO EVENT HANDLERS
+  // ========================
   const handleVideoClick = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -195,6 +265,8 @@ const SignToAnimationScreen = () => {
       
       if (exists) {
         const formattedWord = formatWord(words[0]);
+        const videoSrc = `/sign_videos/${formattedWord}.mp4`;
+        
         setCurrentWord(words[0]);
         setCurrentSentence([]);
         setIsSentenceMode(false);
@@ -202,23 +274,49 @@ const SignToAnimationScreen = () => {
         if (videoRef.current) {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
-          const videoSrc = `/sign_videos/${formattedWord}.mp4`;
           
-          videoRef.current.src = videoSrc;
-          videoRef.current.load();
-          
-          setTimeout(() => {
-            if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
-              videoRef.current.play().catch(e => {
-                console.error("Error playing video:", e);
-                if (videoRef.current) {
-                  videoRef.current.src = '/sign_videos/Regular.mp4';
-                  videoRef.current.load();
-                  videoRef.current.play().catch(err => console.error("Error playing Regular video:", err));
+          // Check if video is preloaded
+          const preloadedVideo = preloadedVideos.get(videoSrc);
+          if (preloadedVideo) {
+            videoRef.current.src = videoSrc;
+            videoRef.current.currentTime = 0;
+            setTimeout(() => {
+              if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
+                videoRef.current.play().catch(e => {
+                  console.error("Error playing video:", e);
+                  handleVideoError();
+                });
+              }
+            }, 50); // Reduced delay
+          } else {
+            // Preload single video for faster playback
+            try {
+              await preloadVideo(videoSrc);
+              videoRef.current.src = videoSrc;
+              videoRef.current.currentTime = 0;
+              setTimeout(() => {
+                if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
+                  videoRef.current.play().catch(e => {
+                    console.error("Error playing video:", e);
+                    handleVideoError();
+                  });
                 }
-              });
+              }, 50);
+            } catch (error) {
+              console.error("Error preloading single video:", error);
+              // Fallback to regular loading
+              videoRef.current.src = videoSrc;
+              videoRef.current.load();
+              setTimeout(() => {
+                if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
+                  videoRef.current.play().catch(e => {
+                    console.error("Error playing video:", e);
+                    handleVideoError();
+                  });
+                }
+              }, 200);
             }
-          }, 200);
+          }
         }
       } else {
         setCurrentWord('');
@@ -411,6 +509,18 @@ const SignToAnimationScreen = () => {
     };
   }, [currentWord, isSentenceMode]);
 
+  // Cleanup preloaded videos on unmount
+  useEffect(() => {
+    return () => {
+      preloadedVideos.forEach(video => {
+        if (video) {
+          video.src = '';
+          video.load();
+        }
+      });
+    };
+  }, []);
+
   // ========================
   // COMPUTED VALUES
   // ========================
@@ -439,6 +549,7 @@ const SignToAnimationScreen = () => {
           <Title>Word to Sign Animation</Title>
           <Subtitle>
             Type a word or use voice input to see its sign language animation
+            {isPreloading && " (Preparing videos...)"}
           </Subtitle>
         </Header>
 
@@ -515,9 +626,9 @@ const SignToAnimationScreen = () => {
             
             <SearchButton
               type="submit"
-              disabled={isLoading || isListening}
+              disabled={isLoading || isListening || isPreloading}
             >
-              {isLoading ? (
+              {isLoading || isPreloading ? (
                 <SpinningIcon><FiRefreshCw size={14} /></SpinningIcon>
               ) : (
                 'Send'
