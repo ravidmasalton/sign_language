@@ -362,7 +362,7 @@ export const Input = styled.input`
   padding: 14px 50px 14px 48px;
   border: 2px solid rgba(0, 123, 255, 0.1);
   border-radius: 24px;
-  font-size: 0.95rem;
+  font-size: 16px; /* חשוב! מינימום 16px כדי למנוע זום ב-iOS */
   background: ${props => props.isListening ? 'rgba(0, 123, 255, 0.1)' : 'rgba(255, 255, 255, 0.95)'};
   color: #2c3e50;
   min-height: 52px;
@@ -376,6 +376,7 @@ export const Input = styled.input`
     color: #adb5bd;
     font-style: italic;
     font-weight: 400;
+    font-size: 16px; /* חשוב! גם ה-placeholder חייב להיות 16px */
   }
   
   &:focus {
@@ -394,22 +395,35 @@ export const Input = styled.input`
     color: #007bff;
   }
   
+  /* במובייל - וודא שהגודל נשאר 16px */
   @media (max-width: 768px) {
-    font-size: 0.9rem;
+    font-size: 16px; /* חובה! */
     padding: 12px 38px 12px 44px;
     min-height: 48px;
+    
+    &::placeholder {
+      font-size: 16px; /* חובה! */
+    }
   }
   
   @media (max-width: 480px) {
-    font-size: 0.85rem;
+    font-size: 16px; /* חובה! */
     padding: 10px 34px 10px 40px;
     min-height: 44px;
+    
+    &::placeholder {
+      font-size: 16px; /* חובה! */
+    }
   }
   
   @media (max-width: 360px) {
-    font-size: 0.8rem;
+    font-size: 16px; /* חובה! */
     padding: 9px 30px 9px 38px;
     min-height: 42px;
+    
+    &::placeholder {
+      font-size: 16px; /* חובה! */
+    }
   }
 `;
 
@@ -468,24 +482,39 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    width: 24px;
-    height: 24px;
-    font-size: 0.65rem;
+    width: 20px;
+    height: 20px;
+    font-size: 0.6rem;
     right: 8px;
+    
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
   
   @media (max-width: 480px) {
-    width: 22px;
-    height: 22px;
-    font-size: 0.6rem;
+    width: 18px;
+    height: 18px;
+    font-size: 0.55rem;
     right: 7px;
+    
+    svg {
+      width: 10px;
+      height: 10px;
+    }
   }
   
   @media (max-width: 360px) {
-    width: 20px;
-    height: 20px;
-    font-size: 0.55rem;
+    width: 16px;
+    height: 16px;
+    font-size: 0.5rem;
     right: 6px;
+    
+    svg {
+      width: 9px;
+      height: 9px;
+    }
   }
 `;
 

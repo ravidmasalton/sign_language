@@ -190,7 +190,7 @@ const Sign_language_recognition = () => {
         setCurrentPrediction({ word, confidence, classIndex: predSmooth });
         setSentence(prev => {
           if (prev.length === 0 || prev[prev.length - 1] !== word) {
-            return [...prev, word];
+            return [...prev, word].slice(-5);
           }
           return prev;
         });
