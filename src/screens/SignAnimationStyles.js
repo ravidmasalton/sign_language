@@ -482,10 +482,22 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     font-size: 0.6rem;
     right: 8px;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+    font-size: 0.55rem;
+    right: 7px;
     
     svg {
       width: 12px;
@@ -493,27 +505,15 @@ export const MicButton = styled.button`
     }
   }
   
-  @media (max-width: 480px) {
+  @media (max-width: 360px) {
     width: 18px;
     height: 18px;
-    font-size: 0.55rem;
-    right: 7px;
-    
-    svg {
-      width: 10px;
-      height: 10px;
-    }
-  }
-  
-  @media (max-width: 360px) {
-    width: 16px;
-    height: 16px;
     font-size: 0.5rem;
     right: 6px;
     
     svg {
-      width: 9px;
-      height: 9px;
+      width: 11px;
+      height: 11px;
     }
   }
 `;
