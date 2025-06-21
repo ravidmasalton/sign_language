@@ -15,7 +15,7 @@ export const spin = keyframes`
   to   { transform: rotate(360deg); }
 `;
 
-// Main wrapper - מעודכן להצגת header
+// Main wrapper - תוקן להציג header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
@@ -30,11 +30,17 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* עדכון למובייל - בלי להסתיר header */
+  /* תיקון למובייל - מאפשר הצגת header */
   @media (max-width: 767px) {
-    height: 100vh; /* השתמש בגובה מלא */
+    height: calc(100vh - 80px); /* השאר מקום ל-header */
     margin-top: 0;
     position: relative;
+    overflow: visible; /* אפשר גלילה אם צריך */
+  }
+  
+  /* תיקון נוסף למסכים קטנים מאוד */
+  @media (max-width: 480px) {
+    height: calc(100vh - 70px); /* פחות מקום למסכים קטנים */
   }
 `;
 
@@ -65,8 +71,12 @@ export const CameraSection = styled.div`
   flex-shrink: 0;
   
   @media (max-width: 767px) {
-    height: 65vh; /* התאם לפי הצורך */
+    height: 60vh; /* התאם לפי הצורך עם מקום ל-header */
     border-radius: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 55vh; /* פחות גובה למסכים קטנים */
   }
 `;
 
@@ -165,6 +175,11 @@ export const ControlsPanel = styled.div`
     gap: 1px;
     border-radius: 6px;
   }
+  
+  @media (max-width: 480px) {
+    min-height: 100px;
+    padding: 2px;
+  }
 `;
 
 // Minimal prediction section
@@ -186,6 +201,12 @@ export const PredictionPanel = styled.div`
     padding: 1px 3px;
     gap: 4px;
   }
+  
+  @media (max-width: 480px) {
+    height: 20px;
+    padding: 1px 2px;
+    gap: 2px;
+  }
 `;
 
 export const PredictionHeader = styled.div`
@@ -196,6 +217,10 @@ export const PredictionHeader = styled.div`
   
   @media (max-width: 767px) {
     font-size: 0.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.45rem;
   }
 `;
 
@@ -216,6 +241,11 @@ export const PredictionDisplay = styled.div`
     font-size: 0.55rem;
     padding: 1px 3px;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 0.5rem;
+    padding: 1px 2px;
+  }
 `;
 
 export const BufferText = styled.div`
@@ -226,6 +256,10 @@ export const BufferText = styled.div`
   
   @media (max-width: 767px) {
     font-size: 0.45rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.4rem;
   }
 `;
 
@@ -248,6 +282,10 @@ export const TranslationPanel = styled.div`
     gap: 1px;
     border-radius: 4px;
   }
+  
+  @media (max-width: 480px) {
+    padding: 2px;
+  }
 `;
 
 export const TranslationContent = styled.div`
@@ -269,6 +307,10 @@ export const TranslationIcon = styled.span`
   @media (max-width: 767px) {
     font-size: 0.7rem;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 0.65rem;
+  }
 `;
 
 export const TranslationText = styled.div`
@@ -289,9 +331,16 @@ export const TranslationText = styled.div`
 
   @media (max-width: 767px) {
     font-size: 0.85rem;
-    padding: 5px;
+    padding: 4px;
     line-height: 1.4;
     min-height: 80px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    padding: 3px;
+    min-height: 60px;
+    border-radius: 4px;
   }
 `;
 
@@ -332,9 +381,9 @@ export const InlineButton = styled.button`
   
   /* כפתור קטן יותר במובייל */
   @media (max-width: 767px) {
-    height: 14px !important;
-    padding: 1px 3px !important;
-    font-size: 0.4rem !important;
+    height: 16px !important;
+    padding: 1px 4px !important;
+    font-size: 0.45rem !important;
     gap: 0px !important;
     border-radius: 2px !important;
     
@@ -345,9 +394,9 @@ export const InlineButton = styled.button`
   }
   
   @media (max-width: 480px) {
-    height: 12px !important;
-    padding: 0px 2px !important;
-    font-size: 0.35rem !important;
+    height: 14px !important;
+    padding: 0px 3px !important;
+    font-size: 0.4rem !important;
   }
 `;
 
@@ -355,10 +404,10 @@ export const ButtonIcon = styled.span`
   font-size: 0.55rem;
   
   @media (max-width: 767px) {
-    font-size: 0.35rem;
+    font-size: 0.4rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 0.3rem;
+    font-size: 0.35rem;
   }
 `;

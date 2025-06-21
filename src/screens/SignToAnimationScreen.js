@@ -52,18 +52,15 @@ const SignToAnimationScreen = () => {
   const [sequenceWords, setSequenceWords] = useState([]);
   const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0);
   
-  // Video optimization states
+  // Video optimization states - simplified
   const [videoReady, setVideoReady] = useState(false);
-  const [preloadedVideos, setPreloadedVideos] = useState(new Set());
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Refs
   const videoRef = useRef(null);
-  const secondaryVideoRef = useRef(null); // For smooth transitions
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
   const sequenceTimeoutRef = useRef(null);
-  const preloadCacheRef = useRef(new Map());
 
   // ========================
   // CONSTANTS
@@ -74,14 +71,6 @@ const SignToAnimationScreen = () => {
     "need", "no", "red", "sick", "son", "study", "tall", "thank you",
     "tired", "write", "yes", "you"
   ];
-
-  // Mobile optimization settings
-  const MOBILE_SETTINGS = {
-    preloadBuffer: 2, // Number of videos to preload ahead
-    transitionDelay: 100, // Shorter delay for mobile
-    videoQuality: 'auto', // Let browser decide
-    enableHardwareAcceleration: true
-  };
 
   // ========================
   // UTILITY FUNCTIONS
@@ -108,127 +97,8 @@ const SignToAnimationScreen = () => {
   };
 
   // ========================
-  // VIDEO PRELOADING SYSTEM
+  // SIMPLIFIED VIDEO TRANSITIONS
   // ========================
-  const preloadVideo = useCallback((videoPath) => {
-    return new Promise((resolve, reject) => {
-      if (preloadedVideos.has(videoPath) || preloadCacheRef.current.has(videoPath)) {
-        resolve(videoPath);
-        return;
-      }
-
-      const video = document.createElement('video');
-      video.preload = 'auto';
-      video.muted = true;
-      
-      const onCanPlay = () => {
-        setPreloadedVideos(prev => new Set([...prev, videoPath]));
-        preloadCacheRef.current.set(videoPath, video);
-        video.removeEventListener('canplaythrough', onCanPlay);
-        video.removeEventListener('error', onError);
-        resolve(videoPath);
-      };
-
-      const onError = (error) => {
-        video.removeEventListener('canplaythrough', onCanPlay);
-        video.removeEventListener('error', onError);
-        console.warn(`Failed to preload video: ${videoPath}`, error);
-        reject(error);
-      };
-
-      video.addEventListener('canplaythrough', onCanPlay);
-      video.addEventListener('error', onError);
-      video.src = videoPath;
-    });
-  }, [preloadedVideos]);
-
-  const preloadSequenceVideos = useCallback(async (words) => {
-    const videoPromises = words.map(word => {
-      const formattedWord = formatWord(word);
-      const videoPath = `/sign_videos/${formattedWord}.mp4`;
-      return preloadVideo(videoPath).catch(err => {
-        console.warn(`Failed to preload ${videoPath}:`, err);
-        return null;
-      });
-    });
-
-    try {
-      await Promise.allSettled(videoPromises);
-      console.log('Sequence videos preloaded');
-    } catch (error) {
-      console.warn('Some videos failed to preload:', error);
-    }
-  }, [preloadVideo]);
-
-  // ========================
-  // SMOOTH VIDEO TRANSITIONS
-  // ========================
-  const createSmoothTransition = useCallback((newVideoPath, callback) => {
-    if (!videoRef.current) return;
-
-    setIsTransitioning(true);
-    const mainVideo = videoRef.current;
-    
-    // For mobile, use immediate transition to avoid memory issues
-    if (isMobile()) {
-      mainVideo.pause();
-      mainVideo.currentTime = 0;
-      mainVideo.src = newVideoPath;
-      setCurrentVideo(newVideoPath);
-      
-      const playPromise = mainVideo.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsTransitioning(false);
-            callback?.();
-          })
-          .catch((error) => {
-            console.error('Mobile video play error:', error);
-            setIsTransitioning(false);
-            handleVideoError();
-          });
-      }
-      return;
-    }
-
-    // Desktop smooth transition
-    if (secondaryVideoRef.current) {
-      const secondaryVideo = secondaryVideoRef.current;
-      secondaryVideo.src = newVideoPath;
-      secondaryVideo.currentTime = 0;
-      
-      const onCanPlay = () => {
-        secondaryVideo.removeEventListener('canplaythrough', onCanPlay);
-        
-        // Fade out main video, fade in secondary
-        mainVideo.style.opacity = '0';
-        secondaryVideo.style.opacity = '1';
-        
-        secondaryVideo.play().then(() => {
-          // Swap videos
-          setTimeout(() => {
-            mainVideo.src = newVideoPath;
-            mainVideo.currentTime = 0;
-            mainVideo.style.opacity = '1';
-            secondaryVideo.style.opacity = '0';
-            secondaryVideo.pause();
-            
-            setCurrentVideo(newVideoPath);
-            setIsTransitioning(false);
-            callback?.();
-          }, 200);
-        }).catch(error => {
-          console.error('Secondary video play error:', error);
-          setIsTransitioning(false);
-          handleVideoError();
-        });
-      };
-
-      secondaryVideo.addEventListener('canplaythrough', onCanPlay);
-    }
-  }, []);
-
   const playVideo = useCallback((videoPath) => {
     if (!videoRef.current) return;
     
@@ -237,10 +107,36 @@ const SignToAnimationScreen = () => {
       clearTimeout(sequenceTimeoutRef.current);
     }
     
-    createSmoothTransition(videoPath, () => {
-      console.log('Video started playing:', videoPath);
-    });
-  }, [createSmoothTransition]);
+    setIsTransitioning(true);
+    const video = videoRef.current;
+    
+    // Simple, direct video change
+    video.pause();
+    video.currentTime = 0;
+    
+    // Smooth fade transition
+    video.style.opacity = '0.3';
+    
+    setTimeout(() => {
+      video.src = videoPath;
+      setCurrentVideo(videoPath);
+      
+      // When video is ready to play
+      const onCanPlay = () => {
+        video.removeEventListener('canplaythrough', onCanPlay);
+        video.style.opacity = '1';
+        setIsTransitioning(false);
+        
+        video.play().catch(error => {
+          console.error('Video play error:', error);
+          handleVideoError();
+        });
+      };
+      
+      video.addEventListener('canplaythrough', onCanPlay);
+    }, 100); // Quick transition
+    
+  }, []);
 
   // ========================
   // SEQUENCE MANAGEMENT
@@ -253,13 +149,10 @@ const SignToAnimationScreen = () => {
     setCurrentSequenceIndex(0);
     setError('');
     
-    // Preload sequence videos for smoother playback
-    await preloadSequenceVideos(words);
-    
     // Start with first video
     const firstWord = formatWord(words[0]);
     playVideo(`/sign_videos/${firstWord}.mp4`);
-  }, [playingSequence, preloadSequenceVideos, playVideo]);
+  }, [playingSequence, playVideo]);
 
   const playNextInSequence = useCallback(() => {
     const nextIndex = currentSequenceIndex + 1;
@@ -271,10 +164,10 @@ const SignToAnimationScreen = () => {
       setCurrentSequenceIndex(0);
       setInputWord('');
       
-      // Return to regular video with delay
+      // Return to regular video
       sequenceTimeoutRef.current = setTimeout(() => {
         playVideo('/sign_videos/Regular.mp4');
-      }, isMobile() ? 300 : 500);
+      }, 300);
       
       return;
     }
@@ -283,11 +176,9 @@ const SignToAnimationScreen = () => {
     setCurrentSequenceIndex(nextIndex);
     const nextWord = formatWord(sequenceWords[nextIndex]);
     
-    // Optimized delay for mobile
-    const delay = isMobile() ? MOBILE_SETTINGS.transitionDelay : 200;
     sequenceTimeoutRef.current = setTimeout(() => {
       playVideo(`/sign_videos/${nextWord}.mp4`);
-    }, delay);
+    }, 150); // Quick transition between sequence videos
   }, [currentSequenceIndex, sequenceWords, playVideo]);
 
   const returnToRegular = useCallback(() => {
@@ -302,7 +193,7 @@ const SignToAnimationScreen = () => {
     
     sequenceTimeoutRef.current = setTimeout(() => {
       playVideo('/sign_videos/Regular.mp4');
-    }, 400);
+    }, 200);
   }, [playVideo]);
 
   // ========================
@@ -508,15 +399,9 @@ const SignToAnimationScreen = () => {
     
     // Start with regular video
     playVideo('/sign_videos/Regular.mp4');
-    
-    // Preload common videos
-    const commonVideos = ['Regular.mp4', 'Hello.mp4', 'Thank_you.mp4'];
-    commonVideos.forEach(video => {
-      preloadVideo(`/sign_videos/${video}`).catch(console.warn);
-    });
-  }, [playVideo, preloadVideo]);
+  }, [playVideo]);
 
-  // Setup video event listeners with optimized handlers
+  // Setup video event listeners
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -524,13 +409,6 @@ const SignToAnimationScreen = () => {
     video.addEventListener('ended', handleVideoEnd);
     video.addEventListener('error', handleVideoError);
     video.addEventListener('canplaythrough', handleVideoCanPlay);
-    
-    // Mobile-specific optimizations
-    if (isMobile()) {
-      video.addEventListener('loadstart', () => {
-        video.playbackRate = 1.0; // Ensure normal speed
-      });
-    }
 
     return () => {
       video.removeEventListener('ended', handleVideoEnd);
@@ -545,8 +423,6 @@ const SignToAnimationScreen = () => {
       if (sequenceTimeoutRef.current) {
         clearTimeout(sequenceTimeoutRef.current);
       }
-      // Clear preload cache
-      preloadCacheRef.current.clear();
     };
   }, []);
 
@@ -562,6 +438,16 @@ const SignToAnimationScreen = () => {
       : "Start voice input";
 
   const isButtonDisabled = isLoading || isListening || playingSequence || isTransitioning;
+
+  // ========================
+  // MOBILE MICROPHONE BUTTON STYLES
+  // ========================
+  const MicButtonMobile = isMobile() ? {
+    padding: '6px', // הקטנת הפדינג
+    minWidth: '32px', // גודל מינימלי קטן יותר
+    height: '32px', // גובה קטן יותר
+    fontSize: '14px' // גודל אייקון קטן יותר
+  } : {};
 
   // ========================
   // RENDER
@@ -590,31 +476,10 @@ const SignToAnimationScreen = () => {
               controlsList="nodownload noplaybackrate nofullscreen"
               preload="auto"
               style={{
-                transition: 'opacity 0.2s ease-in-out',
-                opacity: isTransitioning ? 0.7 : 1
+                transition: 'opacity 0.15s ease-out', // מעבר חלק וקצר יותר
+                opacity: isTransitioning ? 0.3 : 1
               }}
             />
-            {/* Secondary video for smooth transitions (desktop only) */}
-            {!isMobile() && (
-              <Video
-                ref={secondaryVideoRef}
-                muted
-                playsInline
-                disablePictureInPicture
-                controlsList="nodownload noplaybackrate nofullscreen"
-                preload="auto"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                  transition: 'opacity 0.2s ease-in-out',
-                  pointerEvents: 'none'
-                }}
-              />
-            )}
           </VideoContainer>
         </ContentContainer>
       </TopSection>
@@ -660,7 +525,7 @@ const SignToAnimationScreen = () => {
                 ))}
               </datalist>
               
-              {/* Microphone Button */}
+              {/* Microphone Button - מותאם לנייד */}
               <MicButton
                 type="button"
                 onClick={handleMicClick}
@@ -668,8 +533,12 @@ const SignToAnimationScreen = () => {
                 title={micButtonTitle}
                 isListening={isListening}
                 speechSupported={speechSupported}
+                style={MicButtonMobile} // החלת סטיילים לנייד
               >
-                {isListening ? <FiMicOff size={18} /> : <FiMic size={18} />}
+                {isListening ? 
+                  <FiMicOff size={isMobile() ? 14 : 18} /> : 
+                  <FiMic size={isMobile() ? 14 : 18} />
+                }
               </MicButton>
             </InputWrapper>
             
