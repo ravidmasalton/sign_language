@@ -431,19 +431,25 @@ export const Input = styled.input`
 // BUTTON COMPONENTS
 // ========================
 
+// MicButton - עגול מושלם עם חיזוק נוסף
+
 export const MicButton = styled.button`
   width: 32px;
   height: 32px;
+  min-width: 32px;       // ← מבטיח שהרוחב לא יקטן
+  min-height: 32px;      // ← מבטיח שהגובה לא יקטן
+  max-width: 32px;       // ← מבטיח שהרוחב לא יגדל
+  max-height: 32px;      // ← מבטיח שהגובה לא יגדל
   background: ${props => 
     props.isListening 
-      ? 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'  /* כחול כשמקליט */
+      ? 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'
       : props.disabled
         ? '#e9ecef'
-        : 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'  /* כחול כשזמין */
+        : 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'
   };
   color: ${props => props.disabled ? '#6c757d' : 'white'};
   border: none;
-  border-radius: 50%;
+  border-radius: 50% !important;  // ← חיזוק עם !important
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   display: flex;
   align-items: center;
@@ -454,14 +460,18 @@ export const MicButton = styled.button`
     props.disabled 
       ? 'none'
       : props.isListening
-        ? '0 3px 12px rgba(0, 123, 255, 0.4)'  /* צל כחול כשמקליט */
-        : '0 2px 6px rgba(0, 123, 255, 0.3)'   /* צל כחול רגיל */
+        ? '0 3px 12px rgba(0, 123, 255, 0.4)'
+        : '0 2px 6px rgba(0, 123, 255, 0.3)'
   };
   position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
+  padding: 0;              // ← הסרת padding שיכול להפריע
+  margin: 0;               // ← הסרת margin שיכול להפריע
+  box-sizing: border-box;  // ← התבהה שהגודל כולל את הborder
+  overflow: hidden;        // ← מבטיח שהתוכן לא יחרוג
   
   ${props => props.isListening && css`
     animation: ${micPulse} 1.5s ease-in-out infinite;
@@ -469,7 +479,7 @@ export const MicButton = styled.button`
   
   &:hover:not(:disabled) {
     transform: translateY(-50%) scale(1.1);
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);  /* כחול כהה יותר בהובר */
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
     box-shadow: ${props => 
       props.isListening
         ? '0 4px 16px rgba(0, 123, 255, 0.5)'
@@ -481,39 +491,55 @@ export const MicButton = styled.button`
     transform: translateY(-50%) scale(0.95);
   }
   
+  /* גדלים עגולים מושלמים לנייד */
   @media (max-width: 768px) {
-    width: 20px;
-    height: 20px;
-    font-size: 0.6rem;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    max-width: 28px;
+    max-height: 28px;
+    font-size: 0.7rem;
     right: 8px;
+    border-radius: 50% !important;  // חיזוק נוסף
     
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
     }
   }
   
   @media (max-width: 480px) {
-    width: 18px;
-    height: 18px;
-    font-size: 0.55rem;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    max-width: 26px;
+    max-height: 26px;
+    font-size: 0.65rem;
     right: 7px;
+    border-radius: 50% !important;  // חיזוק נוסף
     
     svg {
-      width: 12px;
-      height: 12px;
+      width: 15px;
+      height: 15px;
     }
   }
   
   @media (max-width: 360px) {
-    width: 16px;
-    height: 16px;
-    font-size: 0.5rem;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    font-size: 0.6rem;
     right: 6px;
+    border-radius: 50% !important;  // חיזוק נוסף
     
     svg {
-      width: 11px;
-      height: 11px;
+      width: 14px;
+      height: 14px;
     }
   }
 `;
