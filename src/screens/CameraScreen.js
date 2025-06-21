@@ -1,6 +1,7 @@
 // CameraScreen.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as tf from '@tensorflow/tfjs';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   ModernCameraContainer,
   MainLayout,
@@ -20,10 +21,11 @@ import {
   TranslationContent,
   TranslationText,
   InlineButton,
-  ButtonIcon
 } from './CameraStyles';
 
 const Sign_language_recognition = () => {
+  const { threshold } = useTheme(); // Get threshold from theme context
+  
   // Refs
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -36,25 +38,17 @@ const Sign_language_recognition = () => {
   const [error, setError] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isMediaPipeLoaded, setIsMediaPipeLoaded] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
 
   const [currentPrediction, setCurrentPrediction] = useState({ word: '', confidence: 0 });
   const [sentence, setSentence] = useState([]);
-  const [sequenceBuffer, setSequenceBuffer] = useState([]);
   const [isCollecting, setIsCollecting] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
   const [cameraReady, setCameraReady] = useState(false);
   const isPredictionRunningRef = useRef(false);
   const isProcessingFrameRef = useRef(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [totalPredictions, setTotalPredictions] = useState(0);
 
-  // Mobile detection and focus handling
-  const isMobile = useCallback(() => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  }, []);
-
-  
+  // Internal sequence buffer for collecting frames
+  const sequenceBufferRef = useRef([]);
 
   // Constants
   const ACTIONS = React.useMemo(() => [
@@ -64,7 +58,6 @@ const Sign_language_recognition = () => {
     "tired","write","yes","you"
   ], []);
   const SEQ_LEN = 30;
-  const THRESHOLD = 0.7;
   const SMOOTH_WINDOW = 3;
   const EMA_ALPHA = 0.75;
 
@@ -133,6 +126,7 @@ const Sign_language_recognition = () => {
     });
     ctx.shadowBlur = 0;
   }, []);
+  
   const drawConnections = useCallback((ctx, landmarks, connections, color, lineWidth = 1.5) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
@@ -171,12 +165,11 @@ const Sign_language_recognition = () => {
     return [...pose, ...leftHand, ...rightHand];
   }, []);
 
-  // Prediction logic
+  // Prediction logic - Updated to use dynamic threshold
   const makePrediction = useCallback(async (buffer) => {
     if (!modelRef.current || !Array.isArray(buffer) || buffer.length !== SEQ_LEN || isPredictionRunningRef.current) return;
     try {
       isPredictionRunningRef.current = true;
-      setIsProcessing(true);
       const inputTensor = tf.tensor(buffer, [SEQ_LEN, 225], 'float32').expandDims(0);
       const resultTensor = modelRef.current.predict(inputTensor);
       const probabilities = await resultTensor.data();
@@ -184,8 +177,9 @@ const Sign_language_recognition = () => {
       const predictedClassIdx = tf.argMax(tf.tensor1d(probsEma)).dataSync()[0];
       const predSmooth = smootherRef.current.apply(predictedClassIdx);
       const confidence = probsEma[predSmooth];
-      setTotalPredictions(prev => prev + 1);
-      if (confidence > THRESHOLD) {
+      
+      // Use dynamic threshold from context instead of constant THRESHOLD
+      if (confidence > threshold) {
         const word = ACTIONS[predSmooth];
         setCurrentPrediction({ word, confidence, classIndex: predSmooth });
         setSentence(prev => {
@@ -197,25 +191,26 @@ const Sign_language_recognition = () => {
       } else {
         setCurrentPrediction({ word: ACTIONS[predSmooth], confidence, classIndex: predSmooth });
       }
+      
       inputTensor.dispose();
       if (Array.isArray(resultTensor)) {
         resultTensor.forEach(t => t.dispose());
       } else {
         resultTensor.dispose();
       }
-      setSequenceBuffer([]);
+      
+      sequenceBufferRef.current = [];
       setFrameCount(0);
       setIsCollecting(false);
     } catch (err) {
       setCurrentPrediction({ word: 'Error', confidence: 0, classIndex: -1 });
-      setSequenceBuffer([]);
+      sequenceBufferRef.current = [];
       setFrameCount(0);
       setIsCollecting(false);
     } finally {
       isPredictionRunningRef.current = false;
-      setIsProcessing(false);
     }
-  }, [ACTIONS]);
+  }, [ACTIONS, threshold]);
 
   // MediaPipe onResults
   const onResults = useCallback((results) => {
@@ -247,17 +242,15 @@ const Sign_language_recognition = () => {
       // collect keypoints & buffer
       const kp = extractKeypoints(results);
       if (kp !== null) {
-        setSequenceBuffer(prev => {
-          const newBuffer = [...prev, kp];
-          const bufferLength = newBuffer.length;
-          setIsCollecting(bufferLength < SEQ_LEN);
-          setFrameCount(bufferLength);
-          if (bufferLength === SEQ_LEN && !isPredictionRunningRef.current) {
-            const bufferCopy = newBuffer.map(frame => [...frame]);
-            makePrediction(bufferCopy);
-          }
-          return newBuffer;
-        });
+        sequenceBufferRef.current.push(kp);
+        const bufferLength = sequenceBufferRef.current.length;
+        setIsCollecting(bufferLength < SEQ_LEN);
+        setFrameCount(bufferLength);
+        
+        if (bufferLength === SEQ_LEN && !isPredictionRunningRef.current) {
+          const bufferCopy = sequenceBufferRef.current.map(frame => [...frame]);
+          makePrediction(bufferCopy);
+        }
       }
     } finally {
       isProcessingFrameRef.current = false;
@@ -323,14 +316,11 @@ const Sign_language_recognition = () => {
     const loadModel = async () => {
       if (modelRef.current) return;
       try {
-        setIsProcessing(true);
         const loadedModel = await tf.loadLayersModel('/tfjs_model/model.json');
         modelRef.current = loadedModel;
         setIsModelLoaded(true);
       } catch (err) {
         setError(`Model loading error: ${err.message}`);
-      } finally {
-        setIsProcessing(false);
       }
     };
     loadModel();
@@ -443,12 +433,11 @@ const Sign_language_recognition = () => {
   const clearSentence = () => {
     setSentence([]);
     setCurrentPrediction({ word: '', confidence: 0 });
-    setSequenceBuffer([]);
+    sequenceBufferRef.current = [];
     setIsCollecting(false);
     setFrameCount(0);
     isPredictionRunningRef.current = false;
     isProcessingFrameRef.current = false;
-    setTotalPredictions(0);
   };
 
   if (error) {
@@ -481,7 +470,7 @@ const Sign_language_recognition = () => {
           {/* Prediction Panel - Horizontal Layout */}
           <PredictionPanel>
             <PredictionHeader>
-              🔮 Prediction
+              Prediction
             </PredictionHeader>
             <PredictionDisplay>
               {currentPrediction.word
@@ -496,7 +485,7 @@ const Sign_language_recognition = () => {
           {/* Translation Panel */}
           <TranslationPanel>
             <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#6c757d', marginBottom: '4px' }}>
-              Translate
+              Translate (Threshold: {Math.round(threshold * 100)}%)
             </div>
             <TranslationContent>
               <TranslationText>
@@ -512,7 +501,6 @@ const Sign_language_recognition = () => {
             onClick={clearSentence}
             disabled={!isModelLoaded || !isMediaPipeLoaded}
           >
-            <ButtonIcon>🗑️</ButtonIcon>
            clear
           </InlineButton>
         </ControlsPanel>

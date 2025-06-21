@@ -1,38 +1,70 @@
+// VideoUploadScreen.js
 import React, { useState, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { FaCloudUploadAlt, FaSignLanguage, FaUser, FaVideo, FaCheck, FaTimes, FaSpinner, FaPlay, FaPause, FaCloud } from 'react-icons/fa';
 import { storage } from '../firebaseConfig';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-
-
-// Define animations
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
+import {
+  Container,
+  ContentWrapper,
+  Header,
+  Title,
+  TitleIcon,
+  Subtitle,
+  FormCard,
+  Form,
+  FormSection,
+  SectionTitle,
+  FileUploadArea,
+  UploadPlaceholder,
+  UploadIcon,
+  UploadText,
+  UploadHint,
+  VideoPreviewContainer,
+  VideoPreviewWrapper,
+  VideoPreview,
+  PlayButton,
+  VideoFileName,
+  VideoFileSize,
+  InputGroup,
+  InputLabel,
+  InputIcon,
+  Input,
+  ProgressContainer,
+  ProgressLabel,
+  ProgressBar,
+  ProgressFill,
+  DebugLogsContainer,
+  DebugLogItem,
+  ErrorMessage,
+  ErrorIcon,
+  ErrorText,
+  StatusMessage,
+  StatusIcon,
+  StatusText,
+  ResultsCard,
+  ResultsTitle,
+  ResultsGrid,
+  ResultItem,
+  ResultLabel,
+  ResultValue,
+  FileStructure,
+  FileStructureTitle,
+  FileStructureItem,
+  ButtonGroup,
+  Button,
+  SpinnerIcon,
+  HelpCard,
+  HelpTitle,
+  HelpText
+} from './VideoUploadStyles';
 
 /**
  * Upload video to Firebase Storage with progress tracking
  */
 const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress, addLog) => {
-  try {    // Validate input parameters
+  try {
+    // Validate input parameters
     if (!videoFile) {
       const error = 'Video file is required';
       addLog(`ERROR: Validation failed: ${error}`);
@@ -50,7 +82,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
     }
-      if (typeof onProgress !== 'function') {
+    
+    if (typeof onProgress !== 'function') {
       const error = 'Progress callback is required';
       addLog(`ERROR: Validation failed: ${error}`);
       return { success: false, error };
@@ -68,7 +101,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       addLog(`ERROR: Firebase error: ${error}`);
       return { success: false, error };
     }
-      // Validate video file properties
+    
+    // Validate video file properties
     if (!videoFile.size || videoFile.size === 0) {
       const error = 'Video file is empty or corrupted';
       addLog(`ERROR: File validation failed: ${error}`);
@@ -93,7 +127,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
     const filePath = `videos/${sanitizedGesture}/${fileName}`;
     
     addLog(`INFO: Creating file path: ${filePath}`);
-      // Create storage reference with error handling
+    
+    // Create storage reference with error handling
     let storageRef;
     try {
       storageRef = ref(storage, filePath);
@@ -120,7 +155,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       addLog(`ERROR: ${errorMsg}`);
       return { success: false, error: errorMsg };
     }
-      return new Promise((resolve, reject) => {
+    
+    return new Promise((resolve, reject) => {
       // Validate uploadTask before using it
       if (!uploadTask || typeof uploadTask.on !== 'function') {
         const error = 'Upload task is invalid';
@@ -147,7 +183,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               addLog(`WARNING: Total bytes is zero`);
               return;
             }
-              // Calculate progress percentage
+            
+            // Calculate progress percentage
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             
             // Validate progress callback before calling
@@ -179,7 +216,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               reject(new Error(error));
               return;
             }
-              // Get download URL with additional validation
+            
+            // Get download URL with additional validation
             let downloadURL;
             try {
               downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -216,7 +254,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
             
             addLog(`SUCCESS: Upload completed successfully! File: ${fileName}`);
             resolve(result);
-              } catch (error) {
+            
+          } catch (error) {
             const errorMsg = `Failed in completion handler: ${error.message}`;
             addLog(`ERROR: ${errorMsg}`);
             reject(error);
@@ -241,7 +280,6 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
  */
 const VideoUploadScreen = () => {
   const { theme: COLORS } = useTheme();
-  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
   
@@ -275,7 +313,8 @@ const VideoUploadScreen = () => {
         setVideoPreview('');
         return;
       }
-        setVideoFile(file);
+      
+      setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
       setErrorMessage('');
       setUploadResult(null);
@@ -295,7 +334,8 @@ const VideoUploadScreen = () => {
       setErrorMessage(error);
       return;
     }
-      if (!gesture.trim()) {
+    
+    if (!gesture.trim()) {
       const error = 'Please enter the gesture/sign name.';
       addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
@@ -366,7 +406,8 @@ const VideoUploadScreen = () => {
     setUploadProgress(0);
     setIsUploading(false);
     setDebugLogs([]);
-      // Clear the file input
+    
+    // Clear the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -386,11 +427,7 @@ const VideoUploadScreen = () => {
     }
   };
 
-  // Navigate back to home
-  const handleGoBack = () => {
-    navigate('/');
-  };
-
+  
   return (
     <Container backgroundColor={COLORS.background}>
       <ContentWrapper>
@@ -441,7 +478,8 @@ const VideoUploadScreen = () => {
                     <VideoPreviewWrapper>
                       <VideoPreview 
                         ref={videoRef}
-                        src={videoPreview}                        onPlay={() => {
+                        src={videoPreview}
+                        onPlay={() => {
                           setIsVideoPlaying(true);
                           addLog('INFO: Video started playing');
                         }}
@@ -608,7 +646,8 @@ const VideoUploadScreen = () => {
                     </ResultItem>
                   </ResultsGrid>
 
-                  {/* Firebase Structure Preview */}                  <FileStructure>
+                  {/* Firebase Structure Preview */}
+                  <FileStructure>
                     <FileStructureTitle color={COLORS.text}>SUCCESS: File saved to Firebase Storage:</FileStructureTitle>
                     <FileStructureItem color={COLORS.primary}>
                       Path: {uploadResult.filePath}
@@ -662,658 +701,27 @@ const VideoUploadScreen = () => {
         </FormCard>
 
         {/* Help Section */}
-       <HelpCard backgroundColor={COLORS.card} borderColor={COLORS.border}>
-        <HelpTitle color={COLORS.text}>How it works:</HelpTitle>
-        <HelpText color={COLORS.textSecondary}>
-          1. Choose a video from your device that shows a specific gesture
-        </HelpText>
-        <HelpText color={COLORS.textSecondary}>
-          2. Enter the name of the gesture you're demonstrating
-        </HelpText>
-        <HelpText color={COLORS.textSecondary}>
-          3. Add your name to be credited as a contributor
-        </HelpText>
-        <HelpText color={COLORS.textSecondary}>
-          4. Click upload – your video will be added to our training dataset
-        </HelpText>
-        <HelpText color={COLORS.textSecondary}>
-          5. By contributing, you help improve the accuracy of our gesture recognition model over time
-        </HelpText>
-      </HelpCard>
-
+        <HelpCard backgroundColor={COLORS.card} borderColor={COLORS.border}>
+          <HelpTitle color={COLORS.text}>How it works:</HelpTitle>
+          <HelpText color={COLORS.textSecondary}>
+            1. Choose a video from your device that shows a specific gesture
+          </HelpText>
+          <HelpText color={COLORS.textSecondary}>
+            2. Enter the name of the gesture you're demonstrating
+          </HelpText>
+          <HelpText color={COLORS.textSecondary}>
+            3. Add your name to be credited as a contributor
+          </HelpText>
+          <HelpText color={COLORS.textSecondary}>
+            4. Click upload – your video will be added to our training dataset
+          </HelpText>
+          <HelpText color={COLORS.textSecondary}>
+            5. By contributing, you help improve the accuracy of our gesture recognition model over time
+          </HelpText>
+        </HelpCard>
       </ContentWrapper>
     </Container>
   );
 };
-
-// Styled Components (same as before, keeping all styles)
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px;
-  background-color: ${props => props.backgroundColor};
-  min-height: 100%;
-  width: 100%;
-  
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-`;
-
-const ContentWrapper = styled.div`
-  width: 100%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  
-  @media (max-width: 768px) {
-    gap: 16px;
-  }
-`;
-
-const Header = styled.header`
-  text-align: center;
-  margin-bottom: 8px;
-  ${css`animation: ${fadeIn} 0.6s ease-out;`}
-  
-  @media (max-width: 768px) {
-    margin-bottom: 4px;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: ${props => props.color};
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-  }
-`;
-
-const TitleIcon = styled.span`
-  ${css`animation: ${pulse} 2s infinite;`}
-`;
-
-const Subtitle = styled.p`
-  font-size: 1.1rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-`;
-
-const FormCard = styled.div`
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  ${css`animation: ${slideIn} 0.6s ease-out;`}
-  
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  
-  @media (max-width: 768px) {
-    gap: 20px;
-  }
-`;
-
-const FormSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  
-  @media (max-width: 768px) {
-    gap: 12px;
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-bottom: 4px;
-  
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-  }
-`;
-
-const FileUploadArea = styled.div`
-  border: 2px dashed ${props => props.borderColor};
-  border-radius: 12px;
-  background-color: ${props => props.backgroundColor};
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    border-color: ${props => props.hasFile ? props.borderColor : props.theme.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-  
-  @media (max-width: 768px) {
-    padding: 16px;
-    min-height: 160px;
-  }
-`;
-
-const UploadPlaceholder = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  
-  @media (max-width: 768px) {
-    gap: 8px;
-  }
-`;
-
-const UploadIcon = styled.div`
-  color: ${props => props.theme.primary};
-  margin-bottom: 8px;
-  opacity: 0.8;
-  
-  @media (max-width: 768px) {
-    margin-bottom: 4px;
-  }
-`;
-
-const UploadText = styled.p`
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-`;
-
-const UploadHint = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-  }
-`;
-
-const VideoPreviewContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-`;
-
-const VideoPreviewWrapper = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const VideoPreview = styled.video`
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-  
-  @media (max-width: 768px) {
-    max-height: 200px;
-  }
-`;
-
-const PlayButton = styled.button`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0;
-  
-  ${VideoPreviewWrapper}:hover & {
-    opacity: 1;
-  }
-  
-  &:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-`;
-
-const VideoFileName = styled.p`
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const VideoFileSize = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-  }
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  
-  @media (max-width: 768px) {
-    gap: 6px;
-  }
-`;
-
-const InputLabel = styled.label`
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${props => props.color};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const InputIcon = styled.span`
-  color: ${props => props.theme.primary};
-`;
-
-const Input = styled.input`
-  font-size: 1rem;
-  padding: 12px 16px;
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
-  background-color: ${props => props.backgroundColor};
-  color: ${props => props.color};
-  transition: all 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.primary};
-    box-shadow: 0 0 0 2px ${props => props.theme.primaryLight};
-  }
-  
-  &::placeholder {
-    color: ${props => props.theme.textMuted};
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 10px 14px;
-  }
-`;
-
-const InputHint = styled.p`
-  font-size: 0.8rem;
-  color: ${props => props.color};
-  margin-top: -4px;
-  
-  @media (max-width: 768px) {
-    font-size: 0.75rem;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
-  
-  @media (max-width: 768px) {
-    padding: 10px 14px;
-  }
-`;
-
-const ErrorIcon = styled.span`
-  color: ${props => props.theme.error};
-`;
-
-const ErrorText = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-  }
-`;
-
-const StatusMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
-  
-  @media (max-width: 768px) {
-    padding: 10px 14px;
-  }
-`;
-
-const StatusIcon = styled.span`
-  color: ${props => props.color};
-`;
-
-const SpinnerIcon = styled.span`
-  color: ${props => props.theme.info};
-  ${css`animation: ${spin} 1s linear infinite;`}
-`;
-
-const StatusText = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-  }
-`;
-
-const ProgressContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const ProgressLabel = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  font-weight: 500;
-  
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-  }
-`;
-
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 12px;
-  background-color: ${props => props.theme.surface};
-  border-radius: 6px;
-  overflow: hidden;
-  
-  @media (max-width: 768px) {
-    height: 10px;
-  }
-`;
-
-const ProgressFill = styled.div`
-  width: ${props => props.width};
-  height: 100%;
-  background-color: ${props => props.backgroundColor};
-  border-radius: 6px;
-  transition: width 0.3s ease;
-`;
-
-const ResultsCard = styled.div`
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 8px;
-  padding: 16px;
-  ${css`animation: ${slideIn} 0.4s ease-out;`}
-  
-  @media (max-width: 768px) {
-    padding: 12px;
-  }
-`;
-
-const ResultsTitle = styled.h3`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-bottom: 12px;
-  }
-`;
-
-const ResultsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-`;
-
-const ResultItem = styled.div`
-  text-align: center;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-  
-  @media (max-width: 768px) {
-    padding: 6px;
-  }
-`;
-
-const ResultLabel = styled.p`
-  font-size: 0.8rem;
-  color: ${props => props.color};
-  margin-bottom: 4px;
-  
-  @media (max-width: 768px) {
-    font-size: 0.75rem;
-  }
-`;
-
-const ResultValue = styled.p`
-  font-size: 1rem;
-  font-weight: bold;
-  color: ${props => props.color};
-  font-family: 'Courier New', monospace;
-  word-break: break-all;
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-`;
-
-const FileStructure = styled.div`
-  background: rgba(0, 123, 255, 0.1);
-  border: 1px solid rgba(0, 123, 255, 0.3);
-  border-radius: 6px;
-  padding: 12px;
-  
-  @media (max-width: 768px) {
-    padding: 10px;
-  }
-`;
-
-const FileStructureTitle = styled.p`
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-bottom: 8px;
-  
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-  }
-`;
-
-const FileStructureItem = styled.p`
-  font-size: 0.8rem;
-  color: ${props => props.color};
-  font-family: 'Courier New', monospace;
-  margin-bottom: 4px;
-  word-break: break-all;
-  
-  @media (max-width: 768px) {
-    font-size: 0.75rem;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-  
-  @media (max-width: 768px) {
-    gap: 12px;
-    flex-direction: column;
-  }
-`;
-
-const Button = styled.button`
-  flex: 1;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 12px 20px;
-  border-radius: 8px;
-  border: ${props => props.borderColor ? `1px solid ${props.borderColor}` : 'none'};
-  background-color: ${props => props.backgroundColor};
-  color: ${props => props.color};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 10px 16px;
-  }
-`;
-
-const HelpCard = styled.div`
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 8px;
-  ${css`animation: ${slideIn} 0.8s ease-out;`}
-  
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-`;
-
-const HelpTitle = styled.h3`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: ${props => props.color};
-  margin-bottom: 12px;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-bottom: 10px;
-  }
-`;
-
-const HelpText = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.color};
-  margin-bottom: 8px;
-  position: relative;
-  padding-left: 16px;
-  
-  &:before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: ${props => props.theme.primary};
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-  }
-`;
-
-const DebugLogsContainer = styled.div`
-  background-color: ${props => props.backgroundColor};
-  border: 1px solid ${props => props.borderColor};
-  border-radius: 6px;
-  padding: 12px;
-  max-height: 200px;
-  overflow-y: auto;
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
-  
-  @media (max-width: 768px) {
-    max-height: 150px;
-    font-size: 0.75rem;
-  }
-`;
-
-const DebugLogItem = styled.div`
-  color: ${props => props.color};
-  margin-bottom: 4px;
-  word-wrap: break-word;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
 
 export default VideoUploadScreen;

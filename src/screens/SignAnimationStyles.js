@@ -482,8 +482,8 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     font-size: 0.6rem;
     right: 8px;
     
@@ -494,8 +494,8 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 480px) {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     font-size: 0.55rem;
     right: 7px;
     
@@ -506,8 +506,8 @@ export const MicButton = styled.button`
   }
   
   @media (max-width: 360px) {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     font-size: 0.5rem;
     right: 6px;
     
@@ -517,7 +517,6 @@ export const MicButton = styled.button`
     }
   }
 `;
-
 export const SearchButton = styled.button`
   display: flex;
   align-items: center;

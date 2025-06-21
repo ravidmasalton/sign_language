@@ -59,11 +59,22 @@ export const ThemeProvider = ({ children }) => {
     return storedPreference !== null ? JSON.parse(storedPreference) : prefersDarkMode;
   });
 
+  // Add threshold setting with default value of 0.7 (70%)
+  const [threshold, setThreshold] = useState(() => {
+    const storedThreshold = localStorage.getItem('recognitionThreshold');
+    return storedThreshold !== null ? parseFloat(storedThreshold) : 0.7;
+  });
+
   // Apply theme to body
   useEffect(() => {
     document.body.classList.toggle('dark-mode', isDarkMode);
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
+
+  // Save threshold to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('recognitionThreshold', threshold.toString());
+  }, [threshold]);
 
   // Listen for system preference changes
   useEffect(() => {
@@ -97,11 +108,23 @@ export const ThemeProvider = ({ children }) => {
     setIsDarkMode(prev => !prev);
   };
 
+  const updateThreshold = (newThreshold) => {
+    // Ensure threshold is between 0.1 and 1.0
+    const clampedThreshold = Math.max(0.1, Math.min(1.0, newThreshold));
+    setThreshold(clampedThreshold);
+  };
+
   // Choose theme based on dark mode setting
   const theme = isDarkMode ? darkTheme : lightTheme;
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme, theme }}>
+    <ThemeContext.Provider value={{ 
+      isDarkMode, 
+      toggleTheme, 
+      theme, 
+      threshold, 
+      updateThreshold 
+    }}>
       {children}
     </ThemeContext.Provider>
   );

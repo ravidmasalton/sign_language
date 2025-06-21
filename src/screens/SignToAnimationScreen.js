@@ -29,8 +29,7 @@ import {
 } from './SignAnimationStyles';
 
 /**
- * Component that displays sign language animations based on user input text
- * With Speech Recognition support and optimized video preloading
+ * Component that displays sign language animations - OPTIMIZED FOR SMOOTH PLAYBACK
  */
 const SignToAnimationScreen = () => {
   const { theme: COLORS } = useTheme();
@@ -39,9 +38,7 @@ const SignToAnimationScreen = () => {
   // STATE MANAGEMENT
   // ========================
   const [inputWord, setInputWord] = useState('');
-  const [currentWord, setCurrentWord] = useState('');
-  const [currentSentence, setCurrentSentence] = useState([]);
-  const [isSentenceMode, setIsSentenceMode] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState('/sign_videos/Regular.mp4');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -50,14 +47,23 @@ const SignToAnimationScreen = () => {
   const [speechSupported, setSpeechSupported] = useState(false);
   const [speechError, setSpeechError] = useState('');
   
-  // Video preloading states
-  const [preloadedVideos, setPreloadedVideos] = useState(new Map());
-  const [isPreloading, setIsPreloading] = useState(false);
+  // Sequence mode states
+  const [playingSequence, setPlayingSequence] = useState(false);
+  const [sequenceWords, setSequenceWords] = useState([]);
+  const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0);
+  
+  // Video optimization states
+  const [videoReady, setVideoReady] = useState(false);
+  const [preloadedVideos, setPreloadedVideos] = useState(new Set());
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Refs
   const videoRef = useRef(null);
+  const secondaryVideoRef = useRef(null); // For smooth transitions
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
+  const sequenceTimeoutRef = useRef(null);
+  const preloadCacheRef = useRef(new Map());
 
   // ========================
   // CONSTANTS
@@ -68,6 +74,14 @@ const SignToAnimationScreen = () => {
     "need", "no", "red", "sick", "son", "study", "tall", "thank you",
     "tired", "write", "yes", "you"
   ];
+
+  // Mobile optimization settings
+  const MOBILE_SETTINGS = {
+    preloadBuffer: 2, // Number of videos to preload ahead
+    transitionDelay: 100, // Shorter delay for mobile
+    videoQuality: 'auto', // Let browser decide
+    enableHardwareAcceleration: true
+  };
 
   // ========================
   // UTILITY FUNCTIONS
@@ -80,44 +94,26 @@ const SignToAnimationScreen = () => {
     return processedWord.charAt(0).toUpperCase() + processedWord.slice(1);
   };
 
-  const checkVideoExists = async (word) => {
-    const formattedWord = formatWord(word);
-    if (!formattedWord) return false;
-    
-    const originalWordLower = word.toLowerCase().trim();
-    const normalizedInput = originalWordLower.replace(/\s+/g, ' ');
-    
-    const isInList = AVAILABLE_WORDS.includes(normalizedInput) || 
+  const isWordAvailable = (word) => {
+    const normalizedInput = word.toLowerCase().trim().replace(/\s+/g, ' ');
+    return AVAILABLE_WORDS.includes(normalizedInput) || 
            AVAILABLE_WORDS.some(availableWord => 
              availableWord.toLowerCase().replace(/\s+/g, ' ') === normalizedInput
            );
-    
-    if (isInList) {
-      try {
-        const testUrl = `/sign_videos/${formattedWord}.mp4`;
-        const response = await fetch(testUrl, { method: 'HEAD' });
-        return response.ok;
-      } catch (error) {
-        console.error('Error checking file:', error);
-        return false;
-      }
-    }
-    
-    return false;
   };
 
-  const checkMultipleWordsExist = async (words) => {
-    const checks = await Promise.all(words.map(word => checkVideoExists(word)));
-    return checks;
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           window.innerWidth <= 768;
   };
 
   // ========================
-  // VIDEO PRELOADING FUNCTIONS
+  // VIDEO PRELOADING SYSTEM
   // ========================
-  const preloadVideo = (videoSrc) => {
+  const preloadVideo = useCallback((videoPath) => {
     return new Promise((resolve, reject) => {
-      if (preloadedVideos.has(videoSrc)) {
-        resolve(preloadedVideos.get(videoSrc));
+      if (preloadedVideos.has(videoPath) || preloadCacheRef.current.has(videoPath)) {
+        resolve(videoPath);
         return;
       }
 
@@ -125,129 +121,231 @@ const SignToAnimationScreen = () => {
       video.preload = 'auto';
       video.muted = true;
       
-      const handleCanPlayThrough = () => {
-        video.removeEventListener('canplaythrough', handleCanPlayThrough);
-        video.removeEventListener('error', handleError);
-        
-        setPreloadedVideos(prev => new Map(prev.set(videoSrc, video)));
-        resolve(video);
+      const onCanPlay = () => {
+        setPreloadedVideos(prev => new Set([...prev, videoPath]));
+        preloadCacheRef.current.set(videoPath, video);
+        video.removeEventListener('canplaythrough', onCanPlay);
+        video.removeEventListener('error', onError);
+        resolve(videoPath);
       };
-      
-      const handleError = () => {
-        video.removeEventListener('canplaythrough', handleCanPlayThrough);
-        video.removeEventListener('error', handleError);
-        reject(new Error(`Failed to preload ${videoSrc}`));
+
+      const onError = (error) => {
+        video.removeEventListener('canplaythrough', onCanPlay);
+        video.removeEventListener('error', onError);
+        console.warn(`Failed to preload video: ${videoPath}`, error);
+        reject(error);
       };
-      
-      video.addEventListener('canplaythrough', handleCanPlayThrough);
-      video.addEventListener('error', handleError);
-      video.src = videoSrc;
+
+      video.addEventListener('canplaythrough', onCanPlay);
+      video.addEventListener('error', onError);
+      video.src = videoPath;
     });
-  };
+  }, [preloadedVideos]);
 
-  const preloadMultipleVideos = async (words) => {
-    setIsPreloading(true);
-    const videoSources = words.map(word => `/sign_videos/${formatWord(word)}.mp4`);
-    
+  const preloadSequenceVideos = useCallback(async (words) => {
+    const videoPromises = words.map(word => {
+      const formattedWord = formatWord(word);
+      const videoPath = `/sign_videos/${formattedWord}.mp4`;
+      return preloadVideo(videoPath).catch(err => {
+        console.warn(`Failed to preload ${videoPath}:`, err);
+        return null;
+      });
+    });
+
     try {
-      const preloadPromises = videoSources.map(src => preloadVideo(src));
-      await Promise.all(preloadPromises);
-      console.log('Successfully preloaded all videos:', videoSources);
+      await Promise.allSettled(videoPromises);
+      console.log('Sequence videos preloaded');
     } catch (error) {
-      console.error('Error preloading videos:', error);
-    } finally {
-      setIsPreloading(false);
+      console.warn('Some videos failed to preload:', error);
     }
-  };
+  }, [preloadVideo]);
 
   // ========================
-  // OPTIMIZED VIDEO FUNCTIONS
+  // SMOOTH VIDEO TRANSITIONS
   // ========================
-  const playSequenceOfVideos = async (words) => {
+  const createSmoothTransition = useCallback((newVideoPath, callback) => {
+    if (!videoRef.current) return;
+
+    setIsTransitioning(true);
+    const mainVideo = videoRef.current;
+    
+    // For mobile, use immediate transition to avoid memory issues
+    if (isMobile()) {
+      mainVideo.pause();
+      mainVideo.currentTime = 0;
+      mainVideo.src = newVideoPath;
+      setCurrentVideo(newVideoPath);
+      
+      const playPromise = mainVideo.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsTransitioning(false);
+            callback?.();
+          })
+          .catch((error) => {
+            console.error('Mobile video play error:', error);
+            setIsTransitioning(false);
+            handleVideoError();
+          });
+      }
+      return;
+    }
+
+    // Desktop smooth transition
+    if (secondaryVideoRef.current) {
+      const secondaryVideo = secondaryVideoRef.current;
+      secondaryVideo.src = newVideoPath;
+      secondaryVideo.currentTime = 0;
+      
+      const onCanPlay = () => {
+        secondaryVideo.removeEventListener('canplaythrough', onCanPlay);
+        
+        // Fade out main video, fade in secondary
+        mainVideo.style.opacity = '0';
+        secondaryVideo.style.opacity = '1';
+        
+        secondaryVideo.play().then(() => {
+          // Swap videos
+          setTimeout(() => {
+            mainVideo.src = newVideoPath;
+            mainVideo.currentTime = 0;
+            mainVideo.style.opacity = '1';
+            secondaryVideo.style.opacity = '0';
+            secondaryVideo.pause();
+            
+            setCurrentVideo(newVideoPath);
+            setIsTransitioning(false);
+            callback?.();
+          }, 200);
+        }).catch(error => {
+          console.error('Secondary video play error:', error);
+          setIsTransitioning(false);
+          handleVideoError();
+        });
+      };
+
+      secondaryVideo.addEventListener('canplaythrough', onCanPlay);
+    }
+  }, []);
+
+  const playVideo = useCallback((videoPath) => {
     if (!videoRef.current) return;
     
-    // Preload all videos first
-    await preloadMultipleVideos(words);
-    
-    let currentIndex = 0;
-    
-    const playNextVideo = () => {
-      if (currentIndex >= words.length) {
-        setTimeout(() => {
-          setCurrentSentence([]);
-          setInputWord('');
-          setIsSentenceMode(false);
-          if (videoRef.current) {
-            videoRef.current.src = '/sign_videos/Regular.mp4';
-            videoRef.current.load();
-            videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-          }
-        }, 800);
-        return;
-      }
-      
-      const currentWord = words[currentIndex];
-      const videoSrc = `/sign_videos/${formatWord(currentWord)}.mp4`;
-      
-      // Use preloaded video if available
-      const preloadedVideo = preloadedVideos.get(videoSrc);
-      if (preloadedVideo) {
-        // Copy the preloaded video source to main video element
-        videoRef.current.src = videoSrc;
-        videoRef.current.currentTime = 0;
-        videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
-      } else {
-        // Fallback to regular loading
-        videoRef.current.src = videoSrc;
-        videoRef.current.load();
-        videoRef.current.play().catch(e => console.error("Error playing sequence video:", e));
-      }
-      
-      currentIndex++;
-    };
-    
-    playNextVideo();
-    
-    const handleVideoEnd = () => {
-      // Reduced delay since videos are preloaded
-      setTimeout(playNextVideo, 200);
-    };
-    
-    videoRef.current.addEventListener('ended', handleVideoEnd);
-    
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('ended', handleVideoEnd);
-      }
-    };
-  };
-
-  // ========================
-  // VIDEO EVENT HANDLERS
-  // ========================
-  const handleVideoClick = () => {
-    if (videoRef.current) {
-      if (videoRef.current.paused) {
-        videoRef.current.play().catch(e => console.error("Error playing video:", e));
-      } else {
-        videoRef.current.pause();
-      }
+    // Clear any pending sequence timeouts
+    if (sequenceTimeoutRef.current) {
+      clearTimeout(sequenceTimeoutRef.current);
     }
-  };
+    
+    createSmoothTransition(videoPath, () => {
+      console.log('Video started playing:', videoPath);
+    });
+  }, [createSmoothTransition]);
 
-  const handleVideoError = () => {
-    if (videoRef.current && !videoRef.current.src.includes('Regular.mp4')) {
-      videoRef.current.src = '/sign_videos/Regular.mp4';
-      videoRef.current.load();
-      videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
+  // ========================
+  // SEQUENCE MANAGEMENT
+  // ========================
+  const playSequence = useCallback(async (words) => {
+    if (!words.length || playingSequence) return;
+    
+    setPlayingSequence(true);
+    setSequenceWords(words);
+    setCurrentSequenceIndex(0);
+    setError('');
+    
+    // Preload sequence videos for smoother playback
+    await preloadSequenceVideos(words);
+    
+    // Start with first video
+    const firstWord = formatWord(words[0]);
+    playVideo(`/sign_videos/${firstWord}.mp4`);
+  }, [playingSequence, preloadSequenceVideos, playVideo]);
+
+  const playNextInSequence = useCallback(() => {
+    const nextIndex = currentSequenceIndex + 1;
+    
+    if (nextIndex >= sequenceWords.length) {
+      // Sequence finished
+      setPlayingSequence(false);
+      setSequenceWords([]);
+      setCurrentSequenceIndex(0);
+      setInputWord('');
+      
+      // Return to regular video with delay
+      sequenceTimeoutRef.current = setTimeout(() => {
+        playVideo('/sign_videos/Regular.mp4');
+      }, isMobile() ? 300 : 500);
+      
+      return;
     }
-    setError(`Video file not found`);
-  };
+    
+    // Play next video in sequence
+    setCurrentSequenceIndex(nextIndex);
+    const nextWord = formatWord(sequenceWords[nextIndex]);
+    
+    // Optimized delay for mobile
+    const delay = isMobile() ? MOBILE_SETTINGS.transitionDelay : 200;
+    sequenceTimeoutRef.current = setTimeout(() => {
+      playVideo(`/sign_videos/${nextWord}.mp4`);
+    }, delay);
+  }, [currentSequenceIndex, sequenceWords, playVideo]);
+
+  const returnToRegular = useCallback(() => {
+    if (sequenceTimeoutRef.current) {
+      clearTimeout(sequenceTimeoutRef.current);
+    }
+    
+    setPlayingSequence(false);
+    setSequenceWords([]);
+    setCurrentSequenceIndex(0);
+    setInputWord('');
+    
+    sequenceTimeoutRef.current = setTimeout(() => {
+      playVideo('/sign_videos/Regular.mp4');
+    }, 400);
+  }, [playVideo]);
 
   // ========================
-  // FORM & INPUT HANDLERS
+  // EVENT HANDLERS
   // ========================
-  const processVideoSubmission = async (inputText) => {
+  const handleVideoClick = useCallback(() => {
+    if (!videoRef.current || isTransitioning) return;
+    
+    const video = videoRef.current;
+    if (video.paused) {
+      video.play().catch(e => console.error("Error playing video:", e));
+    } else {
+      video.pause();
+    }
+  }, [isTransitioning]);
+
+  const handleVideoError = useCallback(() => {
+    console.error('Video error occurred');
+    setError('Video file not found');
+    setIsTransitioning(false);
+    
+    // Return to regular video on error
+    if (!currentVideo.includes('Regular.mp4')) {
+      setTimeout(() => playVideo('/sign_videos/Regular.mp4'), 500);
+    }
+  }, [currentVideo, playVideo]);
+
+  const handleVideoEnd = useCallback(() => {
+    if (playingSequence) {
+      playNextInSequence();
+    } else if (!currentVideo.includes('Regular.mp4')) {
+      returnToRegular();
+    }
+  }, [playingSequence, currentVideo, playNextInSequence, returnToRegular]);
+
+  const handleVideoCanPlay = useCallback(() => {
+    setVideoReady(true);
+  }, []);
+
+  // ========================
+  // FORM HANDLERS
+  // ========================
+  const processSubmission = useCallback(async (inputText) => {
     if (!inputText.trim()) {
       setError('Please enter a word or sentence');
       return;
@@ -257,108 +355,50 @@ const SignToAnimationScreen = () => {
     setError('');
     setSpeechError('');
     
+    // Stop any current sequence
+    if (sequenceTimeoutRef.current) {
+      clearTimeout(sequenceTimeoutRef.current);
+    }
+    setPlayingSequence(false);
+    
     const words = inputText.trim().split(/\s+/).filter(word => word.length > 0);
     
     if (words.length === 1) {
-      // Single word mode
-      const exists = await checkVideoExists(words[0]);
-      
-      if (exists) {
+      // Single word
+      if (isWordAvailable(words[0])) {
         const formattedWord = formatWord(words[0]);
-        const videoSrc = `/sign_videos/${formattedWord}.mp4`;
-        
-        setCurrentWord(words[0]);
-        setCurrentSentence([]);
-        setIsSentenceMode(false);
-        
-        if (videoRef.current) {
-          videoRef.current.pause();
-          videoRef.current.currentTime = 0;
-          
-          // Check if video is preloaded
-          const preloadedVideo = preloadedVideos.get(videoSrc);
-          if (preloadedVideo) {
-            videoRef.current.src = videoSrc;
-            videoRef.current.currentTime = 0;
-            setTimeout(() => {
-              if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
-                videoRef.current.play().catch(e => {
-                  console.error("Error playing video:", e);
-                  handleVideoError();
-                });
-              }
-            }, 50); // Reduced delay
-          } else {
-            // Preload single video for faster playback
-            try {
-              await preloadVideo(videoSrc);
-              videoRef.current.src = videoSrc;
-              videoRef.current.currentTime = 0;
-              setTimeout(() => {
-                if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
-                  videoRef.current.play().catch(e => {
-                    console.error("Error playing video:", e);
-                    handleVideoError();
-                  });
-                }
-              }, 50);
-            } catch (error) {
-              console.error("Error preloading single video:", error);
-              // Fallback to regular loading
-              videoRef.current.src = videoSrc;
-              videoRef.current.load();
-              setTimeout(() => {
-                if (videoRef.current && videoRef.current.src.includes(formattedWord)) {
-                  videoRef.current.play().catch(e => {
-                    console.error("Error playing video:", e);
-                    handleVideoError();
-                  });
-                }
-              }, 200);
-            }
-          }
-        }
+        playVideo(`/sign_videos/${formattedWord}.mp4`);
       } else {
-        setCurrentWord('');
-        setCurrentSentence([]);
-        setIsSentenceMode(false);
         setError(`No sign language animation found for "${words[0]}". Available words: ${AVAILABLE_WORDS.join(', ')}`);
       }
     } else {
-      // Multiple words - sentence mode
-      const existsArray = await checkMultipleWordsExist(words);
-      const missingWords = words.filter((word, index) => !existsArray[index]);
+      // Multiple words - check all exist
+      const missingWords = words.filter(word => !isWordAvailable(word));
       
       if (missingWords.length > 0) {
         setError(`Missing videos for: ${missingWords.join(', ')}. Available words: ${AVAILABLE_WORDS.join(', ')}`);
-        setCurrentWord('');
-        setCurrentSentence([]);
-        setIsSentenceMode(false);
       } else {
-        setCurrentSentence(words);
-        setCurrentWord('');
-        setIsSentenceMode(true);
-        
-        playSequenceOfVideos(words);
+        // Play sequence
+        await playSequence(words);
       }
     }
     
     setIsLoading(false);
-  };
+  }, [playVideo, playSequence]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    await processVideoSubmission(inputWord);
-  };
+    await processSubmission(inputWord);
+  }, [inputWord, processSubmission]);
 
   // ========================
   // SPEECH RECOGNITION
   // ========================
   const handleSpeechSubmit = useCallback(async (transcript) => {
-    await processVideoSubmission(transcript);
-  }, []);
+    await processSubmission(transcript);
+  }, [processSubmission]);
 
-  const handleMicClick = async () => {
+  const handleMicClick = useCallback(() => {
     if (!speechSupported) {
       setSpeechError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
       return;
@@ -381,7 +421,7 @@ const SignToAnimationScreen = () => {
         setSpeechError('Failed to start speech recognition. Please try again.');
       }
     }
-  };
+  }, [speechSupported, isListening]);
 
   // ========================
   // EFFECTS
@@ -466,70 +506,53 @@ const SignToAnimationScreen = () => {
       inputRef.current.focus();
     }
     
-    if (videoRef.current) {
-      videoRef.current.src = '/sign_videos/Regular.mp4';
-      videoRef.current.load();
-      videoRef.current.play().catch(e => console.error("Error playing Regular video:", e));
-    }
-  }, []);
+    // Start with regular video
+    playVideo('/sign_videos/Regular.mp4');
+    
+    // Preload common videos
+    const commonVideos = ['Regular.mp4', 'Hello.mp4', 'Thank_you.mp4'];
+    commonVideos.forEach(video => {
+      preloadVideo(`/sign_videos/${video}`).catch(console.warn);
+    });
+  }, [playVideo, preloadVideo]);
 
-  // Handle video end
+  // Setup video event listeners with optimized handlers
   useEffect(() => {
     const video = videoRef.current;
-    
-    const handleVideoEnd = () => {
-      if (!isSentenceMode && currentWord) {
-        setTimeout(() => {
-          setCurrentWord('');
-          setInputWord('');
-          if (video) {
-            video.pause();
-            video.currentTime = 0;
-            video.src = '/sign_videos/Regular.mp4';
-            video.load();
-            
-            setTimeout(() => {
-              if (video && video.src.includes('Regular')) {
-                video.play().catch(e => console.error("Error playing Regular video:", e));
-              }
-            }, 100);
-          }
-        }, 500);
-      }
-    };
+    if (!video) return;
 
-    if (video) {
-      video.addEventListener('ended', handleVideoEnd);
+    video.addEventListener('ended', handleVideoEnd);
+    video.addEventListener('error', handleVideoError);
+    video.addEventListener('canplaythrough', handleVideoCanPlay);
+    
+    // Mobile-specific optimizations
+    if (isMobile()) {
+      video.addEventListener('loadstart', () => {
+        video.playbackRate = 1.0; // Ensure normal speed
+      });
     }
 
     return () => {
-      if (video) {
-        video.removeEventListener('ended', handleVideoEnd);
-      }
+      video.removeEventListener('ended', handleVideoEnd);
+      video.removeEventListener('error', handleVideoError);
+      video.removeEventListener('canplaythrough', handleVideoCanPlay);
     };
-  }, [currentWord, isSentenceMode]);
+  }, [handleVideoEnd, handleVideoError, handleVideoCanPlay]);
 
-  // Cleanup preloaded videos on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      preloadedVideos.forEach(video => {
-        if (video) {
-          video.src = '';
-          video.load();
-        }
-      });
+      if (sequenceTimeoutRef.current) {
+        clearTimeout(sequenceTimeoutRef.current);
+      }
+      // Clear preload cache
+      preloadCacheRef.current.clear();
     };
   }, []);
 
   // ========================
   // COMPUTED VALUES
   // ========================
-  const videoSrc = isSentenceMode ? 
-    `/sign_videos/${formatWord(currentSentence[0])}.mp4` : 
-    currentWord ? 
-      `/sign_videos/${formatWord(currentWord)}.mp4` : 
-      '/sign_videos/Regular.mp4';
-
   const inputPlaceholder = isListening ? "Listening..." : "Enter a word or sentence...";
   
   const micButtonTitle = !speechSupported 
@@ -537,6 +560,8 @@ const SignToAnimationScreen = () => {
     : isListening 
       ? "Stop listening"
       : "Start voice input";
+
+  const isButtonDisabled = isLoading || isListening || playingSequence || isTransitioning;
 
   // ========================
   // RENDER
@@ -549,7 +574,7 @@ const SignToAnimationScreen = () => {
           <Title>Word to Sign Animation</Title>
           <Subtitle>
             Type a word or use voice input to see its sign language animation
-            {isPreloading && " (Preparing videos...)"}
+            {playingSequence && ` (Playing sequence: ${currentSequenceIndex + 1}/${sequenceWords.length})`}
           </Subtitle>
         </Header>
 
@@ -558,14 +583,38 @@ const SignToAnimationScreen = () => {
             <Video
               ref={videoRef}
               autoPlay
-              loop={!currentWord && !isSentenceMode}
+              loop={currentVideo.includes('Regular.mp4')}
               muted
               playsInline
               disablePictureInPicture
               controlsList="nodownload noplaybackrate nofullscreen"
-              src={videoSrc}
-              onError={handleVideoError}
+              preload="auto"
+              style={{
+                transition: 'opacity 0.2s ease-in-out',
+                opacity: isTransitioning ? 0.7 : 1
+              }}
             />
+            {/* Secondary video for smooth transitions (desktop only) */}
+            {!isMobile() && (
+              <Video
+                ref={secondaryVideoRef}
+                muted
+                playsInline
+                disablePictureInPicture
+                controlsList="nodownload noplaybackrate nofullscreen"
+                preload="auto"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                  pointerEvents: 'none'
+                }}
+              />
+            )}
           </VideoContainer>
         </ContentContainer>
       </TopSection>
@@ -602,7 +651,7 @@ const SignToAnimationScreen = () => {
                 placeholder={inputPlaceholder}
                 aria-label="Enter a word"
                 list="available-words"
-                disabled={isListening}
+                disabled={isListening || playingSequence || isTransitioning}
                 isListening={isListening}
               />
               <datalist id="available-words">
@@ -615,7 +664,7 @@ const SignToAnimationScreen = () => {
               <MicButton
                 type="button"
                 onClick={handleMicClick}
-                disabled={!speechSupported}
+                disabled={!speechSupported || playingSequence || isTransitioning}
                 title={micButtonTitle}
                 isListening={isListening}
                 speechSupported={speechSupported}
@@ -626,9 +675,9 @@ const SignToAnimationScreen = () => {
             
             <SearchButton
               type="submit"
-              disabled={isLoading || isListening || isPreloading}
+              disabled={isButtonDisabled}
             >
-              {isLoading || isPreloading ? (
+              {isLoading || isTransitioning ? (
                 <SpinningIcon><FiRefreshCw size={14} /></SpinningIcon>
               ) : (
                 'Send'
@@ -647,7 +696,17 @@ const SignToAnimationScreen = () => {
 
       {/* BOTTOM SECTION */}
       <BottomSection>
-        {/* Minimal footer space */}
+        {/* Loading indicator for video transitions */}
+        {isTransitioning && (
+          <div style={{ 
+            textAlign: 'center', 
+            color: COLORS.textSecondary,
+            fontSize: '0.875rem',
+            marginTop: '1rem'
+          }}>
+            Loading video...
+          </div>
+        )}
       </BottomSection>
     </Container>
   );
