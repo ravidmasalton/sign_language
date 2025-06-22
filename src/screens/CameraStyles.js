@@ -145,15 +145,16 @@ export const LoadingText = styled.div`
   }
 `;
 
-// Controls panel - MOBILE RESPONSIVE
+// Controls panel - MOBILE RESPONSIVE - COMPACT LAYOUT
 export const ControlsPanel = styled.div`
-  flex: 1; /* תופס את השטח הנותר */
-  min-height: 150px; /* גובה מינימלי */
+  flex: 1;
+  min-height: 150px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   flex-direction: column;
-  padding: 4px;
-  gap: 2px;
+  align-items: center; /* Center the content */
+  padding: 12px;
+  gap: 12px; /* Increased gap for better spacing */
   border-radius: 8px;
   box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.06);
   color: #212529;
@@ -161,41 +162,45 @@ export const ControlsPanel = styled.div`
   
   @media (max-width: 767px) {
     min-height: 120px;
-    padding: 3px;
-    gap: 1px;
+    padding: 8px;
+    gap: 8px;
     border-radius: 6px;
   }
 `;
 
-// Minimal prediction section
+// Compact prediction section with better grouping
 export const PredictionPanel = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 4px;
-  padding: 2px 4px;
+  border-radius: 8px;
+  padding: 8px 12px;
   color: white;
-  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  height: 24px;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px; /* Limit maximum width */
+  height: auto;
+  min-height: 44px; /* Better height for touch targets */
   flex-shrink: 0;
   
   @media (max-width: 767px) {
-    height: 22px;
-    padding: 1px 3px;
-    gap: 4px;
+    padding: 6px 10px;
+    gap: 8px;
+    min-height: 40px;
+    max-width: 100%; /* Full width on mobile */
   }
 `;
 
 export const PredictionHeader = styled.div`
-  font-size: 0.55rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   
   @media (max-width: 767px) {
-    font-size: 0.5rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -203,18 +208,18 @@ export const PredictionDisplay = styled.div`
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   color: white;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 1px 4px;
-  border-radius: 3px;
+  padding: 4px 8px;
+  border-radius: 6px;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex: 1;
   min-width: 0;
   
   @media (max-width: 767px) {
-    font-size: 0.55rem;
-    padding: 1px 3px;
+    font-size: 0.75rem;
+    padding: 3px 6px;
   }
 `;
 
@@ -229,24 +234,76 @@ export const BufferText = styled.div`
   }
 `;
 
-// Translation section - MOBILE RESPONSIVE
+// Larger, more prominent circular progress indicator
+export const CircularProgress = styled.div`
+  position: relative;
+  width: 48px; /* Increased from 28px */
+  height: 48px; /* Increased from 28px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  @media (max-width: 767px) {
+    width: 40px; /* Increased from 24px */
+    height: 40px; /* Increased from 24px */
+  }
+`;
+
+export const CircularProgressSvg = styled.svg`
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+`;
+
+export const CircularProgressBg = styled.circle`
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 3; /* Increased from 2 */
+`;
+
+export const CircularProgressBar = styled.circle`
+  fill: none;
+  stroke: ${props => props.$isActive ? '#4ade80' : 'rgba(255, 255, 255, 0.7)'};
+  stroke-width: 3; /* Increased from 2 */
+  stroke-linecap: round;
+  stroke-dasharray: ${props => props.$circumference};
+  stroke-dashoffset: ${props => props.$circumference - (props.$progress / 100) * props.$circumference};
+  /* Only transition color changes, not the progress bar filling */
+  transition: ${props => props.$isActive ? 'stroke 0.2s ease' : 'stroke-dashoffset 0.3s ease, stroke 0.2s ease'};
+`;
+
+export const CircularProgressText = styled.span`
+  position: absolute;
+  font-size: 0.7rem; /* Increased from 0.4rem */
+  font-weight: 600;
+  color: ${props => (props.$isActive ? '#4ade80' : 'rgba(255, 255, 255, 0.7)')};
+  
+  @media (max-width: 767px) {
+    font-size: 0.6rem; /* Increased from 0.35rem */
+  }
+`;
+
+// Translation section - MOBILE RESPONSIVE - MAIN PROMINENT ELEMENT
 export const TranslationPanel = styled.div`
   background: white;
-  border-radius: 6px;
-  padding: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  gap: 8px;
+  width: 100%;
+  max-width: 600px; /* Limit maximum width */
+  min-height: 80px;
   
   @media (max-width: 767px) {
-    padding: 3px;
-    gap: 1px;
-    border-radius: 4px;
+    padding: 10px;
+    gap: 6px;
+    border-radius: 8px;
+    max-width: 100%; /* Full width on mobile */
+    min-height: 70px;
   }
 `;
 
@@ -273,50 +330,52 @@ export const TranslationIcon = styled.span`
 
 export const TranslationText = styled.div`
   color: #212529;
-  font-size: 0.95rem;
+  font-size: 1rem; /* Slightly increased */
   font-weight: 500;
   word-wrap: break-word;
   line-height: 1.5;
   background: #f8f9fa;
-  border-radius: 6px;
-  padding: 5px;
+  border-radius: 8px;
+  padding: 12px;
   border: 1px solid #e9ecef;
-  min-height: 100px;
+  min-height: 60px;
   overflow-y: auto;
   text-align: left;
   display: flex;
   align-items: flex-start;
 
   @media (max-width: 767px) {
-    font-size: 0.85rem;
-    padding: 5px;
+    font-size: 0.9rem;
+    padding: 10px;
     line-height: 1.4;
-    min-height: 80px;
+    min-height: 50px;
   }
 `;
 
-// כפתור Clear - קטן יותר במובייל
+// Clear button - Properly sized and centered
 export const InlineButton = styled.button`
   background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
   color: white;
-  padding: 2px 6px;
+  padding: 8px 20px;
   border: none;
-  border-radius: 3px;
-  font-size: 0.55rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 6px;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2);
-  height: 18px;
-  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(255, 65, 108, 0.2);
+  min-height: 40px;
+  min-width: 100px;
+  max-width: 200px;
+  align-self: center; /* Center the button */
   
   &:hover { 
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(255, 65, 108, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 65, 108, 0.3);
   }
   
   &:active {
@@ -330,24 +389,19 @@ export const InlineButton = styled.button`
     box-shadow: none;
   }
   
-  /* כפתור קטן יותר במובייל */
   @media (max-width: 767px) {
-    height: 14px !important;
-    padding: 1px 3px !important;
-    font-size: 0.4rem !important;
-    gap: 0px !important;
-    border-radius: 2px !important;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    min-height: 36px;
+    min-width: 80px;
+    max-width: 150px;
+    gap: 4px;
+    border-radius: 6px;
     
     &:hover { 
-      transform: none !important; /* ביטול אפקטי hover במובייל */
-      box-shadow: 0 1px 2px rgba(255, 65, 108, 0.2) !important;
+      transform: none; /* Disable hover effects on mobile */
+      box-shadow: 0 2px 8px rgba(255, 65, 108, 0.2);
     }
-  }
-  
-  @media (max-width: 480px) {
-    height: 12px !important;
-    padding: 0px 2px !important;
-    font-size: 0.35rem !important;
   }
 `;
 

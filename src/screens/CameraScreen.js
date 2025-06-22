@@ -17,6 +17,11 @@ import {
   PredictionHeader,
   PredictionDisplay,
   BufferText,
+  CircularProgress,
+  CircularProgressSvg,
+  CircularProgressBg,
+  CircularProgressBar,
+  CircularProgressText,
   TranslationPanel,
   TranslationContent,
   TranslationText,
@@ -466,8 +471,7 @@ const Sign_language_recognition = () => {
         </CameraSection>
 
         {/* Controls Section - Bottom */}
-        <ControlsPanel>
-          {/* Prediction Panel - Horizontal Layout */}
+        <ControlsPanel>          {/* Prediction Panel - Horizontal Layout */}
           <PredictionPanel>
             <PredictionHeader>
               Prediction
@@ -476,10 +480,26 @@ const Sign_language_recognition = () => {
               {currentPrediction.word
                 ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
                 : 'Waiting...'}
-            </PredictionDisplay>
-            <BufferText $isActive={isCollecting}>
-              {frameCount}/{SEQ_LEN}
-            </BufferText>
+            </PredictionDisplay>            <CircularProgress>
+              <CircularProgressSvg>
+                <CircularProgressBg
+                  cx="50%"
+                  cy="50%"
+                  r="18"
+                />
+                <CircularProgressBar
+                  cx="50%"
+                  cy="50%"
+                  r="18"
+                  $circumference={2 * Math.PI * 18}
+                  $progress={(frameCount / SEQ_LEN) * 100}
+                  $isActive={isCollecting}
+                />
+              </CircularProgressSvg>
+              <CircularProgressText $isActive={isCollecting}>
+                {Math.round((frameCount / SEQ_LEN) * 100)}%
+              </CircularProgressText>
+            </CircularProgress>
           </PredictionPanel>
 
           {/* Translation Panel */}

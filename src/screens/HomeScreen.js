@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck, FaRocket, FaHeart } from 'react-icons/fa';
+import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck, FaRocket, FaHeart, FaUpload } from 'react-icons/fa';
 
 // Modern animations
 const fadeIn = keyframes`
@@ -180,17 +180,17 @@ const FeatureCard = styled.div`
   &:hover {
     transform: translateY(-4px); /* Reduced from -8px */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Reduced shadow */
+    background: rgba(255, 255, 255, 0.98); /* Ensure it stays visible */
     
     &::before {
       transform: scaleX(1);
     }
+    
+    ${props => props.primary && css`
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.2);
+      background: rgba(255, 255, 255, 0.98); /* Ensure primary card stays visible */
+    `}
   }
-  
-  ${props => props.primary && css`
-    &:hover {
-      animation: ${glow} 2s infinite;
-    }
-  `}
 
   @media (max-width: 768px) {
     padding: 1rem; /* Reduced from 1.5rem */
@@ -376,9 +376,7 @@ const HomeScreen = () => {
         <HeroSubtitle>
           Transform sign language gestures into words with cutting-edge AI technology
         </HeroSubtitle>
-      </HeroSection>
-
-      <FeaturesGrid>
+      </HeroSection>      <FeaturesGrid>
         <FeatureCard 
           primary
           COLORS={COLORS}
@@ -396,8 +394,22 @@ const HomeScreen = () => {
         
         <FeatureCard 
           COLORS={COLORS}
-          onClick={handleGoToWordToAnimation}
+          onClick={handleGoToVideoUpload}
           delay="0.3s"
+        >
+          <FeatureIconContainer COLORS={COLORS}>
+            <FaUpload />
+          </FeatureIconContainer>
+          <FeatureTitle COLORS={COLORS}>Upload Video</FeatureTitle>
+          <FeatureDescription COLORS={COLORS}>
+            Upload sign language videos to contribute to our training dataset and help improve recognition
+          </FeatureDescription>
+        </FeatureCard>
+        
+        <FeatureCard 
+          COLORS={COLORS}
+          onClick={handleGoToWordToAnimation}
+          delay="0.4s"
         >
           <FeatureIconContainer COLORS={COLORS}>
             <FaClosedCaptioning />
@@ -405,20 +417,6 @@ const HomeScreen = () => {
           <FeatureTitle COLORS={COLORS}>Word to Animation</FeatureTitle>
           <FeatureDescription COLORS={COLORS}>
             View beautiful sign language animations for words and sentences to learn and practice
-          </FeatureDescription>
-        </FeatureCard>
-        
-        <FeatureCard 
-          COLORS={COLORS}
-          onClick={handleGoToSettings}
-          delay="0.4s"
-        >
-          <FeatureIconContainer COLORS={COLORS}>
-            <FaCog />
-          </FeatureIconContainer>
-          <FeatureTitle COLORS={COLORS}>Customize Experience</FeatureTitle>
-          <FeatureDescription COLORS={COLORS}>
-            Personalize your settings, themes, and preferences for the best user experience
           </FeatureDescription>
         </FeatureCard>
       </FeaturesGrid>
