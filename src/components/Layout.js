@@ -5,6 +5,18 @@ import { useTheme } from '../contexts/ThemeContext';
 import { FaHome, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft, FaClosedCaptioning, FaCloudUploadAlt } from 'react-icons/fa';
 import { auth } from '../firebaseConfig';
 
+// Animation keyframes for mobile menu
+const slideInFromRight = keyframes`
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`;
+
 const Layout = ({ children }) => {
   const { theme: COLORS, isDarkMode, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -274,14 +286,20 @@ const Sidebar = styled.nav`
   background: ${props => props.backgroundColor};
   backdrop-filter: blur(20px);
   border-right: ${props => !props.isMobile ? `1px solid ${props.borderColor}` : 'none'};
+  border-left: ${props => props.isMobile ? `1px solid ${props.borderColor}` : 'none'};
   position: ${props => props.isMobile ? 'fixed' : 'sticky'};
   top: 0;
-  left: 0;
+  ${props => props.isMobile ? 'right: 0;' : 'left: 0;'}
   z-index: 1000;
   padding: ${props => props.isMobile ? '80px 0 0 0' : '32px 0'};
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: ${props => props.isMobile ? '0 0 40px rgba(0, 0, 0, 0.2)' : 'none'};
   overflow-y: auto;
+  
+  /* Add slide-in animation for mobile */
+  ${props => props.isMobile && props.isOpen && css`
+    animation: ${slideInFromRight} 0.3s ease-out;
+  `}
   
   /* Modern glassmorphism effect */
   background: ${props => props.isMobile ? 
