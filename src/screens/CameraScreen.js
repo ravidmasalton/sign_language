@@ -26,6 +26,16 @@ import {
   TranslationContent,
   TranslationText,
   InlineButton,
+  // New side-by-side layout components
+  SideBySideRow,
+  PredictionSide,
+  PredictionContent,
+  PredictionCircularProgress,
+  TranslationSide,
+  TranslationSideHeader,
+  TranslationSideText,
+  ClearButtonRow,
+  ClearButtonSideBySide,
 } from './CameraStyles';
 
 const Sign_language_recognition = () => {
@@ -59,7 +69,7 @@ const Sign_language_recognition = () => {
   const ACTIONS = React.useMemo(() => [
     "Bye","beautiful","bird","book","but","can","dad","dance","day",
     "deaf","drink","eat","enjoy","family","go","help","love","mom",
-    "need","no","red","sick","son","study","tall","thank you",
+    "need","no","red","sick","son","study","tall","thank",
     "tired","write","yes","you"
   ], []);
   const SEQ_LEN = 30;
@@ -189,7 +199,7 @@ const Sign_language_recognition = () => {
         setCurrentPrediction({ word, confidence, classIndex: predSmooth });
         setSentence(prev => {
           if (prev.length === 0 || prev[prev.length - 1] !== word) {
-            return [...prev, word].slice(-5);
+            return [...prev, word];
           }
           return prev;
         });
@@ -468,61 +478,61 @@ const Sign_language_recognition = () => {
               </LoadingOverlay>
             )}
           </VideoContainer>
-        </CameraSection>
+        </CameraSection>        {/* Controls Section - Bottom */}
+        <ControlsPanel>
+          {/* Side-by-Side Layout: Prediction + Translation */}
+          <SideBySideRow>
+            {/* Left Side - Prediction Panel */}
+            <PredictionSide>
+              <PredictionContent>
+                {currentPrediction.word
+                  ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
+                  : 'Waiting...'}
+              </PredictionContent>
+              <PredictionCircularProgress>
+                <CircularProgressSvg>
+                  <CircularProgressBg
+                    cx="50%"
+                    cy="50%"
+                    r="18"
+                  />
+                  <CircularProgressBar
+                    cx="50%"
+                    cy="50%"
+                    r="18"
+                    $circumference={2 * Math.PI * 18}
+                    $progress={(frameCount / SEQ_LEN) * 100}
+                    $isActive={isCollecting}
+                  />
+                </CircularProgressSvg>
+                <CircularProgressText $isActive={isCollecting}>
+                  {Math.round((frameCount / SEQ_LEN) * 100)}%
+                </CircularProgressText>
+              </PredictionCircularProgress>
+            </PredictionSide>
 
-        {/* Controls Section - Bottom */}
-        <ControlsPanel>          {/* Prediction Panel - Horizontal Layout */}
-          <PredictionPanel>
-            <PredictionHeader>
-              Prediction
-            </PredictionHeader>
-            <PredictionDisplay>
-              {currentPrediction.word
-                ? `${currentPrediction.word} (${(currentPrediction.confidence * 100).toFixed(1)}%)`
-                : 'Waiting...'}
-            </PredictionDisplay>            <CircularProgress>
-              <CircularProgressSvg>
-                <CircularProgressBg
-                  cx="50%"
-                  cy="50%"
-                  r="18"
-                />
-                <CircularProgressBar
-                  cx="50%"
-                  cy="50%"
-                  r="18"
-                  $circumference={2 * Math.PI * 18}
-                  $progress={(frameCount / SEQ_LEN) * 100}
-                  $isActive={isCollecting}
-                />
-              </CircularProgressSvg>
-              <CircularProgressText $isActive={isCollecting}>
-                {Math.round((frameCount / SEQ_LEN) * 100)}%
-              </CircularProgressText>
-            </CircularProgress>
-          </PredictionPanel>
-
-          {/* Translation Panel */}
-          <TranslationPanel>
-            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#6c757d', marginBottom: '4px' }}>
-              Translate (Threshold: {Math.round(threshold * 100)}%)
-            </div>
-            <TranslationContent>
-              <TranslationText>
+            {/* Right Side - Translation Panel */}
+            <TranslationSide>
+              <TranslationSideHeader>
+                Translation (Threshold: {Math.round(threshold * 100)}%)
+              </TranslationSideHeader>
+              <TranslationSideText>
                 {sentence.length > 0
                   ? sentence.join(' ')
                   : 'Make gestures to get translation...'}
-              </TranslationText>
-            </TranslationContent>
-          </TranslationPanel>
+              </TranslationSideText>
+            </TranslationSide>
+          </SideBySideRow>
 
-          {/* Clear Button */}
-          <InlineButton
-            onClick={clearSentence}
-            disabled={!isModelLoaded || !isMediaPipeLoaded}
-          >
-           clear
-          </InlineButton>
+          {/* Clear Button Row */}
+          <ClearButtonRow>
+            <ClearButtonSideBySide
+              onClick={clearSentence}
+              disabled={!isModelLoaded || !isMediaPipeLoaded}
+            >
+              clear
+            </ClearButtonSideBySide>
+          </ClearButtonRow>
         </ControlsPanel>
       </MainLayout>
     </ModernCameraContainer>
