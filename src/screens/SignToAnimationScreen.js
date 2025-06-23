@@ -438,15 +438,14 @@ const SignToAnimationScreen = () => {
       : "Start voice input";
 
   const isButtonDisabled = isLoading || isListening || playingSequence || isTransitioning;
-
   // ========================
   // MOBILE MICROPHONE BUTTON STYLES
   // ========================
   const MicButtonMobile = isMobile() ? {
-    padding: '6px', // הקטנת הפדינג
-    minWidth: '32px', // גודל מינימלי קטן יותר
-    height: '32px', // גובה קטן יותר
-    fontSize: '14px' // גודל אייקון קטן יותר
+    padding: '6px', // Reduced padding
+    minWidth: '32px', // Smaller minimum width
+    height: '32px', // Smaller height
+    fontSize: '14px' // Smaller icon size
   } : {};
 
   // ========================
@@ -474,9 +473,8 @@ const SignToAnimationScreen = () => {
               playsInline
               disablePictureInPicture
               controlsList="nodownload noplaybackrate nofullscreen"
-              preload="auto"
-              style={{
-                transition: 'opacity 0.15s ease-out', // מעבר חלק וקצר יותר
+              preload="auto"              style={{
+                transition: 'opacity 0.15s ease-out', // Smooth and quick transition
                 opacity: isTransitioning ? 0.3 : 1
               }}
             />
@@ -524,8 +522,7 @@ const SignToAnimationScreen = () => {
                   <option key={word} value={word} />
                 ))}
               </datalist>
-              
-              {/* Microphone Button - מותאם לנייד */}
+                {/* Microphone Button - Mobile optimized */}
               <MicButton
                 type="button"
                 onClick={handleMicClick}
@@ -533,7 +530,7 @@ const SignToAnimationScreen = () => {
                 title={micButtonTitle}
                 isListening={isListening}
                 speechSupported={speechSupported}
-                style={MicButtonMobile} // החלת סטיילים לנייד
+                style={MicButtonMobile} // Apply mobile styles
               >
                 {isListening ? 
                   <FiMicOff size={isMobile() ? 14 : 18} /> : 

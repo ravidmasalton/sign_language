@@ -15,7 +15,7 @@ export const spin = keyframes`
   to   { transform: rotate(360deg); }
 `;
 
-// Main wrapper - מעודכן להצגת header
+// Main wrapper - Updated to display header
 export const ModernCameraContainer = styled.div`
   position: relative;
   width: 100%;
@@ -30,9 +30,9 @@ export const ModernCameraContainer = styled.div`
   box-sizing: border-box;
   ${css`animation: ${fadeIn} 0.4s ease-out;`}
   
-  /* עדכון למובייל - בלי להסתיר header */
+  /* Mobile update - showing header */
   @media (max-width: 767px) {
-    height: 100vh; /* השתמש בגובה מלא */
+    height: 100vh; /* Use full height */
     margin-top: 0;
     position: relative;
   }
@@ -56,7 +56,7 @@ export const MainLayout = styled.div`
 // Camera area - MOBILE RESPONSIVE
 export const CameraSection = styled.div`
   width: 100%;
-  height: 70vh; /* גובה קבוע יותר גמיש */
+  height: 70vh; /* Fixed height for flexibility */
   position: relative;
   overflow: hidden;
   background: #000;
@@ -65,7 +65,7 @@ export const CameraSection = styled.div`
   flex-shrink: 0;
   
   @media (max-width: 767px) {
-    height: 65vh; /* התאם לפי הצורך */
+    height: 65vh; /* Adjust as needed */
     border-radius: 6px;
   }
 `;

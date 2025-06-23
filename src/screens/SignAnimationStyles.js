@@ -360,9 +360,8 @@ export const SearchIcon = styled.div`
 export const Input = styled.input`
   width: 100%;
   padding: 14px 50px 14px 48px;
-  border: 2px solid rgba(0, 123, 255, 0.1);
-  border-radius: 24px;
-  font-size: 16px; /* חשוב! מינימום 16px כדי למנוע זום ב-iOS */
+  border: 2px solid rgba(0, 123, 255, 0.1);  border-radius: 24px;
+  font-size: 16px; /* Important! Minimum 16px to prevent zoom on iOS */
   background: ${props => props.isListening ? 'rgba(0, 123, 255, 0.1)' : 'rgba(255, 255, 255, 0.95)'};
   color: #2c3e50;
   min-height: 52px;
@@ -376,7 +375,7 @@ export const Input = styled.input`
     color: #adb5bd;
     font-style: italic;
     font-weight: 400;
-    font-size: 16px; /* חשוב! גם ה-placeholder חייב להיות 16px */
+    font-size: 16px; /* Important! Placeholder must also be 16px */
   }
   
   &:focus {
@@ -394,35 +393,33 @@ export const Input = styled.input`
     border-color: rgba(0, 123, 255, 0.2);
     color: #007bff;
   }
-  
-  /* במובייל - וודא שהגודל נשאר 16px */
+    /* On mobile - ensure font size stays at 16px */
   @media (max-width: 768px) {
-    font-size: 16px; /* חובה! */
+    font-size: 16px; /* Required! */
     padding: 12px 38px 12px 44px;
     min-height: 48px;
     
     &::placeholder {
-      font-size: 16px; /* חובה! */
+      font-size: 16px; /* Required! */
     }
   }
   
   @media (max-width: 480px) {
-    font-size: 16px; /* חובה! */
+    font-size: 16px; /* Required! */
     padding: 10px 34px 10px 40px;
     min-height: 44px;
     
     &::placeholder {
-      font-size: 16px; /* חובה! */
+      font-size: 16px; /* Required! */
     }
   }
-  
-  @media (max-width: 360px) {
-    font-size: 16px; /* חובה! */
+    @media (max-width: 360px) {
+    font-size: 16px; /* Required! */
     padding: 9px 30px 9px 38px;
     min-height: 42px;
     
     &::placeholder {
-      font-size: 16px; /* חובה! */
+      font-size: 16px; /* Required! */
     }
   }
 `;
@@ -431,25 +428,24 @@ export const Input = styled.input`
 // BUTTON COMPONENTS
 // ========================
 
-// MicButton - עגול מושלם עם חיזוק נוסף
+// MicButton - perfectly round with emphasis
 
 export const MicButton = styled.button`
   width: 32px;
   height: 32px;
-  min-width: 32px;       // ← מבטיח שהרוחב לא יקטן
-  min-height: 32px;      // ← מבטיח שהגובה לא יקטן
-  max-width: 32px;       // ← מבטיח שהרוחב לא יגדל
-  max-height: 32px;      // ← מבטיח שהגובה לא יגדל
+  min-width: 32px;       // Ensures width won't decrease
+  min-height: 32px;      // Ensures height won't decrease
+  max-width: 32px;       // Ensures width won't increase
+  max-height: 32px;      // Ensures height won't increase
   background: ${props => 
     props.isListening 
       ? 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'
       : props.disabled
         ? '#e9ecef'
-        : 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'
-  };
+        : 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)'  };
   color: ${props => props.disabled ? '#6c757d' : 'white'};
   border: none;
-  border-radius: 50% !important;  // ← חיזוק עם !important
+  border-radius: 50% !important;  // Enhanced with !important
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   display: flex;
   align-items: center;
@@ -468,10 +464,10 @@ export const MicButton = styled.button`
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  padding: 0;              // ← הסרת padding שיכול להפריע
-  margin: 0;               // ← הסרת margin שיכול להפריע
-  box-sizing: border-box;  // ← התבהה שהגודל כולל את הborder
-  overflow: hidden;        // ← מבטיח שהתוכן לא יחרוג
+  padding: 0;              // Removing padding that could interfere
+  margin: 0;               // Removing margin that could interfere
+  box-sizing: border-box;  // Size includes border
+  overflow: hidden;        // Ensures content doesn't overflow
   
   ${props => props.isListening && css`
     animation: ${micPulse} 1.5s ease-in-out infinite;
@@ -490,8 +486,7 @@ export const MicButton = styled.button`
   &:active:not(:disabled) {
     transform: translateY(-50%) scale(0.95);
   }
-  
-  /* גדלים עגולים מושלמים לנייד */
+    /* Perfect round sizes for mobile */
   @media (max-width: 768px) {
     width: 28px;
     height: 28px;
@@ -501,7 +496,7 @@ export const MicButton = styled.button`
     max-height: 28px;
     font-size: 0.7rem;
     right: 8px;
-    border-radius: 50% !important;  // חיזוק נוסף
+    border-radius: 50% !important;  // Additional enforcement
     
     svg {
       width: 16px;
@@ -514,11 +509,10 @@ export const MicButton = styled.button`
     height: 26px;
     min-width: 26px;
     min-height: 26px;
-    max-width: 26px;
-    max-height: 26px;
+    max-width: 26px;    max-height: 26px;
     font-size: 0.65rem;
     right: 7px;
-    border-radius: 50% !important;  // חיזוק נוסף
+    border-radius: 50% !important;  // Additional enforcement
     
     svg {
       width: 15px;
@@ -531,11 +525,10 @@ export const MicButton = styled.button`
     height: 24px;
     min-width: 24px;
     min-height: 24px;
-    max-width: 24px;
-    max-height: 24px;
+    max-width: 24px;    max-height: 24px;
     font-size: 0.6rem;
     right: 6px;
-    border-radius: 50% !important;  // חיזוק נוסף
+    border-radius: 50% !important;  // Additional enforcement
     
     svg {
       width: 14px;

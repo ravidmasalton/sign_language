@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck, FaRocket, FaHeart, FaUpload } from 'react-icons/fa';
+import { FaCamera, FaClosedCaptioning, FaCog, FaInfoCircle, FaCheck, FaRocket, FaUpload } from 'react-icons/fa';
 
 // Modern animations
 const fadeIn = keyframes`
@@ -337,11 +337,6 @@ const CTAText = styled.p`
   gap: 6px; /* Reduced from 0.5rem */
 `;
 
-const HeartIcon = styled(FaHeart)`
-  color: #f59e0b;
-  ${css`animation: ${pulse} 1.5s infinite;`}
-`;
-
 const HomeScreen = () => {
   const { theme: COLORS } = useTheme();
   const navigate = useNavigate();
@@ -456,10 +451,9 @@ const HomeScreen = () => {
               Explore word-to-animation feature to learn new signs
             </InfoItem>
           </InfoList>
-          
-          <CallToAction>
+            <CallToAction>
             <CTAText COLORS={COLORS}>
-              Made with <HeartIcon COLORS={COLORS} /> for the deaf and hard-of-hearing community
+              Made with care for the deaf and hard-of-hearing community
             </CTAText>
           </CallToAction>
         </InfoCard>

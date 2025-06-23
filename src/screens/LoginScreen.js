@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '../contexts/ThemeContext';
-import styled, { keyframes, css } from 'styled-components'; // הוספת css
+import styled, { keyframes, css } from 'styled-components'; // Added css import
 
 // Define keyframes at the top level
 const float = keyframes`
@@ -194,7 +194,7 @@ const InputGroup = styled.div`
 
 const Input = styled.input`
   width: 100%;
-  padding: 20px 50px 20px 20px;
+  padding: 20px 20px;
   border: 2px solid #e2e8f0;
   border-radius: 16px;
   font-size: 16px;
@@ -222,7 +222,7 @@ const Input = styled.input`
   }
 
   @media (max-width: 768px) {
-    padding: 18px 45px 18px 18px;
+    padding: 18px 18px;
     border-radius: 14px;
     min-height: 56px;
   }
@@ -248,24 +248,9 @@ const Label = styled.label`
   }
 `;
 
-const InputIcon = styled.div`
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 1.2rem;
-
-  @media (max-width: 768px) {
-    right: 18px;
-    font-size: 1.1rem;
-  }
-`;
-
 const ErrorMessage = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
   padding: 16px 20px;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -274,14 +259,7 @@ const ErrorMessage = styled.div`
 
   @media (max-width: 768px) {
     padding: 14px 18px;
-    gap: 10px;
   }
-`;
-
-const ErrorIcon = styled.div`
-  color: #ef4444;
-  font-size: 1.2rem;
-  flex-shrink: 0;
 `;
 
 const ErrorText = styled.p`
@@ -513,10 +491,6 @@ const LoginScreen = () => {
     }
   };
 
-  const handleSocialLogin = (provider) => {
-    setError(`${provider} login coming soon!`);
-  };
-
   return (
     <LoginContainer COLORS={COLORS}>
       <FloatingCircle1 />
@@ -525,7 +499,10 @@ const LoginScreen = () => {
       
       <LoginCard>
         <Header>
-          <WaveIcon>👋</WaveIcon>
+          <WaveIcon>
+            {/* Wave hand icon */}
+            <span aria-hidden="true">👋</span>
+          </WaveIcon>
           <Title>Welcome Back</Title>
           <Subtitle>Sign in to continue your journey</Subtitle>
         </Header>
@@ -540,7 +517,6 @@ const LoginScreen = () => {
               disabled={isLoading}
             />
             <Label>Email Address</Label>
-            <InputIcon>📧</InputIcon>
           </InputGroup>
 
           <InputGroup>
@@ -551,12 +527,8 @@ const LoginScreen = () => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}            />
             <Label>Password</Label>
-            <InputIcon>Lock</InputIcon>
-          </InputGroup>
-
-          {error && (
+          </InputGroup>          {error && (
             <ErrorMessage>
-              <ErrorIcon>Warning</ErrorIcon>
               <ErrorText>{error}</ErrorText>
             </ErrorMessage>
           )}
@@ -570,30 +542,15 @@ const LoginScreen = () => {
                 </LoadingContainer>
               ) : (
                 <>
-                  <span>{isSignup ? 'Create' : 'Key'}</span>
                   {isSignup ? 'Create Account' : 'Sign In'}
                 </>
               )}
             </LoginButton>
 
             <SignupButton onClick={() => setIsSignup(!isSignup)} disabled={isLoading}>
-              <span>{isSignup ? 'User' : 'New'}</span>
               {isSignup ? 'Already have an account?' : 'Create new account'}
             </SignupButton>
-          </ButtonContainer>          <Divider>
-            <DividerText>Or continue with</DividerText>
-          </Divider>
-
-          <SocialButtonsGrid>
-            <SocialButton onClick={() => handleSocialLogin('Google')}>
-              <SocialIcon>G</SocialIcon>
-              Google
-            </SocialButton>
-            <SocialButton onClick={() => handleSocialLogin('Apple')}>
-              <SocialIcon>A</SocialIcon>
-              Apple
-            </SocialButton>
-          </SocialButtonsGrid>
+          </ButtonContainer>
         </FormContainer>
 
         <FooterText>

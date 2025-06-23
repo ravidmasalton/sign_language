@@ -68,7 +68,10 @@ const SettingsScreen = () => {
     <ModernContainer theme={theme}>
       <HeaderSection>
         <ModernTitle theme={theme}>
-          <TitleIcon>⚙️</TitleIcon>
+          <TitleIcon>
+            {/* Settings icon */}
+            <span aria-hidden="true">⚙️</span>
+          </TitleIcon>
           Settings
         </ModernTitle>
         <Subtitle theme={theme}>Customize your sign language recognition experience</Subtitle>
@@ -78,7 +81,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.1s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              🎨 Appearance
+              <span aria-hidden="true"></span> Appearance
             </GroupTitle>
             <GroupDescription theme={theme}>
               Customize the look and feel of your application
@@ -111,7 +114,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.15s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              🧠 Recognition Settings
+              <span aria-hidden="true"></span> Recognition Settings
             </GroupTitle>
             <GroupDescription theme={theme}>
               Adjust the accuracy threshold for sign language recognition
@@ -148,7 +151,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.2s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              👤 Account
+              <span aria-hidden="true"></span> Account
             </GroupTitle>
             <GroupDescription theme={theme}>
               Manage your account settings
@@ -173,7 +176,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.3s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              📋 Legal
+              <span aria-hidden="true"></span> Legal
             </GroupTitle>
             <GroupDescription theme={theme}>
               Learn more about policies and terms
@@ -214,7 +217,7 @@ const SettingsScreen = () => {
         </ModernSettingsGroup>
         
         <VersionBadge theme={theme}>
-          🚀 Version 1.0.0 • Built with modern React
+          <span aria-hidden="true"></span> Version 1.0.0 • Built with modern React
         </VersionBadge>
       </SettingsContainer>
       
@@ -222,7 +225,10 @@ const SettingsScreen = () => {
         <ModernModal>
           <ModalCard theme={theme}>
             <ModalHeader>
-              <ModalIcon>👋</ModalIcon>
+              <ModalIcon>
+                {/* Wave hand icon */}
+                <span aria-hidden="true">👋</span>
+              </ModalIcon>
               <ModalTitle theme={theme}>Confirm Logout</ModalTitle>
               <ModalMessage theme={theme}>
                 Are you sure you want to log out of your account?
