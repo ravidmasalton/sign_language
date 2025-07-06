@@ -253,21 +253,5 @@ This application is designed with accessibility in mind:
 - Offline mode for learning without internet connection
 - Gamification elements for sign language learning
 
-## Adding Screenshots to This README
-
-To add the actual screenshots to this README:
-
-1. Take screenshots of each main screen in the application
-2. Save the screenshots in a `/docs/images/` directory (create this if it doesn't exist)
-3. Update the image paths in this README to point to your actual images:
-   ```markdown
-   ![Home Screen](/docs/images/home-screen.png)
-   ```
-4. Consider adding alt text for accessibility:
-   ```markdown
-   ![Home Screen: Main dashboard with navigation tiles](/docs/images/home-screen.png)
-   ```
-5. Optimize images for web before adding (recommended size: 1280x720px or smaller)
-
 ## Contributing
 
