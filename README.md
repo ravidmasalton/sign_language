@@ -2,16 +2,81 @@
 
 A comprehensive React application for real-time sign language recognition, translation, and learning. This application leverages machine learning models and MediaPipe Holistic to process sign language gestures, offering an accessible platform for both users who want to learn sign language and those who wish to communicate through it.
 
-## Key Features
+## Main Features Overview
 
-- **Real-time Sign Language Recognition**: Translate sign language gestures to text using webcam input and machine learning
-- **Word to Sign Language Animation**: View accurate sign language animations for specific words or phrases
-- **Custom Video Upload & Processing**: Contribute to the training dataset by uploading sign language videos
-- **Secure User Authentication**: Firebase-based authentication for personalized user experience
-- **Adaptive UI with Light/Dark Mode**: Fully responsive design with theme customization
-- **Accessibility Optimizations**: Built with accessibility in mind for diverse user needs
-- **Mobile Connection**: Connect to mobile devices for expanded functionality
-- **Settings Customization**: Configure application preferences to suit individual needs
+### Home Screen
+![Home Screen](/public/image_screen/home.png)
+
+The Home Screen serves as the central hub of the application, providing intuitive navigation to all main features. Users are greeted with a clean, modern interface and clear options for sign language recognition, learning, and contribution.
+
+### Sign Language Recognition (Video to Word)
+![Video to Word](/public/image_screen/Video%20to%20Word.png)
+
+The Sign Language Recognition screen enables real-time translation of sign language gestures to text. Using the device camera and machine learning, users can communicate through sign language and have their gestures instantly translated into written words.
+
+### Sign Language Learning (Word to Animation)
+![Word to Animation](/public/image_screen/Word%20to%20Animation.png)
+
+The Word to Animation feature allows users to search for specific words or phrases and view the corresponding sign language animations. This is an essential tool for learning sign language, with high-quality animations and playback controls.
+
+### Video Upload & Contribution
+![Video Upload](/public/image_screen/Video%20Upload.png)
+
+The Video Upload screen allows users to contribute to the sign language dataset by recording and uploading their own sign language videos. This helps expand the dataset and improve the machine learning model's accuracy over time.
+
+## Detailed Feature Descriptions
+
+### Home Screen
+![Home Screen](/public/image_screen/home.png)
+
+The Home Screen is designed with user experience in mind, featuring:
+
+- **Modern Interface**: A clean, visually appealing design with intuitive navigation
+- **Quick Access Tiles**: Large, easy-to-tap tiles for accessing main features
+- **Gradient Background**: Soothing purple gradient that provides visual appeal
+- **Animated Elements**: Subtle animations that enhance the user experience
+- **Responsive Design**: Adapts seamlessly to different screen sizes
+
+The home screen establishes the application's design language with its gradient backgrounds, floating cards, and accessibility-focused UI elements. Users can quickly access Sign Language Recognition, Word to Animation, Video Upload, and Settings from this central hub. The modern, minimalist design ensures that users can navigate to their desired feature without confusion.
+
+### Sign Language Recognition (Video to Word)
+![Video to Word](/public/image_screen/Video%20to%20Word.png)
+
+The Sign Language Recognition screen transforms sign language into text through:
+
+- **Real-time Camera Feed**: Shows user's gestures with overlay of detected keypoints
+- **Live Recognition**: Displays recognized signs with confidence percentages
+- **Accumulated Text**: Builds sentences from recognized signs
+- **Adjustable Settings**: Controls for detection sensitivity and other parameters
+- **Clear Visual Feedback**: Color-coded confidence indicators and smooth animations
+
+This feature utilizes MediaPipe Holistic to extract 225-dimensional keypoint vectors from the user's hands, face, and pose. These keypoints are processed through a TensorFlow.js model that predicts the sign being performed. The system is designed to work in various lighting conditions and can recognize a vocabulary of 30 common signs. As users perform signs, the system displays the detected sign along with a confidence score, and allows building sentences by accumulating recognized words.
+
+### Sign Language Learning (Word to Animation)
+![Word to Animation](/public/image_screen/Word%20to%20Animation.png)
+
+The Word to Animation screen facilitates learning through:
+
+- **Word Search**: Input field to find specific words or phrases
+- **High-quality Animations**: Clear, professional sign language demonstrations
+- **Playback Controls**: Play, pause, slow-motion, and loop options
+- **Voice Input**: Option to speak words for signing demonstration
+- **Sequence Mode**: Create and play sequences of signs to form sentences
+
+This feature serves as a learning tool for those wanting to learn sign language. Users can type a word or use voice input to search for signs. The application then displays high-quality video animations demonstrating the correct sign. Users can play, pause, and replay the animations as needed. The sequence mode allows users to create sentences by chaining multiple signs together, which is particularly useful for learning conversational sign language. The clean interface ensures that users can focus on the animations without distraction.
+
+### Video Upload & Contribution
+![Video Upload](/public/image_screen/Video%20Upload.png)
+
+The Video Upload screen empowers users to contribute through:
+
+- **Drag-and-Drop Interface**: Easy upload of sign language videos
+- **Metadata Form**: Fields for categorizing and describing the uploaded sign
+- **Preview Functionality**: Review uploaded content before processing
+- **Processing Status**: Visual indicators of upload and processing progress
+- **Contribution History**: Record of previous uploads and their impact
+
+This collaborative feature allows the community to contribute to the sign language dataset, which in turn improves the model's recognition capabilities. Users can upload videos of themselves performing signs, specify the gesture name and contributor information, and preview the video before submission. The system processes these videos to extract keypoints using MediaPipe Holistic, which are then stored for potential model retraining. Progress indicators keep users informed throughout the upload and processing stages, creating a transparent and engaging contribution experience.
 
 ## Technical Implementation
 
@@ -187,4 +252,22 @@ This application is designed with accessibility in mind:
 - Real-time video chat with sign language translation
 - Offline mode for learning without internet connection
 - Gamification elements for sign language learning
+
+## Adding Screenshots to This README
+
+To add the actual screenshots to this README:
+
+1. Take screenshots of each main screen in the application
+2. Save the screenshots in a `/docs/images/` directory (create this if it doesn't exist)
+3. Update the image paths in this README to point to your actual images:
+   ```markdown
+   ![Home Screen](/docs/images/home-screen.png)
+   ```
+4. Consider adding alt text for accessibility:
+   ```markdown
+   ![Home Screen: Main dashboard with navigation tiles](/docs/images/home-screen.png)
+   ```
+5. Optimize images for web before adding (recommended size: 1280x720px or smaller)
+
+## Contributing
 
