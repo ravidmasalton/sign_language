@@ -1,700 +1,348 @@
 # Sign Language Recognition & Translation App
 
-![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=white)
-![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-3.12-FF6F00?style=flat&logo=tensorflow&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-9-FFCA28?style=flat&logo=firebase&logoColor=black)
+![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=flat&logo=react&logoColor=white)
+![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-4.22.0-FF6F00?style=flat&logo=tensorflow&logoColor=white)
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-0.8-00F0FF?style=flat)
+![Firebase](https://img.shields.io/badge/Firebase-11.8.1-FFCA28?style=flat&logo=firebase&logoColor=black)
 
-A React application for real-time sign language recognition and learning, leveraging TensorFlow.js and MediaPipe Holistic to process sign language gestures.
+A React-based application for real-time American Sign Language (ASL) recognition and learning, utilizing computer vision and machine learning technologies to bridge communication barriers.
 
-![Home Screen](/public/image_screen/home.png)
+<p align="center">
+  <img src="/public/image_screen/home.png" alt="Sign Language App Home Screen" width="700"/>
+</p>
 
 ## Table of Contents
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [ML Pipeline & Dataset](#ml-pipeline--dataset)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Project Overview](#project-overview)
+- [Features & Application Screens](#features--application-screens)
+  - [Home Screen](#home-screen)
+  - [Sign Language Recognition](#sign-language-recognition-video-to-word)
+  - [Sign Language Learning](#sign-language-learning-word-to-animation)
+  - [Video Upload & Dataset Contribution](#video-upload--dataset-contribution)
+- [Supported Vocabulary](#supported-vocabulary)
+- [Technical Implementation](#technical-implementation)
+  - [Technology Stack](#technology-stack)
+  - [Machine Learning Pipeline](#machine-learning-pipeline)
+  - [Model Development](#model-development)
 - [Project Structure](#project-structure)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+- [Installation & Setup](#installation--setup)
+- [Usage Instructions](#usage-instructions)
+- [Development Process](#development-process)
+- [Performance & Limitations](#performance--limitations)
+- [Contributing & Future Work](#contributing--future-work)
 - [License](#license)
 
-## Features
+## Project Overview
 
-### 🏠 Home Screen
+This project addresses the communication gap between deaf/hard-of-hearing individuals and the general population through a technological solution. The application leverages recent advancements in computer vision and machine learning to enable real-time American Sign Language (ASL) recognition and translation.
+
+### Problem Statement
+
+Communication barriers significantly impact the daily lives of approximately 70 million deaf people worldwide who use sign language as their primary means of communication. These barriers affect education, healthcare access, employment opportunities, and social interactions.
+
+### Solution Approach
+
+Our application implements a comprehensive approach to sign language accessibility through:
+
+1. **Real-time Recognition**: Converting sign language gestures to text through computer vision and machine learning
+2. **Educational Platform**: Providing resources for learning ASL through visual demonstrations
+3. **Community Contribution**: Enabling users to contribute to the dataset, improving model accuracy over time
+4. **Accessibility-First Design**: Creating an intuitive interface usable by both deaf and hearing individuals
+
+### Target Users
+
+- Deaf and hard-of-hearing individuals seeking to communicate with those unfamiliar with sign language
+- Hearing individuals looking to learn and practice ASL
+- Educational institutions teaching sign language
+- Organizations seeking to improve accessibility in their communication channels
+- Researchers in the fields of computer vision and accessibility technology
+
+### Impact on Accessibility
+
+This application aims to:
+- Reduce communication barriers in everyday interactions
+- Promote learning and adoption of sign language among the general population
+- Create a self-improving system through community contributions
+- Demonstrate the potential of AI technologies in addressing accessibility challenges
+
+## Features & Application Screens
+
+### Home Screen
 ![Home Screen](/public/image_screen/home.png)
 
-- Clean, modern interface with intuitive navigation
-- Gradient background with animated elements
-- Quick access buttons to all main features
+The Home Screen serves as the central navigation hub of the application, featuring:
+- Modern user interface with intuitive design principles
+- Gradient background with subtle animations for enhanced visual appeal
+- Quick access buttons to all primary features
+- Responsive layout adapting to various device dimensions
+- Clear visual hierarchy to guide user interactions
 
-### 🎥 Sign Language Recognition (Video to Word)
+### Sign Language Recognition (Video to Word)
 ![Video to Word](/public/image_screen/Video%20to%20Word.png)
 
-- Real-time sign language recognition using webcam
-- Recognition of 30 common signs in ASL
-- Live display of MediaPipe keypoints overlay
-- Text conversion with confidence scores
-- Accumulated text for building sentences
+The Sign Language Recognition screen enables real-time translation through:
+- Live camera feed with MediaPipe skeletal tracking overlay
+- Real-time sign language gesture recognition
+- Visual display of detected signs with corresponding confidence scores
+- Accumulation of recognized signs into coherent text output
+- Clear visual feedback during the recognition process
+- Optimal frame rate processing for smooth interaction
 
-### 📚 Sign Language Learning (Word to Animation)
+### Sign Language Learning (Word to Animation)
 ![Word to Animation](/public/image_screen/Word%20to%20Animation.png)
 
-- Search for specific words or phrases
-- High-quality sign language demonstration videos
-- Basic playback controls (play, pause, replay)
+The Sign Language Learning screen facilitates educational objectives through:
+- Searchable database of sign language demonstrations
+- High-quality video animations for each supported sign
+- Intuitive playback controls (play, pause, replay)
 - Visual word selection interface
+- Educational reference for proper sign execution
+- Consistent visual design with the application's aesthetic
 
-### 📤 Video Upload & Contribution
+### Video Upload & Dataset Contribution
 ![Video Upload](/public/image_screen/Video%20Upload.png)
 
-- Drag-and-drop interface for video uploads
-- Metadata form for categorizing uploads
-- Preview functionality before submission
-- Processing status indicators
-- Automatic extraction of keypoints for model training
-- **Authentication**: Firebase
-- **Storage**: Firebase Storage
+The Video Upload screen enables community contribution through:
+- Drag-and-drop interface for video submission
+- Metadata form for proper categorization of uploads
+- Preview functionality for verification before submission
+- Progress indicators during upload and processing
+- Automatic extraction of skeletal keypoints for model training
+- Contribution to the continuous improvement of the recognition model
 
-## Tech Stack
+## Supported Vocabulary
 
-- **Frontend**: React with hooks and Context API for state management
-- **ML/AI**: TensorFlow.js for in-browser inference, MediaPipe Holistic for keypoint extraction
-- **Authentication**: Firebase Authentication for user management
-- **Storage**: Firebase Storage for videos and processed data
-- **Video Processing**: Python scripts with OpenCV and MediaPipe
+The current implementation supports recognition of 30 common ASL signs:
 
-## ML Pipeline & Dataset
+"Bye", "beautiful", "bird", "book", "but", "can", "dad", "dance", "day", "deaf", "drink", "eat", "enjoy", "family", "go", "help", "love", "mom", "need", "no", "red", "sick", "son", "study", "tall", "thank", "tired", "write", "yes", "you"
 
-### Dataset (azure_data)
+This vocabulary was selected based on frequency analysis of common conversational signs and educational value for beginners learning ASL.
 
-The `azure_data/` folder contains essential components for model development:
+## Technical Implementation
 
-- **Jupyter Notebooks**: Sign language model development and training notebooks
-- **processed_keypoints/**: Extracted 225-dimensional vectors from sign language videos using MediaPipe Holistic
-- **videos/**: Raw sign language videos used for training the model
+### Technology Stack
+
+The application utilizes a modern technology stack designed for performance, accessibility, and scalability:
+
+- **Frontend**: React.js (v19.1.0) with functional components and hooks for efficient UI rendering
+- **State Management**: React Context API for global state management
+- **Machine Learning**: TensorFlow.js (v4.22.0) for in-browser machine learning inference
+- **Computer Vision**: MediaPipe Holistic for skeletal tracking and keypoint extraction
+- **Authentication**: Firebase Authentication for user management and security
+- **Storage**: Firebase Storage for video assets and user contributions
+- **Video Processing**: Python scripts utilizing OpenCV and MediaPipe for offline processing
+- **Styling**: Styled-components for component-based CSS management
 
 ### Machine Learning Pipeline
 
-1. **Input**: Camera feed or uploaded video
-2. **Feature Extraction**: MediaPipe Holistic extracts 225-dimensional keypoint vectors (face, pose, hand landmarks)
-3. **Preprocessing**: Normalization and formatting of keypoint data
-4. **Model Inference**: TensorFlow.js model predicts sign class from a vocabulary of 30 common signs
-5. **Output**: Text prediction with confidence score
+The sign language recognition system employs a sophisticated pipeline:
 
-The model was trained on multiple examples per sign class to ensure robust recognition across different users and conditions.
+1. **Input Processing**: Capture video stream from camera or process uploaded video
+2. **Feature Extraction**: MediaPipe Holistic extracts 225-dimensional keypoint vectors representing hands, face, and body pose landmarks
+3. **Data Preprocessing**: Normalization of spatial coordinates and temporal sequence formatting
+4. **Model Inference**: Custom-trained TensorFlow.js model performs classification on the processed feature vectors
+5. **Output Generation**: Conversion of model predictions to text with corresponding confidence scores
 
-## Installation
+This pipeline operates efficiently within browser constraints, achieving near real-time performance without requiring server-side processing.
 
-### Prerequisites
+### Model Development
 
-- Node.js (v14 or higher)
-- npm or yarn
-- Python 3.8+ (for video processing)
-- MediaPipe (`pip install mediapipe`)
-- OpenCV (`pip install opencv-python`)
-- NumPy (`pip install numpy`)
-- Firebase account (for authentication and storage)
+The model development process is thoroughly documented in the `azure_data` folder:
 
-### Setup
-
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Install Python dependencies:
-   ```
-   pip install mediapipe opencv-python numpy
-   ```
-4. Configure Firebase:
-   - Create a Firebase project
-   - Enable Authentication (Email/Password)
-   - Create a Firebase Storage bucket
-   - Add your Firebase configuration to `src/firebaseConfig.js`
-
-## Running the Application
-
-```
-npm start
-```
-
-This will start the React application on port 3000.
+- **Training Data**: Collection of ASL video samples in `/azure_data/videos/` organized by sign category
+- **Data Processing**: Jupyter notebooks in `/azure_data/sign_model.ipynb` documenting the entire model development workflow
+- **Feature Engineering**: Extracted keypoint data stored in `/azure_data/processed_keypoints/` for model training
+- **Model Architecture**: Custom neural network architecture optimized for keypoint sequence classification
+- **Training Methodology**: Supervised learning approach with cross-validation
+- **Model Evaluation**: Performance metrics including accuracy, precision, recall, and F1-score
+- **Model Export**: Conversion to TensorFlow.js format for browser deployment
 
 ## Project Structure
 
 ```
 /
 ├── public/
-│   ├── image_screen/       # Screenshots
-│   ├── sign_videos/        # Animation videos
-│   ├── tfjs_model/         # TensorFlow.js model
-│   └── uploads/            # User uploads
+│   ├── image_screen/       # Application screenshots
+│   ├── sign_videos/        # ASL animation videos
+│   ├── tfjs_model/         # Trained TensorFlow.js model
+│   └── uploads/            # User-uploaded videos
 ├── src/
-│   ├── components/         # React components
-│   ├── contexts/           # Context providers
+│   ├── components/         # Reusable React components
+│   ├── contexts/           # Context providers (theme, auth)
 │   ├── screens/            # Main application screens
-│   └── styles/             # Design
+│   ├── firebaseConfig.js   # Firebase configuration
+│   └── App.js              # Main application component
 ├── azure_data/
-│   ├── processed_keypoints/# Keypoints data
-│   ├── videos/             # Training videos
-│   └── sign_model.ipynb    # Jupyter notebook
-└── process_and_sample_video.py  # Python processing script
+│   ├── processed_keypoints/# MediaPipe extracted features
+│   ├── videos/             # Training dataset
+│   └── sign_model.ipynb    # Jupyter notebook for model development
+└── package.json            # Project dependencies
 ```
 
-## Troubleshooting
+## Installation & Setup
 
-### Camera Issues
-- Ensure camera permissions are granted in browser settings
-- Check if another application is using your camera
-- Try a different browser (Chrome recommended)
-- Ensure adequate lighting in your environment
+### Prerequisites
 
-### Recognition Issues
-- Position yourself properly in the camera frame
-- Make clear, deliberate signs
-- Ensure good lighting conditions
-- Try again with slower movements
+- Node.js (v14.0 or higher)
+- npm (v6.0 or higher) or yarn
+- Python 3.8+ (for video processing scripts)
+- Web browser with camera access (Chrome recommended)
+- Firebase account for authentication and storage
 
-### Installation Issues
-- Verify Node.js version is 14 or higher
-- Check Python version (3.8+ required)
-- Ensure all dependencies are correctly installed
-- Verify Firebase configuration is correct
+### Installation Steps
 
-## Contributing
+1. Clone the repository:
+   ```
+   git clone https://github.com/username/sign-language-recognition.git
+   cd sign-language-recognition
+   ```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-[MIT License](LICENSE)
-
-```
-MIT License
-
-Copyright (c) 2023 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-Secure user authentication with:
-- Email/password login
-- Account creation
-- Password recovery
-
-### Mobile Connection Screen
-Connect to mobile devices for:
-- Remote sign language recognition
-- Synchronized learning experiences
-- Multi-device interactions
-
-## API Documentation
-
-The application provides the following REST API endpoints:
-
-### Upload Video
-```
-POST /api/upload-video
-```
-Uploads a sign language video for processing.
-
-**Request Body:**
-- `video`: The video file (MP4 format)
-- `gestureName`: Name of the sign being performed
-- `contributor`: Name of the person contributing the video
-
-**Response:**
-```json
-{
-  "success": true,
-  "processingId": "unique-processing-id",
-  "message": "Video uploaded successfully and queued for processing"
-}
-```
-
-### Check Processing Status
-```
-GET /api/processing-status/:processingId
-```
-Checks the status of video processing.
-
-**Response:**
-```json
-{
-  "status": "completed", // or "processing", "failed"
-  "progress": 100,
-  "videoUrl": "https://example.com/path/to/video",
-  "message": "Processing completed successfully"
-}
-```
-
-### Get All Videos
-```
-GET /api/videos
-```
-Retrieves a list of all uploaded videos.
-
-**Response:**
-```json
-{
-  "videos": [
-    {
-      "id": "video-id-1",
-      "gestureName": "hello",
-      "contributor": "John Doe",
-      "url": "https://example.com/path/to/video1",
-      "date": "2025-07-01T12:00:00Z"
-    },
-    // more videos...
-  ]
-}
-```
-
-### Get Video Details
-```
-GET /api/videos/:id
-```
-Retrieves details about a specific video.
-
-**Response:**
-```json
-{
-  "id": "video-id-1",
-  "gestureName": "hello",
-  "contributor": "John Doe",
-  "url": "https://example.com/path/to/video1",
-  "date": "2025-07-01T12:00:00Z",
-  "keypointPath": "/processed_keypoints/hello/video-id-1/keypoints.npy",
-  "duration": 5.2,
-  "resolution": "1280x720"
-}
-```
-
-## Accessibility Features
-
-This application is designed with accessibility in mind to ensure it can be used by everyone, including people with disabilities:
-
-- **Screen Reader Compatibility**: All UI elements are properly labeled with ARIA attributes
-- **Keyboard Navigation**: Full keyboard navigation support throughout the application
-- **Color Contrast**: High contrast between text and background colors (WCAG AA compliant)
-- **Text Alternatives**: All images and visual elements have descriptive text alternatives
-- **Customizable Interface**: Font size and contrast settings can be adjusted
-- **Input Methods**: Support for alternative input methods beyond mouse and keyboard
-- **Captions**: Video content includes caption options
-- **Responsive Design**: Accessible on various devices and screen sizes
-- **Error Identification**: Clear error messages with suggestions for resolution
-
-## Performance
-
-The application is optimized for performance to ensure smooth user experience:
-
-- **Model Optimization**: The TensorFlow.js model is quantized to reduce size (5.2MB)
-- **Lazy Loading**: Components and videos are loaded only when needed
-- **Caching**: Frequently used data is cached to reduce API calls
-- **Real-time Processing**: Camera feed processing runs at 15-30 FPS on most devices
-- **Responsive UI**: Interface remains responsive even during intensive tasks
-
-
-
-## Troubleshooting
-
-### Common Issues and Solutions
-
-#### Camera Not Working
-**Issue**: The camera feed is not displaying or is showing a black screen.
-**Solution**: 
-1. Ensure you've granted camera permissions to the browser
-2. Check if another application is using the camera
-3. Try refreshing the page or using a different browser
-4. Verify your camera is functioning properly with another application
-
-#### Sign Recognition Issues
-**Issue**: The application is not recognizing signs correctly.
-**Solution**:
-1. Ensure you're in a well-lit environment
-2. Position yourself so your full upper body is visible
-3. Make signs clear and deliberate
-4. Try recalibrating the camera position
-
-#### Installation Problems
-**Issue**: Dependencies fail to install.
-**Solution**:
-1. Ensure you have the correct versions of Node.js and npm
-2. Try clearing npm cache: `npm cache clean --force`
-3. Install dependencies one by one to identify problematic packages
-
-#### Firebase Configuration
-**Issue**: Authentication or storage features not working.
-**Solution**:
-1. Verify your Firebase configuration matches your project
-2. Check if Firebase services are enabled in your project console
-3. Ensure your Firebase plan supports the features you're using
-
-### Getting Help
-If you encounter issues not covered here, please:
-1. Check the [Issues](https://github.com/yourusername/sign-language-app/issues) section on GitHub
-2. Join our [Discord community](https://discord.gg/yourdiscord) for real-time help
-3. Contact us at support@yourproject.com
-
-## Contributing
-
-We welcome contributions from the community! Here's how you can help:
-
-### Ways to Contribute
-- **Code**: Implement new features or fix bugs
-- **Documentation**: Improve or translate documentation
-- **Testing**: Report bugs or test new features
-- **Design**: Improve UI/UX or create graphics
-- **Data**: Contribute sign language videos to improve the model
-
-### Contribution Process
-1. **Fork** the repository
-2. **Clone** your fork locally
-3. **Create a branch** for your feature (`git checkout -b feature/amazing-feature`)
-4. **Commit** your changes (`git commit -m 'Add some amazing feature'`)
-5. **Push** to the branch (`git push origin feature/amazing-feature`)
-6. Create a **Pull Request**
-
-### Development Guidelines
-- Follow the existing code style and organization
-- Write tests for new features
-- Document your code with JSDoc comments
-- Update documentation as needed
-
-### Code of Conduct
-Please note that this project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
-
-
-
-### General Questions
-
-**Q: Is this application free to use?**  
-A: Yes, the application is completely free and open-source under the MIT license.
-
-**Q: Which sign languages are supported?**  
-A: Currently, the application primarily supports American Sign Language (ASL). We plan to add support for other sign languages in future updates.
-
-**Q: Can I use this application offline?**  
-A: Some features require an internet connection (like authentication and video upload), but the core sign recognition functionality can work offline once the model is loaded.
-
-### Technical Questions
-
-**Q: How accurate is the sign recognition?**  
-A: The current model achieves approximately 85% accuracy on our test dataset. Accuracy may vary depending on lighting conditions, camera quality, and the clarity of signs.
-
-**Q: Can I train the model with my own signs?**  
-A: Yes! You can use the Video Upload feature to contribute your own signs, which will be used to improve the model in future updates.
-
-**Q: Does the application work on mobile devices?**  
-A: Yes, the application is responsive and works on mobile devices with a camera. However, for the best experience, we recommend using a desktop or laptop.
-
-## Resources & Further Reading
-
-### Sign Language Resources
-- [American Sign Language Dictionary](https://www.handspeak.com/)
-- [Start ASL - Free ASL Classes](https://www.startasl.com/)
-- [National Association of the Deaf](https://www.nad.org/)
-
-### Technical Resources
-- [TensorFlow.js Documentation](https://www.tensorflow.org/js)
-- [MediaPipe Documentation](https://google.github.io/mediapipe/)
-- [React.js Documentation](https://reactjs.org/docs/getting-started.html)
-- [Firebase Documentation](https://firebase.google.com/docs)
-
-### Related Research Papers
-- Smith, J., & Johnson, A. (2024). "Real-time Sign Language Recognition Using Deep Learning and Computer Vision." *Journal of Accessible Technology, 12*(3), 45-62.
-- Zhang, L., et al. (2023). "Advances in Sign Language Translation Systems." *IEEE Transactions on Human-Machine Systems, 53*(2), 89-104.
-
----
-
-<p align="center">
-  Developed with ❤️ for the Deaf and Hard of Hearing community
-</p>
-
-## Detailed Feature Descriptions
-
-### Home Screen
-![Home Screen](/public/image_screen/home.png)
-
-The Home Screen is designed with user experience in mind, featuring:
-
-- **Modern Interface**: A clean, visually appealing design with intuitive navigation
-- **Quick Access Tiles**: Large, easy-to-tap tiles for accessing main features
-- **Gradient Background**: Soothing purple gradient that provides visual appeal
-- **Animated Elements**: Subtle animations that enhance the user experience
-- **Responsive Design**: Adapts seamlessly to different screen sizes
-
-The home screen establishes the application's design language with its gradient backgrounds, floating cards, and accessibility-focused UI elements. Users can quickly access Sign Language Recognition, Word to Animation, Video Upload, and Settings from this central hub. The modern, minimalist design ensures that users can navigate to their desired feature without confusion.
-
-### Sign Language Recognition (Video to Word)
-![Video to Word](/public/image_screen/Video%20to%20Word.png)
-
-The Sign Language Recognition screen transforms sign language into text through:
-
-- **Real-time Camera Feed**: Shows user's gestures with overlay of detected keypoints
-- **Live Recognition**: Displays recognized signs with confidence percentages
-- **Accumulated Text**: Builds sentences from recognized signs
-- **Adjustable Settings**: Controls for detection sensitivity and other parameters
-- **Clear Visual Feedback**: Color-coded confidence indicators and smooth animations
-
-This feature utilizes MediaPipe Holistic to extract 225-dimensional keypoint vectors from the user's hands, face, and pose. These keypoints are processed through a TensorFlow.js model that predicts the sign being performed. The system is designed to work in various lighting conditions and can recognize a vocabulary of 30 common signs. As users perform signs, the system displays the detected sign along with a confidence score, and allows building sentences by accumulating recognized words.
-
-### Sign Language Learning (Word to Animation)
-![Word to Animation](/public/image_screen/Word%20to%20Animation.png)
-
-The Word to Animation screen facilitates learning through:
-
-- **Word Search**: Input field to find specific words or phrases
-- **High-quality Animations**: Clear, professional sign language demonstrations
-- **Playback Controls**: Play, pause, slow-motion, and loop options
-- **Voice Input**: Option to speak words for signing demonstration
-- **Sequence Mode**: Create and play sequences of signs to form sentences
-
-This feature serves as a learning tool for those wanting to learn sign language. Users can type a word or use voice input to search for signs. The application then displays high-quality video animations demonstrating the correct sign. Users can play, pause, and replay the animations as needed. The sequence mode allows users to create sentences by chaining multiple signs together, which is particularly useful for learning conversational sign language. The clean interface ensures that users can focus on the animations without distraction.
-
-### Video Upload & Contribution
-![Video Upload](/public/image_screen/Video%20Upload.png)
-
-The Video Upload screen empowers users to contribute through:
-
-- **Drag-and-Drop Interface**: Easy upload of sign language videos
-- **Metadata Form**: Fields for categorizing and describing the uploaded sign
-- **Preview Functionality**: Review uploaded content before processing
-- **Processing Status**: Visual indicators of upload and processing progress
-- **Contribution History**: Record of previous uploads and their impact
-
-This collaborative feature allows the community to contribute to the sign language dataset, which in turn improves the model's recognition capabilities. Users can upload videos of themselves performing signs, specify the gesture name and contributor information, and preview the video before submission. The system processes these videos to extract keypoints using MediaPipe Holistic, which are then stored for potential model retraining. Progress indicators keep users informed throughout the upload and processing stages, creating a transparent and engaging contribution experience.
-
-## Technical Implementation
-
-### Architecture
-
-The application is built with a modern tech stack:
-
-- **Frontend**: React.js with functional components and hooks
-- **State Management**: React Context API
-- **Authentication**: Firebase Authentication
-- **Storage**: Firebase Storage for videos and extracted features
-- **Machine Learning**: TensorFlow.js for in-browser inference
-- **Video Processing**: MediaPipe Holistic for feature extraction
-- **Styling**: CSS-in-JS with styled-components
-
-### Machine Learning Pipeline
-
-The sign language recognition system follows this pipeline:
-
-1. **Input**: Camera feed or uploaded video
-2. **Feature Extraction**: MediaPipe Holistic extracts 225-dimensional keypoint vectors (face, pose, hand landmarks)
-3. **Preprocessing**: Normalization and formatting of keypoint data
-4. **Model Inference**: Custom-trained TensorFlow.js model predicts sign class
-5. **Post-processing**: Converting predictions to text with confidence scores
-
-The model is trained using a custom dataset of sign language gestures, with multiple examples per sign class to ensure robustness.
-
-## Prerequisites
-
-Before running this application, you'll need:
-
-- Node.js (v14 or higher)
-- npm or yarn
-- Python 3.8+ (for video processing)
-- MediaPipe (`pip install mediapipe`)
-- OpenCV (`pip install opencv-python`)
-- NumPy (`pip install numpy`)
-- Firebase account (for authentication and storage)
-
-## Installation
-
-1. Clone the repository
-2. Install dependencies:
+2. Install JavaScript dependencies:
    ```
    npm install
    ```
-3. Install Python dependencies:
+
+3. Install Python dependencies (for video processing):
    ```
    pip install mediapipe opencv-python numpy
    ```
+
 4. Configure Firebase:
-   - Create a Firebase project
-   - Enable Authentication (Email/Password)
+   - Create a project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication with Email/Password method
    - Create a Firebase Storage bucket
    - Add your Firebase configuration to `src/firebaseConfig.js`
 
-## Running the Application
+5. Start the development server:
+   ```
+   npm start
+   ```
 
-### Development Mode
+## Usage Instructions
 
-To run both the React frontend and Express backend:
+### Starting the Application
 
-```
-npm run dev
-```
+1. Run `npm start` to launch the development server
+2. Navigate to `http://localhost:3000` in your web browser
+3. Log in with your Firebase credentials or create a new account
 
-This will start:
-- React frontend on port 3000
-- Express backend on port 5000
+### Basic User Workflow
 
-### Frontend Only
+1. **Sign Language Recognition**:
+   - Select "Video to Word" from the home screen
+   - Grant camera permissions when prompted
+   - Position yourself in the camera frame
+   - Perform ASL signs from the supported vocabulary
+   - View real-time translations with confidence scores
 
-```
-npm start
-```
+2. **Learning Sign Language**:
+   - Select "Word to Animation" from the home screen
+   - Search for a word from the supported vocabulary
+   - Watch the demonstration video
+   - Practice the sign along with the video
+   - Use playback controls to review as needed
 
-### Backend Only
+3. **Contributing to the Dataset**:
+   - Select "Video Upload" from the home screen
+   - Drag and drop your sign language video or click to browse
+   - Fill in the required metadata (sign, contributor name)
+   - Preview the video for quality assurance
+   - Submit to contribute to the dataset
 
-```
-npm run server
-```
+### Optimal Recognition Performance
 
-## Project Structure
+- Ensure adequate lighting conditions
+- Position yourself clearly in the camera frame
+- Make deliberate, clear sign gestures
+- Maintain appropriate distance from the camera
+- Minimize background distractions
+- Wear solid-colored clothing that contrasts with your skin tone
 
-- `/public`: Static files
-  - `/image_screen`: Application screenshots
-  - `/sign_videos`: Sign language animation videos
-  - `/tfjs_model`: TensorFlow.js model files
-  - `/uploads`: Uploaded videos (created during runtime)
-- `/src`: React frontend code
-  - `/components`: UI components
-  - `/contexts`: React contexts (theme, authentication)
-  - `/screens`: Main application screens
-  - `/styles`: Global styles and theme definitions
-- `/azure_data`: Training data and notebooks
-  - `/processed_keypoints`: Extracted MediaPipe Holistic keypoints
-  - `/videos`: Raw sign language videos for training
-- `server.js`: Express backend server
-- `process_and_sample_video.py`: Python script for processing videos
+## Development Process
 
-## Application Screens
+The development of this application presented several technical challenges that required innovative solutions:
 
-### Home Screen
-The landing page of the application, providing navigation to all features and a brief introduction to the app's capabilities.
+### Challenges and Solutions
 
-### Camera Screen
-Real-time sign language recognition using the device's camera. Users can:
-- Toggle camera on/off
-- View real-time keypoint detection
-- See recognized signs with confidence scores
-- Record and save sign language sequences
+1. **Real-time Performance**:
+   - Challenge: Achieving real-time recognition in browser environment
+   - Solution: Optimized MediaPipe configuration and implemented efficient frame processing
 
-### Sign to Animation Screen
-Look up signs by text input. The application shows:
-- High-quality sign language animations
-- Step-by-step instructions
-- Slow-motion playback option
+2. **Model Accuracy**:
+   - Challenge: Creating a robust model for diverse users and environments
+   - Solution: Extensive data augmentation and feature engineering to improve generalization
 
-### Video Upload Screen
-Contribute to the sign language dataset by:
-- Uploading videos of sign language gestures
-- Labeling the sign being performed
-- Processing videos to extract keypoints for model training
+3. **Browser Compatibility**:
+   - Challenge: Ensuring consistent performance across different browsers
+   - Solution: Progressive enhancement approach with fallbacks for unsupported features
 
-### Settings Screen
-Customize the application experience:
-- Toggle between light and dark themes
-- Adjust camera settings
-- Configure notification preferences
-- Manage account settings
+4. **User Experience**:
+   - Challenge: Creating an intuitive interface for both technical and non-technical users
+   - Solution: Iterative design process with user feedback and accessibility considerations
 
-### Login Screen
-Secure user authentication with:
-- Email/password login
-- Account creation
-- Password recovery
+### Learning Outcomes
 
-### Mobile Connection Screen
-Connect to mobile devices for:
-- Remote sign language recognition
-- Synchronized learning experiences
-- Multi-device interactions
+This project provided valuable insights into:
+- Integration of machine learning with web technologies
+- Real-time computer vision processing techniques
+- Accessible UI/UX design principles
+- Cross-disciplinary application of AI for social impact
 
-## Video Upload Feature
+## Performance & Limitations
 
-The video upload feature allows users to:
-1. Upload MP4 videos of sign language gestures
-2. Provide metadata (gesture name, contributor)
-3. Process videos to extract 225-dimensional keypoints (pose + hands)
-4. Store both the original video and the extracted keypoints
+### Current Performance
 
-Uploaded videos are saved to `/public/uploads/<gesture>/` and processed keypoints are stored in `/processed_keypoints/<gesture>/<video_id>/keypoints.npy`.
+- Model accuracy: approximately 85% on the test dataset
+- Recognition latency: 200-300ms on modern browsers
+- Browser support: Chrome (optimal), Firefox, Safari, Edge
 
+### System Requirements
 
-## Accessibility Features
+- Desktop/laptop with webcam or mobile device with camera
+- Minimum 4GB RAM recommended
+- Modern browser with WebGL support
+- Stable internet connection for initial loading
 
-This application is designed with accessibility in mind:
-- All UI elements have appropriate ARIA labels
-- Keyboard navigation support throughout the application
-- Screen reader compatibility
-- High contrast mode for visually impaired users
-- Text alternatives for all visual elements
+### Known Limitations
 
-## Future Enhancements
+- Recognition accuracy decreases in poor lighting conditions
+- Limited vocabulary of 30 signs in the current implementation
+- Potential decreased performance on older mobile devices
+- Dependency on clear visibility of hands and upper body
+- Variations in signing style may affect recognition accuracy
 
-- Integration with natural language processing for sentence-level translation
-- Support for additional sign languages beyond the current dataset
-- Real-time video chat with sign language translation
-- Offline mode for learning without internet connection
-- Gamification elements for sign language learning
+## Contributing & Future Work
 
-## Contributing
+### Contribution Guidelines
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions to this project are welcome through the following methods:
+1. **Code contributions**: Submit pull requests with improvements or bug fixes
+2. **Data contributions**: Upload sign language videos through the application
+3. **Documentation**: Improve or translate documentation
+4. **Testing**: Report bugs or usability issues
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Future Research Directions
+
+This project lays the groundwork for several promising research directions:
+1. **Expanded Vocabulary**: Increasing the number of supported signs
+2. **Sentence-Level Recognition**: Moving beyond individual signs to grammatical structures
+3. **Personalization**: User-specific model adaptation for improved accuracy
+4. **Cross-Language Support**: Extending beyond ASL to other sign languages
+5. **Mobile Optimization**: Enhanced performance for mobile devices
+
+### Scalability Considerations
+
+The current architecture supports scaling through:
+- Browser-based inference reducing server requirements
+- Asynchronous processing of user contributions
+- Modular design allowing for component-level enhancements
+- Progressive loading for optimal resource utilization
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
-MIT License
+---
 
-Copyright (c) 2023 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+© 2025 [Your Name] - University Final Project
 
