@@ -295,30 +295,6 @@ export const SliderValue = styled.span`
   border-radius: 8px;
 `;
 
-export const ChevronContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-`;
-
-export const ChevronIcon = styled.div`
-  width: 8px;
-  height: 8px;
-  border-top: 2px solid rgba(255, 255, 255, 0.9);
-  border-right: 2px solid rgba(255, 255, 255, 0.9);
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
-`;
-
 export const VersionBadge = styled.div`
   text-align: center;
   margin-top: 2rem;

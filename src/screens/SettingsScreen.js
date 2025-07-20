@@ -1,7 +1,7 @@
 // SettingsScreen.js
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { FaMoon, FaSun, FaSignOutAlt, FaFileAlt, FaBrain } from 'react-icons/fa';
+import { FaMoon, FaSun, FaSignOutAlt, FaBrain, FaCog } from 'react-icons/fa';
 import { auth } from '../firebaseConfig';
 import {
   ModernContainer,
@@ -25,8 +25,6 @@ import {
   SliderContainer,
   ModernSlider,
   SliderValue,
-  ChevronContainer,
-  ChevronIcon,
   VersionBadge,
   ModernModal,
   ModalCard,
@@ -69,8 +67,7 @@ const SettingsScreen = () => {
       <HeaderSection>
         <ModernTitle theme={theme}>
           <TitleIcon>
-            {/* Settings icon */}
-            <span aria-hidden="true">⚙️</span>
+            <FaCog />
           </TitleIcon>
           Settings
         </ModernTitle>
@@ -81,7 +78,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.1s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              <span aria-hidden="true"></span> Appearance
+              Appearance
             </GroupTitle>
             <GroupDescription theme={theme}>
               Customize the look and feel of your application
@@ -114,7 +111,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.15s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              <span aria-hidden="true"></span> Recognition Settings
+              Recognition Settings
             </GroupTitle>
             <GroupDescription theme={theme}>
               Adjust the accuracy threshold for sign language recognition
@@ -151,7 +148,7 @@ const SettingsScreen = () => {
         <ModernSettingsGroup delay="0.2s">
           <GroupHeader>
             <GroupTitle theme={theme}>
-              <span aria-hidden="true"></span> Account
+              Account
             </GroupTitle>
             <GroupDescription theme={theme}>
               Manage your account settings
@@ -173,51 +170,8 @@ const SettingsScreen = () => {
           </SettingsCard>
         </ModernSettingsGroup>
         
-        <ModernSettingsGroup delay="0.3s">
-          <GroupHeader>
-            <GroupTitle theme={theme}>
-              <span aria-hidden="true"></span> Legal
-            </GroupTitle>
-            <GroupDescription theme={theme}>
-              Learn more about policies and terms
-            </GroupDescription>
-          </GroupHeader>
-          
-          <SettingsCard theme={theme}>
-            <ModernSettingItem theme={theme} clickable>
-              <SettingIconContainer background="#34A853" theme={theme}>
-                <FaFileAlt color="white" />
-              </SettingIconContainer>
-              <SettingContent>
-                <SettingLabel theme={theme}>Privacy Policy</SettingLabel>
-                <SettingDescription theme={theme}>
-                  Read our privacy policy
-                </SettingDescription>
-              </SettingContent>
-              <ChevronContainer theme={theme}>
-                <ChevronIcon theme={theme} />
-              </ChevronContainer>
-            </ModernSettingItem>
-            
-            <ModernSettingItem theme={theme} clickable>
-              <SettingIconContainer background="#FBBC04" theme={theme}>
-                <FaFileAlt color="white" />
-              </SettingIconContainer>
-              <SettingContent>
-                <SettingLabel theme={theme}>Terms of Service</SettingLabel>
-                <SettingDescription theme={theme}>
-                  Read our terms of service
-                </SettingDescription>
-              </SettingContent>
-              <ChevronContainer theme={theme}>
-                <ChevronIcon theme={theme} />
-              </ChevronContainer>
-            </ModernSettingItem>
-          </SettingsCard>
-        </ModernSettingsGroup>
-        
         <VersionBadge theme={theme}>
-          <span aria-hidden="true"></span> Version 1.0.0 • Built with modern React
+          Version 1.0.0 • Built with modern React
         </VersionBadge>
       </SettingsContainer>
       
@@ -226,8 +180,7 @@ const SettingsScreen = () => {
           <ModalCard theme={theme}>
             <ModalHeader>
               <ModalIcon>
-                {/* Wave hand icon */}
-                <span aria-hidden="true">👋</span>
+                <FaSignOutAlt />
               </ModalIcon>
               <ModalTitle theme={theme}>Confirm Logout</ModalTitle>
               <ModalMessage theme={theme}>

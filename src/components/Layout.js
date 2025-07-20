@@ -4,6 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { FaHome, FaCamera, FaCog, FaSignOutAlt, FaBars, FaTimes, FaMoon, FaSun, FaArrowLeft, FaClosedCaptioning, FaCloudUploadAlt } from 'react-icons/fa';
 import { auth } from '../firebaseConfig';
+import HelpSystem from './help';
 
 // Animation keyframes for mobile menu
 const slideInFromRight = keyframes`
@@ -180,6 +181,7 @@ const Layout = ({ children }) => {
         isSidebarOpen={!isMobile || isMobileMenuOpen}
       >
         {children}
+        <HelpSystem />
       </MainContent>
 
       {/* REMOVED: Mobile bottom navigation - NO LONGER DISPLAYED */}
