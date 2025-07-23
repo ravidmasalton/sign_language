@@ -188,7 +188,7 @@ const HelpButton = styled.button`
   @media (max-width: 768px) {
     width: 48px;
     height: 48px;
-    bottom: 16px;
+    bottom: 70px;
     right: 16px;
   }
 `;
