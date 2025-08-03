@@ -9,7 +9,6 @@ import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import CameraScreen from './screens/CameraScreen';
 import SettingsScreen from './screens/SettingsScreen';
-import MobileConnectionScreen from './screens/MobileConnectionScreen';
 import SignToAnimationScreen from './screens/SignToAnimationScreen';
 import VideoUploadScreen from './screens/VideoUploadScreen';
 import './App.css';
@@ -17,7 +16,6 @@ import './App.css';
 function App() {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [isMobileConnected, setIsMobileConnected] = useState(true);
 
   // Handle authentication state
   useEffect(() => {
@@ -29,23 +27,7 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Check mobile connection
-  useEffect(() => {
-    const checkConnection = () => {
-      // In a real app, this would be a more sophisticated check
-      setIsMobileConnected(navigator.onLine);
-    };
-
-    // Check connection immediately and on online/offline events
-    checkConnection();
-    window.addEventListener('online', checkConnection);
-    window.addEventListener('offline', checkConnection);
-
-    return () => {
-      window.removeEventListener('online', checkConnection);
-      window.removeEventListener('offline', checkConnection);
-    };
-  }, []);
+  // We've removed the mobile connection check as it's no longer needed
 
   // Protected route wrapper
   const ProtectedRoute = ({ children }) => {
@@ -60,11 +42,6 @@ function App() {
 
     if (!user) {
       return <Navigate to="/login" replace />;
-    }
-
-    // Check if mobile is connected
-    if (!isMobileConnected) {
-      return <Navigate to="/connect" replace />;
     }
 
     return <Layout>{children}</Layout>;
@@ -87,12 +64,6 @@ function App() {
           <Route 
             path="/login" 
             element={user ? <Navigate to="/" replace /> : <LoginScreen />} 
-          />
-
-          {/* Connection check route */}
-          <Route
-            path="/connect"
-            element={isMobileConnected ? <Navigate to="/" replace /> : <MobileConnectionScreen />}
           />
 
           {/* Protected routes */}
