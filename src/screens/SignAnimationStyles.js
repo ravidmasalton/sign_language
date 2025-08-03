@@ -495,7 +495,7 @@ export const MicButton = styled.button`
     max-width: 28px;
     max-height: 28px;
     font-size: 0.7rem;
-    right: 8px;
+    right: 20px;
     border-radius: 50% !important;  // Additional enforcement
     
     svg {
@@ -511,7 +511,7 @@ export const MicButton = styled.button`
     min-height: 26px;
     max-width: 26px;    max-height: 26px;
     font-size: 0.65rem;
-    right: 7px;
+    right: 1px;
     border-radius: 50% !important;  // Additional enforcement
     
     svg {
