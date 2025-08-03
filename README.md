@@ -28,9 +28,7 @@ A React-based application for real-time American Sign Language (ASL) recognition
 - [Installation & Setup](#installation--setup)
 - [Usage Instructions](#usage-instructions)
 - [Development Process](#development-process)
-- [Performance & Limitations](#performance--limitations)
-- [Contributing & Future Work](#contributing--future-work)
-- [License](#license)
+
 
 ## Project Overview
 
@@ -87,6 +85,112 @@ The Sign Language Recognition screen enables real-time translation through:
 - Accumulation of recognized signs into coherent text output
 - Clear visual feedback during the recognition process
 - Optimal frame rate processing for smooth interaction
+
+### Real-Time Recognition Algorithms
+
+The core recognition system implements several sophisticated algorithms for smooth and accurate real-time translation.
+
+#Algorithm Implementation
+
+| Component | File | Lines | Description |
+|-----------|------|-------|-------------|
+| **Main Algorithm** | [`src/screens/CameraScreen.js`](./src/screens/CameraScreen.js) | 1-500 | Complete recognition pipeline |
+| **Smoothing Functions** | [`src/screens/CameraScreen.js`](./src/screens/CameraScreen.js) | 67-88 | Temporal smoothing implementation |
+| **EMA Filter** | [`src/screens/CameraScreen.js`](./src/screens/CameraScreen.js) | 89-101 | Exponential moving average filter |
+| **Prediction Pipeline** | [`src/screens/CameraScreen.js`](./src/screens/CameraScreen.js) | 142-187 | Core prediction logic |
+
+#### Algorithm Constants
+
+```javascript
+// Sequence and smoothing parameters
+const SEQ_LEN = 30;           // Required frames for prediction
+const SMOOTH_WINDOW = 3;      // Temporal smoothing window size
+const EMA_ALPHA = 0.75;       // Exponential moving average coefficient
+
+// MediaPipe keypoint structure (total: 225 dimensions)
+const POSE_KEYPOINTS = 99;    // Body pose landmarks (33 points × 3 coordinates)
+const LEFT_HAND_KEYPOINTS = 63;  // Left hand landmarks (21 points × 3 coordinates)
+const RIGHT_HAND_KEYPOINTS = 63; // Right hand landmarks (21 points × 3 coordinates)
+```
+
+#### Core Algorithms
+
+<details>
+<summary><strong>Temporal Smoothing Filter</strong></summary>
+
+Reduces prediction jitter by analyzing prediction frequency within a sliding window:
+
+```javascript
+const smootherRef = useRef({
+  window: [],
+  maxSize: SMOOTH_WINDOW,
+  apply(prediction) {
+    this.window.push(prediction);
+    if (this.window.length > this.maxSize) this.window.shift();
+    
+    // Return most frequent prediction in window
+    const counts = {};
+    let maxCount = 0, mostFrequent = prediction;
+    for (let item of this.window) {
+      counts[item] = (counts[item] || 0) + 1;
+      if (counts[item] > maxCount) {
+        maxCount = counts[item];
+        mostFrequent = item;
+      }
+    }
+    return mostFrequent;
+  }
+});
+```
+
+</details>
+
+<details>
+<summary><strong>Exponential Moving Average Filter</strong></summary>
+
+Smooths confidence scores across consecutive predictions:
+
+```javascript
+const emaFilterRef = useRef({
+  ema: null,
+  alpha: EMA_ALPHA,
+  apply(probabilities) {
+    if (this.ema === null) {
+      this.ema = [...probabilities];
+    } else {
+      for (let i = 0; i < probabilities.length; i++) {
+        this.ema[i] = this.alpha * probabilities[i] + (1 - this.alpha) * this.ema[i];
+      }
+    }
+    return this.ema;
+  }
+});
+```
+
+</details>
+
+#### Processing Pipeline
+
+The real-time recognition follows this optimized pipeline:
+
+1. **Input Capture** - MediaPipe extracts 225 keypoints from video frame
+2. **Buffer Management** - Collect 30 consecutive frames into sequence buffer
+3. **Model Inference** - TensorFlow.js processes 30×225 tensor through trained model
+4. **Confidence Smoothing** - Apply EMA filter to output probability distributions
+5. **Prediction Smoothing** - Apply temporal filter to class predictions
+6. **Threshold Filtering** - Filter results using dynamic confidence threshold
+7. **Output Generation** - Update sentence buffer and user interface
+
+#### Performance Optimizations
+
+- **Selective Processing**: Only process frames when hands are detected
+- **Asynchronous Pipeline**: Non-blocking prediction execution
+- **Memory Management**: Automatic tensor disposal to prevent memory leaks
+- **Reference-based State**: Avoid unnecessary component re-renders
+- **Dynamic Thresholding**: User-adjustable confidence levels
+  
+
+
 
 ### Sign Language Learning (Word to Animation)
 ![Word to Animation](/public/image_screen/Word%20to%20Animation.png)
@@ -288,60 +392,7 @@ This project provided valuable insights into:
 - Accessible UI/UX design principles
 - Cross-disciplinary application of AI for social impact
 
-## Performance & Limitations
 
-### Current Performance
 
-- Model accuracy: approximately 85% on the test dataset
-- Recognition latency: 200-300ms on modern browsers
-- Browser support: Chrome (optimal), Firefox, Safari, Edge
-
-### System Requirements
-
-- Desktop/laptop with webcam or mobile device with camera
-- Minimum 4GB RAM recommended
-- Modern browser with WebGL support
-- Stable internet connection for initial loading
-
-### Known Limitations
-
-- Recognition accuracy decreases in poor lighting conditions
-- Limited vocabulary of 30 signs in the current implementation
-- Potential decreased performance on older mobile devices
-- Dependency on clear visibility of hands and upper body
-- Variations in signing style may affect recognition accuracy
-
-## Contributing & Future Work
-
-### Contribution Guidelines
-
-Contributions to this project are welcome through the following methods:
-1. **Code contributions**: Submit pull requests with improvements or bug fixes
-2. **Data contributions**: Upload sign language videos through the application
-3. **Documentation**: Improve or translate documentation
-4. **Testing**: Report bugs or usability issues
-
-### Future Research Directions
-
-This project lays the groundwork for several promising research directions:
-1. **Expanded Vocabulary**: Increasing the number of supported signs
-2. **Sentence-Level Recognition**: Moving beyond individual signs to grammatical structures
-3. **Personalization**: User-specific model adaptation for improved accuracy
-4. **Cross-Language Support**: Extending beyond ASL to other sign languages
-5. **Mobile Optimization**: Enhanced performance for mobile devices
-
-### Scalability Considerations
-
-The current architecture supports scaling through:
-- Browser-based inference reducing server requirements
-- Asynchronous processing of user contributions
-- Modular design allowing for component-level enhancements
-- Progressive loading for optimal resource utilization
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 
