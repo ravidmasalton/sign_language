@@ -149,10 +149,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       if (!uploadTask) {
         throw new Error('Failed to create upload task');
       }
-      addLog(`INFO: Upload task created, starting upload...`);
     } catch (error) {
       const errorMsg = `Failed to start upload: ${error.message}`;
-      addLog(`ERROR: ${errorMsg}`);
       return { success: false, error: errorMsg };
     }
     
@@ -160,7 +158,6 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
       // Validate uploadTask before using it
       if (!uploadTask || typeof uploadTask.on !== 'function') {
         const error = 'Upload task is invalid';
-        addLog(`ERROR: ${error}`);
         reject(new Error(error));
         return;
       }
@@ -170,17 +167,14 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
           try {
             // Validate snapshot
             if (!snapshot) {
-              addLog(`WARNING: Received null snapshot`);
               return;
             }
             
             if (typeof snapshot.bytesTransferred === 'undefined' || typeof snapshot.totalBytes === 'undefined') {
-              addLog(`WARNING: Invalid snapshot data`);
               return;
             }
             
             if (snapshot.totalBytes === 0) {
-              addLog(`WARNING: Total bytes is zero`);
               return;
             }
             
@@ -192,27 +186,22 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               onProgress(Math.min(100, Math.max(0, progress))); // Clamp between 0-100
             }
             
-            addLog(`INFO: Upload progress: ${progress.toFixed(1)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
           } catch (error) {
-            addLog(`WARNING: Error in progress handler: ${error.message}`);
           }
         },
         (error) => {
           // Enhanced error logging
           const errorMsg = error?.message || 'Unknown upload error';
           const errorCode = error?.code || 'unknown';
-          addLog(`ERROR: Upload failed [${errorCode}]: ${errorMsg}`);
           console.error('Upload failed:', error);
           reject(error);
         },
         async () => {
           try {
-            addLog(`INFO: Upload completed, getting download URL...`);
             
             // Validate uploadTask.snapshot.ref before using it
             if (!uploadTask?.snapshot?.ref) {
               const error = 'Upload task snapshot reference is invalid';
-              addLog(`ERROR: ${error}`);
               reject(new Error(error));
               return;
             }
@@ -224,10 +213,8 @@ const uploadVideoToFirebase = async (videoFile, gesture, contributor, onProgress
               if (!downloadURL || typeof downloadURL !== 'string') {
                 throw new Error('Received invalid download URL');
               }
-              addLog(`SUCCESS: Download URL obtained: ${downloadURL}`);
             } catch (error) {
               const errorMsg = `Failed to get download URL: ${error.message}`;
-              addLog(`ERROR: ${errorMsg}`);
               reject(new Error(errorMsg));
               return;
             }
@@ -318,38 +305,32 @@ const VideoUploadScreen = () => {
       setVideoPreview(URL.createObjectURL(file));
       setErrorMessage('');
       setUploadResult(null);
-      addLog(`INFO: File selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
     }
   };
 
   // Handle form submission with Firebase upload
   const handleSubmit = async (e) => {
     e.preventDefault();
-    addLog('INFO: Form submission started');
     
     // Validate form data
     if (!videoFile) {
       const error = 'Please select a video file.';
-      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
     
     if (!gesture.trim()) {
       const error = 'Please enter the gesture/sign name.';
-      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
     
     if (!contributor.trim()) {
       const error = 'Please enter the contributor name.';
-      addLog(`ERROR: Validation failed: ${error}`);
       setErrorMessage(error);
       return;
     }
 
-    addLog(`SUCCESS: Form validation passed - Uploading "${gesture}" by "${contributor}"`);
     
     // Clear any existing error message
     setErrorMessage('');
@@ -358,7 +339,6 @@ const VideoUploadScreen = () => {
     
     try {
       // Upload video to Firebase Storage
-      addLog('INFO: Starting video upload to Firebase Storage...');
       
       const result = await uploadVideoToFirebase(
         videoFile, 
@@ -373,16 +353,12 @@ const VideoUploadScreen = () => {
       if (!result.success) {
         throw new Error(result.error || 'Video upload failed');
       }
-      
-      addLog(`SUCCESS: Video uploaded successfully: ${result.fileName}`);
-      addLog(`INFO: Download URL: ${result.downloadURL}`);
-      addLog(`INFO: File path: ${result.filePath}`);
+
       
       setUploadResult(result);
       addLog('SUCCESS: Upload process completed successfully!');
       
     } catch (error) {
-      addLog(`ERROR: Upload failed: ${error.message}`);
       setErrorMessage(`Upload failed: ${error.message}`);
     } finally {
       setIsUploading(false);
@@ -412,7 +388,6 @@ const VideoUploadScreen = () => {
       fileInputRef.current.value = '';
     }
     
-    addLog('INFO: Form reset');
   };
 
   // Toggle video play/pause
@@ -575,20 +550,6 @@ const VideoUploadScreen = () => {
                     />
                   </ProgressBar>
                 </ProgressContainer>
-              </FormSection>
-            )}
-
-            {/* Debug Logs */}
-            {debugLogs.length > 0 && (
-              <FormSection>
-                <SectionTitle color={COLORS.text}>Upload Logs</SectionTitle>
-                <DebugLogsContainer backgroundColor={COLORS.surface} borderColor={COLORS.border}>
-                  {debugLogs.map((log, index) => (
-                    <DebugLogItem key={index} color={COLORS.textSecondary}>
-                      {log}
-                    </DebugLogItem>
-                  ))}
-                </DebugLogsContainer>
               </FormSection>
             )}
 

@@ -80,7 +80,7 @@ const Layout = ({ children }) => {
               <FaArrowLeft color={COLORS.text} size={18} />
             </BackButton>
           )}
-          <AppTitle color={COLORS.text}>Sign Language App</AppTitle>
+          <AppTitle color={COLORS.text}>HandTalker App</AppTitle>
           <MenuButton 
             onClick={toggleMobileMenu}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
@@ -100,7 +100,7 @@ const Layout = ({ children }) => {
       >
         {!isMobile && (
           <AppLogo>
-            <AppTitle color={COLORS.text}>Sign Language App</AppTitle>
+            <AppTitle color={COLORS.text}>HandTalker App</AppTitle>
           </AppLogo>
         )}        
         

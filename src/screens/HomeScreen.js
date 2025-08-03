@@ -64,6 +64,9 @@ const HeroSection = styled.div`
 
 const LogoContainer = styled.div`
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 12px; /* Reduced from 2rem */
   ${css`animation: ${float} 3s ease-in-out infinite;`}
 
@@ -151,49 +154,54 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px; /* Reduced from 20px */
-  padding: 1.2rem; /* Reduced from 2rem */
+  border-radius: 12px;
+  padding: 1.2rem;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
   ${css`animation: ${slideIn} 0.8s ease-out;`}
   animation-fill-mode: both;
   animation-delay: ${props => props.delay || '0s'};
-  
+
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 3px; /* Reduced from 4px */
+    height: 3px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-4px); /* Reduced from -8px */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Reduced shadow */
-    background: rgba(255, 255, 255, 0.98); /* Ensure it stays visible */
-    
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.98);
+
     &::before {
       transform: scaleX(1);
     }
-    
+
     ${props => props.primary && css`
       box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.2);
-      background: rgba(255, 255, 255, 0.98); /* Ensure primary card stays visible */
+      background: rgba(255, 255, 255, 0.98);
     `}
   }
 
   @media (max-width: 768px) {
-    padding: 1rem; /* Reduced from 1.5rem */
+    padding: 1rem;
   }
 `;
 
@@ -362,14 +370,15 @@ const HomeScreen = () => {
   };
   
   return (
-    <ModernContainer COLORS={COLORS}>      <HeroSection>
+    <ModernContainer COLORS={COLORS}>      
+        <HeroSection>
         <LogoContainer>
           <ModernLogo>SL</ModernLogo>
         </LogoContainer>
         
-        <MainTitle>Sign Language Recognition</MainTitle>
+        <MainTitle>HandTalker</MainTitle>
         <HeroSubtitle>
-          Transform sign language gestures into words with cutting-edge AI technology
+          Translate sign language and text, both ways
         </HeroSubtitle>
       </HeroSection>      <FeaturesGrid>
         <FeatureCard 
@@ -381,7 +390,7 @@ const HomeScreen = () => {
           <FeatureIconContainer COLORS={COLORS}>
             <FaCamera />
           </FeatureIconContainer>
-          <FeatureTitle COLORS={COLORS}>Start Translation</FeatureTitle>
+          <FeatureTitle COLORS={COLORS}>Sign to Word</FeatureTitle>
           <FeatureDescription COLORS={COLORS}>
             Use your camera to translate sign language gestures in real-time with advanced AI recognition
           </FeatureDescription>
