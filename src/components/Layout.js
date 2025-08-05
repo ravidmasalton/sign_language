@@ -115,7 +115,7 @@ const Layout = ({ children }) => {
           <NavItem isActive={isActive('/camera')} backgroundColor={COLORS.primaryLight}>
             <NavLink to="/camera" color={COLORS.text} activeColor={COLORS.primary}>
               <FaCamera size={20} />
-              <NavText>Video to Word</NavText>
+              <NavText>Sign to Word</NavText>
             </NavLink>
           </NavItem>
           
